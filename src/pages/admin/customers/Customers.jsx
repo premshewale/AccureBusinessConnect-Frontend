@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { RxDashboard, RxTable } from "react-icons/rx";
 import Kanban from "../../../components/common/Kanban.jsx";
 import CommonTable from "../../../components/common/CommonTable.jsx";
 import { IoSearchSharp } from "react-icons/io5";
 
-export default function Leads() {
+export default function Customers() {
   const [activeTab, setActiveTab] = useState("kanban");
   const [filter, setFilter] = useState("All");
-  const navigate = useNavigate();
 
   useEffect(() => {
     setActiveTab("kanban");
@@ -16,7 +14,7 @@ export default function Leads() {
 
   const columns = [
     {
-      title: "New Leads",
+      title: "New Customers",
       cards: [
         {
           id: 48,
@@ -75,16 +73,13 @@ export default function Leads() {
     <>
       <div className="flex flex-row justify-between items-center mb-4">
         <div>
-          <h3 className="text-[22px] font-lato">Leads</h3>
+          <h3 className="text-[22px] font-lato">Customers</h3>
           <p className="text-sm text-fontgrey">
-            Manage And Track Your Sales Leads
+            Manage And Track Your Sales Customers
           </p>
         </div>
 
-        <button
-          onClick={() => navigate("/admin/create-lead")}
-          className="px-4 py-2 bg-cyan text-white rounded-lg shadow"
-        >
+        <button className="px-4 py-2 bg-cyan text-white rounded-lg shadow">
           + New Lead
         </button>
       </div>
@@ -116,7 +111,7 @@ export default function Leads() {
               <IoSearchSharp className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
               <input
                 type="text"
-                placeholder="Search leads, contacts, deals....."
+                placeholder="Search Customers, contacts, deals....."
                 className="w-full h-[30px] rounded-[8px] border-[0.5px] pl-10 pr-3 text-sm outline-none"
               />
             </div>
@@ -157,7 +152,7 @@ export default function Leads() {
       <div className="mt-6">
         {activeTab === "kanban" && <Kanban columns={columns} />}
         {activeTab === "table" && (
-          <CommonTable type="leads" data={filteredTableData} />
+          <CommonTable type="Customers" data={filteredTableData} />
         )}
       </div>
     </>

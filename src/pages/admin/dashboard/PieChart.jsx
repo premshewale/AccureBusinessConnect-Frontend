@@ -19,6 +19,7 @@ export default function MyPieChart() {
   const [activeIndex, setActiveIndex] = useState(null);
 
   return (
+    
     <div className="flex w-full h-72">
       {/* Left side legend */}
       <div className="flex flex-col justify-center mr-4">

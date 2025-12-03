@@ -1,12 +1,49 @@
-import React from "react";
+import React, { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { IoSearchSharp } from "react-icons/io5";
 import { CiBellOn } from "react-icons/ci";
+import { FaPlus } from "react-icons/fa6";
+import { FaRegUserCircle } from "react-icons/fa";
+import { HiOutlineBars4 } from "react-icons/hi2";
+import Notification from "./Notification";
 
-export default function AdminHeader() {
+export default function AdminHeader({ setSidebarOpen }) {
+  const [openPlus, setOpenPlus] = useState(false);
+  const [openBell, setOpenBell] = useState(false);
+  const [openUser, setOpenUser] = useState(false);
+  const navigate = useNavigate();
+
+  const plusRef = useRef(null);
+  const bellRef = useRef(null);
+  const userRef = useRef(null);
+
+  // Close dropdowns on outside click
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (plusRef.current && !plusRef.current.contains(event.target)) {
+        setOpenPlus(false);
+      }
+      if (bellRef.current && !bellRef.current.contains(event.target)) {
+        setOpenBell(false);
+      }
+      if (userRef.current && !userRef.current.contains(event.target)) {
+        setOpenUser(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   return (
-    <div
-      className="w-full bg-white shadow-md px-6 py-4 flex items-center justify-between  h-[75px] drop-shadow-md">
-      {/* Right Side: Search Bar + Bell */}
+    <div className="w-full bg-white shadow-md px-6 py-4 flex items-center justify-between  h-[75px] drop-shadow-md">
+      <HiOutlineBars4
+        className="text-cyan text-3xl cursor-pointer md:hidden"
+        onClick={() => setSidebarOpen(true)} // ⭐ OPEN SIDEBAR
+      />
+
+      {/* Left: Search + Plus Dropdown */}
       <div className="flex items-center gap-4 ml-8 ">
         {/* Search */}
         <div className="relative">
@@ -19,9 +56,72 @@ export default function AdminHeader() {
           />
           <IoSearchSharp className="absolute left-3 top-1/2 -translate-y-1/2 text-[#919191]" />
         </div>
+
+        {/* Plus Icon Dropdown */}
+        <div className="relative" ref={plusRef}>
+          <FaPlus
+            className={`text-cyan text-2xl cursor-pointer w-[22px] h-[22px] transform transition-transform duration-300 ${
+              openPlus ? "rotate-90" : "rotate-0"
+            }`}
+            onClick={() => setOpenPlus(!openPlus)}
+          />
+          {openPlus && (
+            <div className="absolute right-0 mt-2 w-48 bg-cyan text-white shadow-lg rounded-md border z-50">
+              <ul className="py-2">
+                <li className="px-4 py-2 hover:bg-[#1E1E1E66] transition-colors duration-200 cursor-pointer">
+                  Add Lead
+                </li>
+                <li className="px-4 py-2 hover:bg-[#1E1E1E66] transition-colors duration-200 cursor-pointer">
+                  Add Contact
+                </li>
+                <li className="px-4 py-2 hover:bg-[#1E1E1E66] transition-colors duration-200 cursor-pointer">
+                  Add Deal
+                </li>
+              </ul>
+            </div>
+          )}
+        </div>
       </div>
-      {/* Notification Bell */}
-      <CiBellOn className="text-cyan text-2xl cursor-pointer w-[22px] h-[22px] mr-12		" />
+
+      {/* Right: Bell Icon + User Icon */}
+      <div className="flex items-center">
+        {/* Bell */}
+        <div className="relative" ref={bellRef}>
+          <CiBellOn
+            className="text-cyan text-2xl cursor-pointer w-[22px] h-[22px] mr-4"
+            onClick={() => setOpenBell(!openBell)}
+          />
+          {openBell && (
+            <div className="absolute right-0 mt-2 z-50">
+              <Notification />
+            </div>
+          )}
+        </div>
+
+        {/* User */}
+        {/* User */}
+        <div className="relative" ref={userRef}>
+          <FaRegUserCircle
+            className="text-cyan text-2xl cursor-pointer w-[22px] h-[22px] ml-4 mr-12"
+            onClick={() => setOpenUser(!openUser)}
+          />
+          {openUser && (
+            <div className="absolute right-0 mt-2 w-40 bg-white shadow-lg rounded-md border z-50">
+              <ul className="py-2">
+                <li
+                  className="px-4 py-2 hover:bg-gray-100 transition-colors duration-200 cursor-pointer"
+                  onClick={() => {
+                    localStorage.removeItem("accessToken"); // clear token if any
+                    navigate("/"); // go to login page
+                  }}
+                >
+                  Logout
+                </li>
+              </ul>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
