@@ -12,6 +12,16 @@ export default function CommonTable({ type = "leads", data }) {
       { header: "Owner Id", accessor: "ownerId" },
       { header: "Department Id", accessor: "departmentId" },
     ],
+    users: [
+      { header: "ID", accessor: "id" },
+      { header: "Name", accessor: "name" },
+      { header: "Email", accessor: "email" },
+      { header: "Role", accessor: "roleKey" },
+      { header: "Job Title", accessor: "jobTitle" },
+      { header: "Department", accessor: "department" },
+      { header: "Created At", accessor: "createdAt" },
+      { header: "Actions", accessor: "actions" }, // optional edit/delete buttons
+    ],
   };
 
   const columns = headersByType[type] || [];
@@ -21,7 +31,6 @@ export default function CommonTable({ type = "leads", data }) {
       <table className="min-w-full bg-white rounded-xl shadow">
         <thead className="bg-[#EAECEC] sticky top-0">
           <tr>
-            
             {columns.map((col, idx) => (
               <th
                 key={idx}
@@ -50,7 +59,24 @@ export default function CommonTable({ type = "leads", data }) {
               >
                 {columns.map((col, cidx) => (
                   <td key={cidx} className="px-4 py-2 text-sm text-gray-700">
-                    {row[col.accessor]}
+                    {col.accessor === "actions" ? (
+                      <div className="flex gap-2">
+                        <button
+                          className="px-2 py-1 bg-blue-500 text-white rounded text-xs"
+                          onClick={() => console.log("Edit", row.id)}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          className="px-2 py-1 bg-red-500 text-white rounded text-xs"
+                          onClick={() => console.log("Delete", row.id)}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    ) : (
+                      row[col.accessor]
+                    )}
                   </td>
                 ))}
               </tr>

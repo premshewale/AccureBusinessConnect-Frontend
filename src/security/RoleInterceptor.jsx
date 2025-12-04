@@ -1,19 +1,14 @@
+//RoleInterseptor
 import React from "react";
 import { Navigate } from "react-router-dom";
 
 const RoleInterceptor = ({ allowedRoles, children }) => {
-  const user = JSON.parse(localStorage.getItem("user")); 
-  const token = localStorage.getItem("token");
+  const user = JSON.parse(localStorage.getItem("user"));
+  const accessToken = localStorage.getItem("accessToken");
 
-  // If user not logged in
-  if (!token || !user) {
-    return <Navigate to="/admin/login" replace />;
-  }
+  if (!accessToken || !user) return <Navigate to="/admin/login" replace />;
 
-  // Role not allowed
-  if (!allowedRoles.includes(user.role)) {
-    return <Navigate to="/unauthorized" replace />;
-  }
+  if (!allowedRoles.includes(user.roleName)) return <Navigate to="/unauthorized" replace />;
 
   return children;
 };

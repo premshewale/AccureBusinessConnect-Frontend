@@ -1,3 +1,5 @@
+//Router
+
 import { createBrowserRouter } from "react-router-dom";
 
 import Login from "../pages/admin/auth/Login.jsx";
@@ -9,6 +11,8 @@ import Dashboard from "../pages/admin/dashboard/Dashboard.jsx";
 import AdminLayout from "../layouts/admin/AdminLayout.jsx";
 import ErrorPage from "../components/common/ErrorPage.jsx";
 
+import CreateUser from "../pages/admin/user/CreateUser.jsx";
+import Users from "../pages/admin/user/Users.jsx";
 import Leads from "../pages/admin/leads/Leads.jsx";
 import Reports from "../pages/admin/reports/Reports.jsx";
 import Customers from "../pages/admin/customers/Customers.jsx";
@@ -43,9 +47,9 @@ const router = createBrowserRouter([
   {
     path: "/admin",
     element: (
-      // <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
+      <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
         <AdminLayout />
-      // </RoleInterceptor>
+      </RoleInterceptor>
     ),
     errorElement: <ErrorPage />,
     children: [
@@ -53,19 +57,35 @@ const router = createBrowserRouter([
 
       // -------- Admin Only --------
       {
+        path: "users",
+        element: (
+          <RoleInterceptor allowedRoles={["ADMIN"]}>
+            <Users />
+          </RoleInterceptor>
+        ),
+      },
+      {
+        path: "create-user",
+        element: (
+          <RoleInterceptor allowedRoles={["ADMIN"]}>
+            <CreateUser />
+          </RoleInterceptor>
+        ),
+      },
+      {
         path: "reports",
         element: (
-          // <RoleInterceptor allowedRoles={["ADMIN"]}>
+          <RoleInterceptor allowedRoles={["ADMIN"]}>
             <Reports />
-          // </RoleInterceptor>
+          </RoleInterceptor>
         ),
       },
       {
         path: "staff",
         element: (
-          // <RoleInterceptor allowedRoles={["ADMIN"]}>
+          <RoleInterceptor allowedRoles={["ADMIN"]}>
             <Staff />
-          // </RoleInterceptor>
+          </RoleInterceptor>
         ),
       },
 
@@ -73,33 +93,33 @@ const router = createBrowserRouter([
       {
         path: "leads",
         element: (
-          // <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN"]}>
+          <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN"]}>
             <Leads />
-          // </RoleInterceptor>
+          </RoleInterceptor>
         ),
       },
       {
         path: "create-lead",
         element: (
-          // <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN"]}>
+          <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN"]}>
             <CreateLead />
-          // </RoleInterceptor>
+          </RoleInterceptor>
         ),
       },
       {
         path: "customers",
         element: (
-          // <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN"]}>
+          <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN"]}>
             <Customers />
-          // </RoleInterceptor>
+          </RoleInterceptor>
         ),
       },
       {
         path: "invoices",
         element: (
-          // <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN"]}>
+          <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN"]}>
             <Invoices />
-          // </RoleInterceptor>
+          </RoleInterceptor>
         ),
       },
 
@@ -107,41 +127,41 @@ const router = createBrowserRouter([
       {
         path: "contacts",
         element: (
-          // <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
+          <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
             <Contacts />
-          // </RoleInterceptor>
+          </RoleInterceptor>
         ),
       },
       {
         path: "create-contact",
         element: (
-          // <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
+          <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
             <CreateContact />
-          // </RoleInterceptor>
+          </RoleInterceptor>
         ),
       },
       {
         path: "task",
         element: (
-          // <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
+          <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
             <Task />
-          // </RoleInterceptor>
+          </RoleInterceptor>
         ),
       },
       {
         path: "ticket",
         element: (
-          // <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
+          <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
             <Ticket />
-          // </RoleInterceptor>
+          </RoleInterceptor>
         ),
       },
       {
         path: "expences",
         element: (
-          // <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
+          <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
             <Expences />
-          // </RoleInterceptor>
+          </RoleInterceptor>
         ),
       },
 
@@ -152,5 +172,3 @@ const router = createBrowserRouter([
 ]);
 
 export default router;
-
-
