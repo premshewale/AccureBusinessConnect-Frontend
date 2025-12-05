@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { loginUser } from "../../../api/auth/loginUser";
+import { login } from "../../../services/auth/loginAPI";
+import { clearError, initializeAuth } from "../../../slices/auth/loginSlice";
 import { useNavigate } from "react-router-dom";
 import { showSuccess, showError } from "../../../utils/toast";
 
@@ -12,37 +13,76 @@ import LoginBg from "../../../assets/images/LoginBg.png";
 export default function Login() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
-  const { loading, error } = useSelector((state) => state.auth);
+  const { isLoading, error, isAuthenticated, user } = useSelector(
+    (state) => state.auth
+  );
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleLogin = async () => {
-    const result = await dispatch(loginUser({ email, password }));
+  // Restore session on mount
+  useEffect(() => {
+    dispatch(initializeAuth());
+  }, [dispatch]);
 
-    if (loginUser.rejected.match(result)) {
-      const backendMessage = result.payload?.message;
+  // Auto-redirect if authenticated (runs on mount AND when state changes)
+  useEffect(() => {
+    if (isAuthenticated && user?.roleName) {
+      // All roles go to same 
+      // board per your router
+      navigate("/admin/dashboard", { replace: true }); // replace: true prevents history stack buildup
+    }
+  }, [isAuthenticated, user?.roleName, navigate]); // Proper deps: re-runs only on changes
+
+  // Early return if already authenticated (prevents form render)
+  if (isAuthenticated && user?.roleName) {
+    return null; // Or a loading spinner; effect will handle redirect
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const trimmedEmail = email.trim();
+    const trimmedPassword = password.trim();
+
+    if (!trimmedEmail || !trimmedPassword) {
+      showError("Email and password cannot be empty!");
+      return;
+    }
+
+    dispatch(clearError());
+    const result = await dispatch(
+      login({ email: trimmedEmail, password: trimmedPassword })
+    );
+
+    if (login.rejected.match(result)) {
+      const backendMessage = result.payload?.message || error;
       let toastMessage = backendMessage;
 
-      // Friendly custom messages
-      if (backendMessage === "Validation failed: must be a well-formed email address") {
+      if (
+        backendMessage ===
+        "Validation failed: must be a well-formed email address"
+      ) {
         toastMessage = "Please enter a valid email address!";
-      } else if (backendMessage === "Validation failed: must not be blank; must not be blank") {
+      } else if (
+        backendMessage ===
+        "Validation failed: must not be blank; must not be blank"
+      ) {
         toastMessage = "Email and password cannot be empty!";
-      } else if (backendMessage === "Validation failed: must be a well-formed email address; must not be blank") {
+      } else if (
+        backendMessage ===
+        "Validation failed: must be a well-formed email address; must not be blank"
+      ) {
         toastMessage = "Please enter a valid email address!";
       }
 
       showError(toastMessage);
+      return; // Don't proceed
     }
 
-    if (loginUser.fulfilled.match(result)) {
+    if (login.fulfilled.match(result)) {
       showSuccess("Login Successful!");
-
-      // Navigate to dashboard
-      navigate("/admin/dashboard");
+      // No manual navigate here—useEffect handles it when state updates
     }
   };
 
@@ -65,58 +105,60 @@ export default function Login() {
             Enter your email address to sign in
           </p>
 
-          {/* Email */}
-          <div className="flex flex-col gap-2 mb-3">
-            <label className="text-white text-base font-medium">Email</label>
-            <div className="relative">
-              <MdEmail className="text-white absolute left-3 top-1/2 -translate-y-1/2 text-lg" />
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your email address"
-                className="border-2 rounded-xl border-white bg-cyan placeholder:text-white p-2 pl-10 text-sm w-[432px] h-[52px]"
-              />
-            </div>
-          </div>
-
-          {/* Password */}
-          <div className="flex flex-col gap-2 mb-3">
-            <label className="text-white text-base font-medium">Password</label>
-            <div className="relative">
-              <FaKey className="text-white absolute left-3 top-1/2 -translate-y-1/2 text-lg" />
-              <input
-                type={showPassword ? "text" : "password"}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter your password here"
-                className="border-2 rounded-xl border-white bg-cyan placeholder:text-white p-2 pl-10 text-sm w-[432px] h-[52px]"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-white text-lg"
-              >
-                {showPassword ? <IoMdEyeOff /> : <IoMdEye />}
-              </button>
-            </div>
-          </div>
-
-          {/* Error */}
           {error && (
             <p className="text-red-400 text-sm text-center mb-2">
-              {error.message || "Invalid credentials"}
+              {typeof error === 'string' ? error : error?.message || "Invalid credentials"}
             </p>
           )}
 
-          {/* Login Button */}
-          <button
-            disabled={loading}
-            className="w-full bg-white text-cyan font-semibold py-2 rounded-xl"
-            onClick={handleLogin}
-          >
-            {loading ? "Logging in..." : "Log In"}
-          </button>
+          <form onSubmit={handleSubmit}>
+            <div className="flex flex-col gap-2 mb-3">
+              <label className="text-white text-base font-medium">Email</label>
+              <div className="relative">
+                <MdEmail className="text-white absolute left-3 top-1/2 -translate-y-1/2 text-lg" />
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Enter your email address"
+                  className="border-2 rounded-xl border-white bg-cyan placeholder:text-white p-2 pl-10 text-sm w-[432px] h-[52px]"
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-2 mb-3">
+              <label className="text-white text-base font-medium">
+                Password
+              </label>
+              <div className="relative">
+                <FaKey className="text-white absolute left-3 top-1/2 -translate-y-1/2 text-lg" />
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter your password here"
+                  className="border-2 rounded-xl border-white bg-cyan placeholder:text-white p-2 pl-10 text-sm w-[432px] h-[52px]"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-white text-lg"
+                >
+                  {showPassword ? <IoMdEyeOff /> : <IoMdEye />}
+                </button>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full bg-white text-cyan font-semibold py-2 rounded-xl disabled:opacity-50"
+            >
+              {isLoading ? "Logging in..." : "Log In"}
+            </button>
+          </form>
 
           <span
             className="text-white text-sm text-right ml-auto block cursor-pointer underline mt-2"
@@ -129,4 +171,3 @@ export default function Login() {
     </div>
   );
 }
-

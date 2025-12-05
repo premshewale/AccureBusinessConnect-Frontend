@@ -1,6 +1,6 @@
 //Router
 
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 
 import Login from "../pages/admin/auth/Login.jsx";
 import ForgotPassword from "../pages/admin/auth/ForgotPassword.jsx";
@@ -9,6 +9,7 @@ import Unauthorized from "../pages/admin/auth/Unauthorized.jsx";
 
 import Dashboard from "../pages/admin/dashboard/Dashboard.jsx";
 import AdminLayout from "../layouts/admin/AdminLayout.jsx";
+
 import ErrorPage from "../components/common/ErrorPage.jsx";
 
 import CreateUser from "../pages/admin/user/CreateUser.jsx";
@@ -25,7 +26,6 @@ import Payment from "../pages/admin/payment/Payment.jsx";
 import CreateLead from "../pages/admin/leads/CreateLead.jsx";
 import Staff from "../pages/admin/staff/Staff.jsx";
 import CreateContact from "../pages/admin/contacts/CreateContact.jsx";
-import { Counter } from "../features/counter/Counter.jsx";
 
 import RoleInterceptor from "../security/RoleInterceptor.jsx";
 
@@ -33,15 +33,13 @@ const router = createBrowserRouter([
   // Public Routes
   {
     path: "/",
-    element: <Login />,
+    element: <Navigate to="/admin/login" replace />, // Redirect root to login for consistency
     errorElement: <ErrorPage />,
   },
-
   { path: "/admin/login", element: <Login /> },
   { path: "/admin/forgot-password", element: <ForgotPassword /> },
   { path: "/admin/reset-password", element: <ResetPassword /> },
   { path: "/unauthorized", element: <Unauthorized /> },
-  { path: "/counter", element: <Counter /> },
 
   // Protected Admin Layout
   {
@@ -53,6 +51,10 @@ const router = createBrowserRouter([
     ),
     errorElement: <ErrorPage />,
     children: [
+      // { 
+      //   index: true, // Handle /admin directly -> dashboard
+      //   element: <Navigate to="dashboard" replace /> 
+      // },
       { path: "dashboard", element: <Dashboard /> },
 
       // -------- Admin Only --------
@@ -165,8 +167,15 @@ const router = createBrowserRouter([
         ),
       },
 
-      // Payment — all roles
-      { path: "payment", element: <Payment /> },
+      // Payment — all roles (added wrapper for consistency)
+      {
+        path: "payment",
+        element: (
+          <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
+            <Payment />
+          </RoleInterceptor>
+        ),
+      },
     ],
   },
 ]);

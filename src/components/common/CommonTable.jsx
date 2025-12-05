@@ -20,7 +20,7 @@ export default function CommonTable({ type = "leads", data }) {
       { header: "Job Title", accessor: "jobTitle" },
       { header: "Department", accessor: "department" },
       { header: "Created At", accessor: "createdAt" },
-      { header: "Actions", accessor: "actions" }, // optional edit/delete buttons
+      { header: "Actions", accessor: "actions" }, 
     ],
   };
 
