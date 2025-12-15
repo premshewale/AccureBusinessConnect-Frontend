@@ -50,12 +50,13 @@ export default function AdminSidebar({ sidebarOpen, setSidebarOpen }) {
       path: "/admin/users",
       allowedRoles: ["ADMIN"],
     },
-    {
-      name: "Create User",
-      icon: <FiUserPlus size={24} />,
-      path: "/admin/create-user",
-      allowedRoles: ["ADMIN"],
-    },
+    // {
+    //   name: "Create User",
+  
+    //   icon: <FiUserPlus size={24} />,
+    //   path: "/admin/create-user",
+    //   allowedRoles: ["ADMIN"],
+    // },
     {
       name: "Staff",
       icon: <SlPeople size={24} />,
@@ -75,12 +76,12 @@ export default function AdminSidebar({ sidebarOpen, setSidebarOpen }) {
       path: "/admin/leads",
       allowedRoles: ["ADMIN", "SUB_ADMIN"],
     },
-    {
-      name: "Create Lead",
-      icon: <MdAdd size={24} />,
-      path: "/admin/create-lead",
-      allowedRoles: ["ADMIN", "SUB_ADMIN"],
-    },
+    // {
+    //   name: "Create Lead",
+    //   icon: <MdAdd size={24} />,
+    //   path: "/admin/create-lead",
+    //   allowedRoles: ["ADMIN", "SUB_ADMIN"],
+    // },
     {
       name: "Customers",
       icon: <FiUsers size={24} />,
@@ -100,12 +101,12 @@ export default function AdminSidebar({ sidebarOpen, setSidebarOpen }) {
       path: "/admin/contacts",
       allowedRoles: ["ADMIN", "SUB_ADMIN", "STAFF"],
     },
-    {
-      name: "Create Contact",
-      icon: <MdAdd size={24} />,
-      path: "/admin/create-contact",
-      allowedRoles: ["ADMIN", "SUB_ADMIN", "STAFF"],
-    },
+    // {
+    //   name: "Create Contact",
+    //   icon: <MdAdd size={24} />,
+    //   path: "/admin/create-contact",
+    //   allowedRoles: ["ADMIN", "SUB_ADMIN", "STAFF"],
+    // },
     {
       name: "Task",
       icon: <FaTasks size={24} />,
