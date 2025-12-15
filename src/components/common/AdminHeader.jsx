@@ -1,17 +1,24 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+
 import { IoSearchSharp } from "react-icons/io5";
 import { CiBellOn } from "react-icons/ci";
 import { FaPlus } from "react-icons/fa6";
 import { FaRegUserCircle } from "react-icons/fa";
 import { HiOutlineBars4 } from "react-icons/hi2";
+
 import Notification from "./Notification";
+import { logoutUser } from "../../services/auth/logoutAPI";
+
 
 export default function AdminHeader({ setSidebarOpen }) {
   const [openPlus, setOpenPlus] = useState(false);
   const [openBell, setOpenBell] = useState(false);
   const [openUser, setOpenUser] = useState(false);
+
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const plusRef = useRef(null);
   const bellRef = useRef(null);
@@ -30,51 +37,57 @@ export default function AdminHeader({ setSidebarOpen }) {
         setOpenUser(false);
       }
     };
+
     document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // ✅ Proper logout handler
+const handleLogout = async () => {
+  await dispatch(logoutUser());
+  navigate("/admin/login", { replace: true });
+};
+
+
   return (
-    <div className="w-full bg-white shadow-md px-6 py-4 flex items-center justify-between  h-[75px] drop-shadow-md">
+    <div className="w-full bg-white shadow-md px-6 py-4 flex items-center justify-between h-[75px] drop-shadow-md">
       <HiOutlineBars4
         className="text-cyan text-3xl cursor-pointer md:hidden"
-        onClick={() => setSidebarOpen(true)} // ⭐ OPEN SIDEBAR
+        onClick={() => setSidebarOpen(true)}
       />
 
-      {/* Left: Search + Plus Dropdown */}
-      <div className="flex items-center gap-4 ml-8 ">
+      {/* Left Section */}
+      <div className="flex items-center gap-4 ml-8">
         {/* Search */}
         <div className="relative">
           <input
             type="text"
             placeholder="Search leads contacts deals......"
-            className="border border-gray-300 rounded-sm pl-10 pr-4 w-[541px] h-[40px] 
+            className="border border-gray-300 rounded-sm pl-10 pr-4 w-[541px] h-[40px]
                        focus:outline-none focus:ring-2 focus:ring-blue-100
                        placeholder:text-[#919191]"
           />
           <IoSearchSharp className="absolute left-3 top-1/2 -translate-y-1/2 text-[#919191]" />
         </div>
 
-        {/* Plus Icon Dropdown */}
+        {/* Plus Dropdown */}
         <div className="relative" ref={plusRef}>
           <FaPlus
-            className={`text-cyan text-2xl cursor-pointer w-[22px] h-[22px] transform transition-transform duration-300 ${
+            className={`text-cyan text-2xl cursor-pointer w-[22px] h-[22px] transition-transform duration-300 ${
               openPlus ? "rotate-90" : "rotate-0"
             }`}
-            onClick={() => setOpenPlus(!openPlus)}
+            onClick={() => setOpenPlus((prev) => !prev)}
           />
           {openPlus && (
             <div className="absolute right-0 mt-2 w-48 bg-cyan text-white shadow-lg rounded-md border z-50">
               <ul className="py-2">
-                <li className="px-4 py-2 hover:bg-[#1E1E1E66] transition-colors duration-200 cursor-pointer">
+                <li className="px-4 py-2 hover:bg-[#1E1E1E66] cursor-pointer">
                   Add Lead
                 </li>
-                <li className="px-4 py-2 hover:bg-[#1E1E1E66] transition-colors duration-200 cursor-pointer">
+                <li className="px-4 py-2 hover:bg-[#1E1E1E66] cursor-pointer">
                   Add Contact
                 </li>
-                <li className="px-4 py-2 hover:bg-[#1E1E1E66] transition-colors duration-200 cursor-pointer">
+                <li className="px-4 py-2 hover:bg-[#1E1E1E66] cursor-pointer">
                   Add Deal
                 </li>
               </ul>
@@ -83,13 +96,13 @@ export default function AdminHeader({ setSidebarOpen }) {
         </div>
       </div>
 
-      {/* Right: Bell Icon + User Icon */}
+      {/* Right Section */}
       <div className="flex items-center">
         {/* Bell */}
         <div className="relative" ref={bellRef}>
           <CiBellOn
-            className="text-cyan text-2xl cursor-pointer w-[22px] h-[22px] mr-4"
-            onClick={() => setOpenBell(!openBell)}
+            className="text-cyan text-2xl cursor-pointer mr-4"
+            onClick={() => setOpenBell((prev) => !prev)}
           />
           {openBell && (
             <div className="absolute right-0 mt-2 z-50">
@@ -99,21 +112,17 @@ export default function AdminHeader({ setSidebarOpen }) {
         </div>
 
         {/* User */}
-        {/* User */}
         <div className="relative" ref={userRef}>
           <FaRegUserCircle
-            className="text-cyan text-2xl cursor-pointer w-[22px] h-[22px] ml-4 mr-12"
-            onClick={() => setOpenUser(!openUser)}
+            className="text-cyan text-2xl cursor-pointer ml-4 mr-12"
+            onClick={() => setOpenUser((prev) => !prev)}
           />
           {openUser && (
             <div className="absolute right-0 mt-2 w-40 bg-white shadow-lg rounded-md border z-50">
               <ul className="py-2">
                 <li
-                  className="px-4 py-2 hover:bg-gray-100 transition-colors duration-200 cursor-pointer"
-                  onClick={() => {
-                    localStorage.removeItem("accessToken"); // clear token if any
-                    navigate("/"); // go to login page
-                  }}
+                  className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                  onClick={handleLogout}
                 >
                   Logout
                 </li>

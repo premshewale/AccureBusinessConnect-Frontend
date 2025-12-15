@@ -1,5 +1,7 @@
-import { createSlice } from '@reduxjs/toolkit';
-import { login, logout } from '../../services/auth/loginAPI'; // Adjust path
+import { createSlice } from "@reduxjs/toolkit";
+import { login } from "../../services/auth/loginAPI";
+import { logoutUser } from "../../services/auth/logoutAPI";
+
 
 const initialState = {
   user: null,
@@ -55,20 +57,16 @@ const authSlice = createSlice({
         state.isAuthenticated = false;
       })
       // Logout
-      .addCase(logout.fulfilled, (state) => {
-        state.user = null;
-        state.role = null;
-        state.isAuthenticated = false;
-        state.error = null;
-        // Clear stored user too
-        const { role } = state; // From before clear, but since fulfilled clears, use getState in thunk if needed
-        if (role) {
-          localStorage.removeItem(`${role}User`);
-        }
-      })
-      .addCase(logout.rejected, (state, action) => {
-        state.error = action.payload;
-      });
+.addCase(logoutUser.fulfilled, (state) => {
+  state.user = null;
+  state.role = null;
+  state.isAuthenticated = false;
+  state.error = null;
+})
+.addCase(logoutUser.rejected, (state, action) => {
+  state.error = action.payload;
+});
+
   },
 });
 

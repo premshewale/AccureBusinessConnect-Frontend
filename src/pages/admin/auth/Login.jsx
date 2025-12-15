@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { login } from "../../../services/auth/loginAPI";
+import { login, logout } from '../../../services/auth/loginAPI';
 import { clearError, initializeAuth } from "../../../slices/auth/loginSlice";
 import { useNavigate } from "react-router-dom";
 import { showSuccess, showError } from "../../../utils/toast";
@@ -29,7 +29,9 @@ export default function Login() {
   // Auto-redirect if authenticated (runs on mount AND when state changes)
   useEffect(() => {
     if (isAuthenticated && user?.roleName) {
-      // All roles go to same 
+      // All roles go to same  
+
+      
       // board per your router
       navigate("/admin/dashboard", { replace: true }); // replace: true prevents history stack buildup
     }
