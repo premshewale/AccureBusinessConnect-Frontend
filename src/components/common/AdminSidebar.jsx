@@ -17,22 +17,48 @@ export default function AdminSidebar({ sidebarOpen, setSidebarOpen }) {
   const [role, setRole] = useState(null);
 
   // Fetch role from localStorage on mount and when needed
+  // useEffect(() => {
+  //   // const possibleRoles = ["admin", "staff", "subadmin"];
+  //   const possibleRoles = ["ADMIN", "SUB_ADMIN", "STAFF"];
+
+  //   for (const lowercaseRole of possibleRoles) {
+  //     const accessTokenKey = `${role}AccessToken`;
+  //     const userKey = `${role}User`;
+
+  //     // const accessTokenKey = `${lowercaseRole}AccessToken`;
+  //     // const userKey = `${lowercaseRole}User`;
+  //     const token = localStorage.getItem(accessTokenKey);
+  //     const userStr = localStorage.getItem(userKey);
+
+  //     if (token && userStr) {
+  //       const user = JSON.parse(userStr);
+  //       // setRole(user.roleName?.toUpperCase());
+  //       setRole(user.roleName); // already uppercase
+
+
+  //       break; // Use first valid session
+  //     }
+  //   }
+  // }, []); // Run once on mount
+
   useEffect(() => {
-    const possibleRoles = ["admin", "staff", "subadmin"];
-    for (const lowercaseRole of possibleRoles) {
-      const accessTokenKey = `${lowercaseRole}AccessToken`;
-      const userKey = `${lowercaseRole}User`;
-      const token = localStorage.getItem(accessTokenKey);
-      const userStr = localStorage.getItem(userKey);
+  const possibleRoles = ["ADMIN", "SUB_ADMIN", "STAFF"];
 
-      if (token && userStr) {
-        const user = JSON.parse(userStr);
-        setRole(user.roleName?.toUpperCase());
+  for (const roleKey of possibleRoles) {
+    const accessTokenKey = `${roleKey}AccessToken`;
+    const userKey = `${roleKey}User`;
 
-        break; // Use first valid session
-      }
+    const token = localStorage.getItem(accessTokenKey);
+    const userStr = localStorage.getItem(userKey);
+
+    if (token && userStr) {
+      const user = JSON.parse(userStr);
+      setRole(user.roleName); // "ADMIN" | "SUB_ADMIN" | "STAFF"
+      break;
     }
-  }, []); // Run once on mount
+  }
+}, []);
+
 
   console.log("what is the role here ", role);
 

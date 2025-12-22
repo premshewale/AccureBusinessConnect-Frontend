@@ -12,8 +12,11 @@ export const login = createAsyncThunk(
       const { accessToken, refreshToken, user } = response.data;
 
       // Determine role from roleName (e.g., "ADMIN" -> "admin")
-      const role = user.roleName.toLowerCase();
-      const accessTokenKey = `${role}AccessToken`;
+      // const role = user.roleName.toLowerCase();
+      const role = user.roleName; // DO NOT lowercase
+const accessTokenKey = `${role}AccessToken`; // SUB_ADMINAccessToken
+
+      // const accessTokenKey = `${role}AccessToken`;
       const refreshTokenKey = `${role}RefreshToken`;
 
       // Store tokens in localStorage with role-specific keys
