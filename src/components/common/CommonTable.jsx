@@ -3,6 +3,12 @@ import React from "react";
 export default function CommonTable({ type = "leads", data }) {
   // Define headers based on type
   const headersByType = {
+    departments: [
+      { header: "ID", accessor: "id" },
+      { header: "Department Name", accessor: "name" },
+      { header: "Created At", accessor: "createdAt" },
+    ],
+
     leads: [
       { header: "ID", accessor: "id" },
       { header: "Name", accessor: "name" },
@@ -20,7 +26,16 @@ export default function CommonTable({ type = "leads", data }) {
       { header: "Job Title", accessor: "jobTitle" },
       { header: "Department", accessor: "department" },
       { header: "Created At", accessor: "createdAt" },
-      { header: "Actions", accessor: "actions" }, 
+      { header: "Actions", accessor: "actions" },
+    ],
+    staff: [
+      { header: "ID", accessor: "id" },
+      { header: "Name", accessor: "name" },
+      { header: "Email", accessor: "email" },
+      { header: "Job Title", accessor: "jobTitle" },
+      { header: "Role", accessor: "roleKey" },
+      { header: "Department", accessor: "department" },
+      { header: "Actions", accessor: "actions" },
     ],
   };
 

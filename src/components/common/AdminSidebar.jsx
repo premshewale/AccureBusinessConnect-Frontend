@@ -18,7 +18,7 @@ export default function AdminSidebar({ sidebarOpen, setSidebarOpen }) {
 
   // Fetch role from localStorage on mount and when needed
   useEffect(() => {
-    const possibleRoles = ['admin', 'staff', 'subadmin'];
+    const possibleRoles = ["admin", "staff", "subadmin"];
     for (const lowercaseRole of possibleRoles) {
       const accessTokenKey = `${lowercaseRole}AccessToken`;
       const userKey = `${lowercaseRole}User`;
@@ -27,7 +27,8 @@ export default function AdminSidebar({ sidebarOpen, setSidebarOpen }) {
 
       if (token && userStr) {
         const user = JSON.parse(userStr);
-        setRole(user.roleName); // Uppercase roleName, e.g., "ADMIN"
+        setRole(user.roleName?.toUpperCase());
+
         break; // Use first valid session
       }
     }
@@ -45,18 +46,18 @@ export default function AdminSidebar({ sidebarOpen, setSidebarOpen }) {
     },
     // -------- Admin Only --------
     {
+      name: "Department",
+      icon: <FaRegUserCircle size={24} />,
+      path: "/admin/department",
+      allowedRoles: ["ADMIN"],
+    },
+    {
       name: "Users",
       icon: <FaRegUserCircle size={24} />,
       path: "/admin/users",
       allowedRoles: ["ADMIN"],
     },
-    // {
-    //   name: "Create User",
-  
-    //   icon: <FiUserPlus size={24} />,
-    //   path: "/admin/create-user",
-    //   allowedRoles: ["ADMIN"],
-    // },
+
     {
       name: "Staff",
       icon: <SlPeople size={24} />,
@@ -76,12 +77,7 @@ export default function AdminSidebar({ sidebarOpen, setSidebarOpen }) {
       path: "/admin/leads",
       allowedRoles: ["ADMIN", "SUB_ADMIN"],
     },
-    // {
-    //   name: "Create Lead",
-    //   icon: <MdAdd size={24} />,
-    //   path: "/admin/create-lead",
-    //   allowedRoles: ["ADMIN", "SUB_ADMIN"],
-    // },
+
     {
       name: "Customers",
       icon: <FiUsers size={24} />,
@@ -134,8 +130,8 @@ export default function AdminSidebar({ sidebarOpen, setSidebarOpen }) {
   ];
 
   // Filter menu according to role
-  const visibleMenu = menuItems.filter((item) =>
-    role && item.allowedRoles.includes(role)
+  const visibleMenu = menuItems.filter(
+    (item) => role && item.allowedRoles.includes(role)
   );
 
   // Show loading or empty if role not yet loaded
@@ -155,7 +151,7 @@ export default function AdminSidebar({ sidebarOpen, setSidebarOpen }) {
           ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} 
           md:static md:block`}
         >
-          <div className="h-screen p-5 flex flex-col w-[250px] overflow-y-auto">
+          <div className="h-screen p-5 flex flex-col w-[250px] overflow-y-auto  no-scrollbar">
             <h2 className="text-2xl font-Lato-Bold mb-8 text-white text-center mt-[75px] leading-tight">
               Accure Business <br />
               <span className="font-normal text-white">connect</span>

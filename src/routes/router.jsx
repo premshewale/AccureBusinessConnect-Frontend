@@ -28,6 +28,7 @@ import Staff from "../pages/admin/staff/Staff.jsx";
 import CreateContact from "../pages/admin/contacts/CreateContact.jsx";
 
 import RoleInterceptor from "../security/RoleInterceptor.jsx";
+import Department from "../pages/admin/department/Department.jsx";
 
 const router = createBrowserRouter([
   // Public Routes
@@ -58,6 +59,14 @@ const router = createBrowserRouter([
       { path: "dashboard", element: <Dashboard /> },
 
       // -------- Admin Only --------
+      {
+        path: "department",
+        element: (
+          <RoleInterceptor allowedRoles={["ADMIN"]}>
+            <Department />
+          </RoleInterceptor>
+        ),
+      },
       {
         path: "users",
         element: (

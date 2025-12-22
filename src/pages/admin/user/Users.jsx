@@ -11,8 +11,6 @@ export default function Users() {
 
   // Dummy Users Data
   useEffect(() => {
-    const loggedUser = JSON.parse(localStorage.getItem("user"));
-    console.log("TOKEN:", loggedUser?.token);
 
     const dummyUsers = [
       {
