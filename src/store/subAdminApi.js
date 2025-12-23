@@ -1,4 +1,5 @@
-import api from "../store/apiFactory";
 
-const subAdminApi = api("subadmin");
+
+import api from "../store/apiFactory";
+const subAdminApi = api();
 export default subAdminApi;

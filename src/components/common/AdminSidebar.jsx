@@ -16,30 +16,6 @@ export default function AdminSidebar({ sidebarOpen, setSidebarOpen }) {
   // State for role (from localStorage)
   const [role, setRole] = useState(null);
 
-  // Fetch role from localStorage on mount and when needed
-  // useEffect(() => {
-  //   // const possibleRoles = ["admin", "staff", "subadmin"];
-  //   const possibleRoles = ["ADMIN", "SUB_ADMIN", "STAFF"];
-
-  //   for (const lowercaseRole of possibleRoles) {
-  //     const accessTokenKey = `${role}AccessToken`;
-  //     const userKey = `${role}User`;
-
-  //     // const accessTokenKey = `${lowercaseRole}AccessToken`;
-  //     // const userKey = `${lowercaseRole}User`;
-  //     const token = localStorage.getItem(accessTokenKey);
-  //     const userStr = localStorage.getItem(userKey);
-
-  //     if (token && userStr) {
-  //       const user = JSON.parse(userStr);
-  //       // setRole(user.roleName?.toUpperCase());
-  //       setRole(user.roleName); // already uppercase
-
-
-  //       break; // Use first valid session
-  //     }
-  //   }
-  // }, []); // Run once on mount
 
   useEffect(() => {
   const possibleRoles = ["ADMIN", "SUB_ADMIN", "STAFF"];
@@ -53,7 +29,7 @@ export default function AdminSidebar({ sidebarOpen, setSidebarOpen }) {
 
     if (token && userStr) {
       const user = JSON.parse(userStr);
-      setRole(user.roleName); // "ADMIN" | "SUB_ADMIN" | "STAFF"
+      setRole(user.roleName); 
       break;
     }
   }
@@ -62,7 +38,6 @@ export default function AdminSidebar({ sidebarOpen, setSidebarOpen }) {
 
   console.log("what is the role here ", role);
 
-  // Sidebar menu with allowedRoles (added create items where applicable)
   const menuItems = [
     {
       name: "Dashboard",
@@ -88,7 +63,7 @@ export default function AdminSidebar({ sidebarOpen, setSidebarOpen }) {
       name: "Staff",
       icon: <SlPeople size={24} />,
       path: "/admin/staff",
-      allowedRoles: ["ADMIN"],
+      allowedRoles: ["SUB_ADMIN"],
     },
     {
       name: "Reports",
