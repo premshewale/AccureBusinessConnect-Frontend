@@ -22,6 +22,17 @@ export default function CommonTable({
       { header: "Department Id", accessor: "departmentId" },
     ],
 
+    Contact: [
+      { header: "ID", accessor: "id" },
+      { header: "Customer_Id", accessor: "customer_id" },
+      { header: "FirstName", accessor: "firstname" },
+      { header: "LastnameName", accessor: "lastname" },
+      { header: "Email", accessor: "email" },
+      { header: "Phone", accessor: "phone" },
+      { header: "Role", accessor: "role" },
+      { header: "Primary", accessor: "is_primary" },
+    ],
+
     users: [
       { header: "ID", accessor: "id" },
       { header: "Name", accessor: "name" },

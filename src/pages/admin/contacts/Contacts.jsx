@@ -19,13 +19,15 @@ export default function Contacts() {
       title: "New Contact",
       cards: [
         {
-          id: 48,
-          name: "Mr. Suresh",
+          id: 1,
+          customer_id: 1,
+          firstname: "Mr. Suresh",
+          lastname: "Naik",
           email: "survesh@gmail.com",
-          service: "Website development",
           phone: "+91 85796 56892",
           createdOn: "16 Nov 2025",
-          status: "New",
+          role: "",
+          is_primary : "",
         },
       ],
     },
@@ -33,13 +35,15 @@ export default function Contacts() {
       title: "Contacted",
       cards: [
         {
-          id: 49,
-          name: "Mr. Raj",
+          id: 2,
+          customer_id: 2,
+          firstname: "Mr. Raj",
+          lastname: "Patel",
           email: "raj@gmail.com",
-          service: "Branding & Marketing",
           phone: "+91 99887 11223",
           createdOn: "17 Nov 2025",
-          status: "Contacted",
+          role: "",
+          is_primary : "",
         },
       ],
     },
@@ -47,13 +51,15 @@ export default function Contacts() {
       title: "Lost",
       cards: [
         {
-          id: 32,
-          name: "Mr. Milind",
+          id: 3,
+          customer_id: 3,
+          firstname: "Mr. Milind",
+          lastname: "Goyal",
           email: "milind@gmail.com",
-          service: "App Development",
           phone: "+91 88994 22112",
           createdOn: "15 Nov 2025",
-          status: "Lost",
+          role: "",
+          is_primary : "",
         },
       ],
     },
@@ -78,7 +84,7 @@ export default function Contacts() {
     <>
       <div className="flex flex-row justify-between items-center mb-4">
         <div>
-          <h3 className="text-[22px] font-lato">Contact</h3>
+          <h3 className="text-[22px] font-lato">Contacts</h3>
           <p className="text-sm text-fontgrey">
             Manage And Track Your Sales Contact
           </p>
@@ -88,7 +94,8 @@ export default function Contacts() {
           className="px-4 py-2 bg-cyan text-white rounded-lg shadow"
         >
           + New Contact
-        </button>{" "}
+        </button>
+        {/* {" "} */}
       </div>
 
       {activeTab === "table" && (
@@ -165,3 +172,7 @@ export default function Contacts() {
     </>
   );
 }
+
+
+
+
