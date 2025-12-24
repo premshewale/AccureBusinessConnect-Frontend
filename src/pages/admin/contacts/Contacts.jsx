@@ -21,6 +21,7 @@ export default function Contacts() {
         {
           id: 48,
           name: "Mr. Suresh",
+          email: "survesh@gmail.com",
           service: "Website development",
           phone: "+91 85796 56892",
           createdOn: "16 Nov 2025",
@@ -34,6 +35,7 @@ export default function Contacts() {
         {
           id: 49,
           name: "Mr. Raj",
+          email: "raj@gmail.com",
           service: "Branding & Marketing",
           phone: "+91 99887 11223",
           createdOn: "17 Nov 2025",
@@ -47,6 +49,7 @@ export default function Contacts() {
         {
           id: 32,
           name: "Mr. Milind",
+          email: "milind@gmail.com",
           service: "App Development",
           phone: "+91 88994 22112",
           createdOn: "15 Nov 2025",
