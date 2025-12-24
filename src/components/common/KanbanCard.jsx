@@ -3,6 +3,7 @@ import React from "react";
 export default function KanbanCard({
   id,
   name,
+  email,
   service,
   phone,
   createdOn,
@@ -18,10 +19,12 @@ export default function KanbanCard({
     <div className="bg-white p-4 rounded-xl shadow mb-4">
       <div className="flex justify-between items-center">
         <p className="font-bold text-lg">#{id} {name}</p>
+        {/* <p className="font-bold text-lg">#{id} {email}</p> */}
         <span className={`px-3 py-1 text-white rounded-full text-xs ${statusColor}`}>
           {status}
         </span>
       </div>
+      <p className="text-sm text-gray-600">{email}</p>
       <p className="text-sm text-gray-600">{service}</p>
       <p className="text-sm">📞 {phone}</p>
       <p className="text-xs text-gray-500 mt-1">Created on: {createdOn}</p>
