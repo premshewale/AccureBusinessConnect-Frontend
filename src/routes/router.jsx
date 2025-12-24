@@ -6,12 +6,9 @@ import Login from "../pages/admin/auth/Login.jsx";
 import ForgotPassword from "../pages/admin/auth/ForgotPassword.jsx";
 import ResetPassword from "../pages/admin/auth/ResetPassword.jsx";
 import Unauthorized from "../pages/admin/auth/Unauthorized.jsx";
-
 import Dashboard from "../pages/admin/dashboard/Dashboard.jsx";
 import AdminLayout from "../layouts/admin/AdminLayout.jsx";
-
 import ErrorPage from "../components/common/ErrorPage.jsx";
-
 import CreateUser from "../pages/admin/user/CreateUser.jsx";
 import Users from "../pages/admin/user/Users.jsx";
 import Leads from "../pages/admin/leads/Leads.jsx";
@@ -24,10 +21,11 @@ import Expences from "../pages/admin/expences/Expences.jsx";
 import Invoices from "../pages/admin/invoices/Invoices.jsx";
 import Payment from "../pages/admin/payment/Payment.jsx";
 import CreateLead from "../pages/admin/leads/CreateLead.jsx";
-import Staff from "../pages/admin/staff/Staff.jsx";
+import Staff from "../pages/subadmin/staff/Staff.jsx";
+import CreateStaff from "../pages/subadmin/staff/CreateStaff.jsx";
 import CreateContact from "../pages/admin/contacts/CreateContact.jsx";
-
 import RoleInterceptor from "../security/RoleInterceptor.jsx";
+import Department from "../pages/admin/department/Department.jsx";
 
 const router = createBrowserRouter([
   // Public Routes
@@ -51,13 +49,17 @@ const router = createBrowserRouter([
     ),
     errorElement: <ErrorPage />,
     children: [
-      // { 
-      //   index: true, // Handle /admin directly -> dashboard
-      //   element: <Navigate to="dashboard" replace /> 
-      // },
       { path: "dashboard", element: <Dashboard /> },
 
       // -------- Admin Only --------
+      {
+        path: "department",
+        element: (
+          <RoleInterceptor allowedRoles={["ADMIN"]}>
+            <Department />
+          </RoleInterceptor>
+        ),
+      },
       {
         path: "users",
         element: (
@@ -82,11 +84,21 @@ const router = createBrowserRouter([
           </RoleInterceptor>
         ),
       },
+            // -------- SubAdmin --------
+
       {
         path: "staff",
         element: (
-          <RoleInterceptor allowedRoles={["ADMIN"]}>
+          <RoleInterceptor allowedRoles={["SUB_ADMIN"]}>
             <Staff />
+          </RoleInterceptor>
+        ),
+      },
+      {
+        path: "create-staff",
+        element: (
+          <RoleInterceptor allowedRoles={["SUB_ADMIN"]}>
+            <CreateStaff />
           </RoleInterceptor>
         ),
       },

@@ -1,8 +1,17 @@
 import React from "react";
 
-export default function CommonTable({ type = "leads", data }) {
-  // Define headers based on type
+export default function CommonTable({
+  type = "leads",
+  data = [],
+  onStatusToggle,
+}) {
   const headersByType = {
+    departments: [
+      { header: "ID", accessor: "id" },
+      { header: "Department Name", accessor: "name" },
+      { header: "Created At", accessor: "createdAt" },
+    ],
+
     leads: [
       { header: "ID", accessor: "id" },
       { header: "Name", accessor: "name" },
@@ -12,15 +21,28 @@ export default function CommonTable({ type = "leads", data }) {
       { header: "Owner Id", accessor: "ownerId" },
       { header: "Department Id", accessor: "departmentId" },
     ],
+
     users: [
       { header: "ID", accessor: "id" },
       { header: "Name", accessor: "name" },
       { header: "Email", accessor: "email" },
-      { header: "Role", accessor: "roleKey" },
       { header: "Job Title", accessor: "jobTitle" },
-      { header: "Department", accessor: "department" },
-      { header: "Created At", accessor: "createdAt" },
-      { header: "Actions", accessor: "actions" }, 
+      { header: "Role", accessor: "roleName" },
+      { header: "Department", accessor: "departmentName" },
+      { header: "Phone Ext.", accessor: "phoneExtension" },
+      { header: "Status", accessor: "status" },
+      { header: "Actions", accessor: "actions" },
+    ],
+
+    staff: [
+      { header: "ID", accessor: "id" },
+      { header: "Name", accessor: "name" },
+      { header: "Email", accessor: "email" },
+      { header: "Job Title", accessor: "jobTitle" },
+      { header: "Role", accessor: "roleKey" },
+      { header: "Department ID", accessor: "departmentId" },
+      { header: "Status", accessor: "status" },
+      { header: "Actions", accessor: "actions" },
     ],
   };
 
@@ -41,6 +63,7 @@ export default function CommonTable({ type = "leads", data }) {
             ))}
           </tr>
         </thead>
+
         <tbody>
           {data.length === 0 ? (
             <tr>
@@ -74,8 +97,33 @@ export default function CommonTable({ type = "leads", data }) {
                           Delete
                         </button>
                       </div>
+                    ) : col.accessor === "status" ? (
+                      <label className="inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          className="sr-only peer"
+                          checked={row.status === "ACTIVE"}
+                          onChange={() =>
+                            onStatusToggle &&
+                            onStatusToggle(
+                              row.id,
+                              row.status === "ACTIVE" ? "INACTIVE" : "ACTIVE"
+                            )
+                          }
+                        />
+                        <div
+                          className="relative w-11 h-6 bg-gray-300 rounded-full peer
+      peer-checked:bg-green-500
+      after:content-[''] after:absolute after:top-0.5 after:left-0.5
+      after:bg-white after:h-5 after:w-5 after:rounded-full after:transition-all
+      peer-checked:after:translate-x-full"
+                        />
+                        <span className="ml-2 text-xs font-medium text-gray-700">
+                          {row.status}
+                        </span>
+                      </label>
                     ) : (
-                      row[col.accessor]
+                      row[col.accessor] ?? "-"
                     )}
                   </td>
                 ))}

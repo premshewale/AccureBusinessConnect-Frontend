@@ -7,7 +7,16 @@ export default function CommonForm({
   submitText = "Submit",
   fields: customFields,
 }) {
-  const [formData, setFormData] = useState({});
+  const [formData, setFormData] = useState(() => {
+    const initialData = {};
+    (customFields || []).forEach((field) => {
+      if (field.value !== undefined) {
+        initialData[field.name] = field.value;
+      }
+    });
+    return initialData;
+  });
+
   const [showPasswordFields, setShowPasswordFields] = useState({}); // track visibility for each password field
 
   const allFields = [
@@ -22,8 +31,8 @@ export default function CommonForm({
       label: "Status",
       type: "select",
       options: [
-        { label: "Active", value: "active" },
-        { label: "Inactive", value: "inactive" },
+        { label: "Active", value: "ACTIVE" },
+        { label: "Inactive", value: "INACTIVE" },
       ],
     },
     { name: "address", label: "Address", type: "textarea" },
@@ -99,8 +108,11 @@ export default function CommonForm({
               name={field.name}
               placeholder={field.placeholder || ""}
               value={formData[field.name] || ""}
-              onChange={handleChange}
-              className="border rounded-lg px-3 py-2 w-full"
+              onChange={field.readOnly ? undefined : handleChange}
+              readOnly={field.readOnly}
+              className={`border rounded-lg px-3 py-2 w-full ${
+                field.readOnly ? "bg-gray-100 cursor-not-allowed" : ""
+              }`}
             />
           </div>
         );
