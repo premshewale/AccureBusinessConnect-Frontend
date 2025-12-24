@@ -17,6 +17,7 @@ import Users from "../pages/admin/user/Users.jsx";
 import Leads from "../pages/admin/leads/Leads.jsx";
 import Reports from "../pages/admin/reports/Reports.jsx";
 import Customers from "../pages/admin/customers/Customers.jsx";
+import CreateCustomer from "../pages/admin/customers/CreateCustomer.jsx";
 import Contacts from "../pages/admin/contacts/Contacts.jsx";
 import Task from "../pages/admin/task/Task.jsx";
 import Ticket from "../pages/admin/ticket/Ticket.jsx";
@@ -116,6 +117,15 @@ const router = createBrowserRouter([
           </RoleInterceptor>
         ),
       },
+      {
+        path: "create-customer", 
+        element: (
+          <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN"]}>
+            <CreateCustomer />
+          </RoleInterceptor>
+        ),
+      },
+            
       {
         path: "invoices",
         element: (
