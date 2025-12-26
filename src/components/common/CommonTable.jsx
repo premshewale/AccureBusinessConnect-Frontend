@@ -1,7 +1,7 @@
 import React from "react";
 
 export default function CommonTable({
-  type = "leads",
+  type = "leads" ,
   data = [],
   onStatusToggle,
 }) {
@@ -18,8 +18,10 @@ export default function CommonTable({
       { header: "Email", accessor: "email" },
       { header: "Phone", accessor: "phone" },
       { header: "Source", accessor: "source" },
-      { header: "Owner Id", accessor: "ownerId" },
-      { header: "Department Id", accessor: "departmentId" },
+      { header: "Status", accessor: "status" },
+      { header: "AssignedTo", accessor: "assigned_to" },
+      { header: "CustomerId", accessor: "customer_id" },
+      { header: "DepartmentId", accessor: "department_id" },
     ],
 
     Contact: [
@@ -29,6 +31,7 @@ export default function CommonTable({
       { header: "LastnameName", accessor: "lastname" },
       { header: "Email", accessor: "email" },
       { header: "Phone", accessor: "phone" },
+      { header: "Status", accessor: "status" },
       { header: "Role", accessor: "role" },
       { header: "Primary", accessor: "is_primary" },
     ],
@@ -122,13 +125,13 @@ export default function CommonTable({
                             )
                           }
                         />
-                        <div
+                        {/* <div
                           className="relative w-11 h-6 bg-gray-300 rounded-full peer
       peer-checked:bg-green-500
       after:content-[''] after:absolute after:top-0.5 after:left-0.5
       after:bg-white after:h-5 after:w-5 after:rounded-full after:transition-all
       peer-checked:after:translate-x-full"
-                        />
+                        /> */}
                         <span className="ml-2 text-xs font-medium text-gray-700">
                           {row.status}
                         </span>
