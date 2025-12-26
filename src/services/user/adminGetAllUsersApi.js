@@ -30,22 +30,3 @@ export const adminGetAllUsers = createAsyncThunk(
   }
 );
 
-// import { createAsyncThunk } from "@reduxjs/toolkit";
-// import adminApi from "../../store/adminApi";
-
-// export const adminGetAllUsers = createAsyncThunk(
-//   "adminGetAllUsers/fetch",
-//   async (_, { rejectWithValue }) => {
-//     try {
-//       const res = await adminApi.get("/users");
-
-//       console.log("Get All Users API response:", res.data);
-
-//       return res.data; 
-//     } catch (error) {
-//       return rejectWithValue(
-//         error.response?.data?.message || "Failed to fetch users"
-//       );
-//     }
-//   }
-// );

@@ -33,7 +33,7 @@ const fields = [
 
 
 const handleSubmit = (data) => {
-  console.log("Submitting data:", data); // <-- check departmentId here
+  console.log("Submitting data:", data); 
   dispatch(adminCreateUser(data));
 };
 
