@@ -17,7 +17,7 @@ export default function CommonForm({
     return initialData;
   });
 
-  const [showPasswordFields, setShowPasswordFields] = useState({}); // track visibility for each password field
+  const [showPasswordFields, setShowPasswordFields] = useState({}); 
 
   const allFields = [
     { name: "name", label: "Name", type: "text" },
@@ -158,18 +158,22 @@ export default function CommonForm({
           <div key={idx} className="flex flex-col">
             <label className="text-sm text-gray-600 mb-1">{field.label}</label>
             <select
-              name={field.name}
-              value={formData[field.name] || ""}
-              onChange={handleChange}
-              className="border rounded-lg px-3 py-2 w-full"
-            >
-              <option value="">Select {field.label}</option>
-              {field.options?.map((opt, oIdx) => (
-                <option key={oIdx} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
+  name={field.name}
+  value={formData[field.name] ?? ""}
+  onChange={handleChange}
+  className="border rounded-lg px-3 py-2 w-full"
+>
+  {!field.hidePlaceholder && (
+    <option value="">Select {field.label}</option>
+  )}
+
+  {field.options?.map((opt, oIdx) => (
+    <option key={oIdx} value={opt.value}>
+      {opt.label}
+    </option>
+  ))}
+</select>
+
           </div>
         );
 

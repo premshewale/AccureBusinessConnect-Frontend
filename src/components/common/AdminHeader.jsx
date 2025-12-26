@@ -11,7 +11,6 @@ import { HiOutlineBars4 } from "react-icons/hi2";
 import Notification from "./Notification";
 import { logoutUser } from "../../services/auth/logoutAPI";
 
-
 export default function AdminHeader({ setSidebarOpen }) {
   const [openPlus, setOpenPlus] = useState(false);
   const [openBell, setOpenBell] = useState(false);
@@ -43,11 +42,10 @@ export default function AdminHeader({ setSidebarOpen }) {
   }, []);
 
   // ✅ Proper logout handler
-const handleLogout = async () => {
-  await dispatch(logoutUser());
-  navigate("/admin/login", { replace: true });
-};
-
+  const handleLogout = async () => {
+    await dispatch(logoutUser());
+    navigate("/admin/login", { replace: true });
+  };
 
   return (
     <div className="w-full bg-white shadow-md px-6 py-4 flex items-center justify-between h-[75px] drop-shadow-md">
@@ -120,6 +118,15 @@ const handleLogout = async () => {
           {openUser && (
             <div className="absolute right-0 mt-2 w-40 bg-white shadow-lg rounded-md border z-50">
               <ul className="py-2">
+                <li
+                  className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                  onClick={() => {
+                    navigate("/admin/profile");
+                    setOpenUser(false); // close dropdown after click
+                  }}
+                >
+                  My Profile
+                </li>
                 <li
                   className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
                   onClick={handleLogout}
