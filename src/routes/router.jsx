@@ -28,6 +28,8 @@ import RoleInterceptor from "../security/RoleInterceptor.jsx";
 import Department from "../pages/admin/department/Department.jsx";
 import Profile from "../pages/common/Profile.jsx";
 import LeadDetailsPage from "../pages/admin/leads/LeadDetailsPage.jsx";
+import UserDetails from "../pages/admin/user/UserDetails.jsx";
+
 const router = createBrowserRouter([
   // Public Routes
   {
@@ -70,6 +72,15 @@ const router = createBrowserRouter([
         ),
       },
       {
+        path: "users/:id", // ✅ User Details / Edit
+        element: (
+          <RoleInterceptor allowedRoles={["ADMIN"]}>
+            <UserDetails />
+          </RoleInterceptor>
+        ),
+      },
+      ,
+      {
         path: "create-user",
         element: (
           <RoleInterceptor allowedRoles={["ADMIN"]}>
@@ -77,6 +88,7 @@ const router = createBrowserRouter([
           </RoleInterceptor>
         ),
       },
+
       {
         path: "reports",
         element: (
