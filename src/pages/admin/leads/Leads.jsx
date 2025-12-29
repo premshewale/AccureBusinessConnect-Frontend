@@ -1,89 +1,55 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { RxDashboard, RxTable } from "react-icons/rx";
+import { IoSearchSharp } from "react-icons/io5";
+import { useDispatch, useSelector } from "react-redux";
+
 import Kanban from "../../../components/common/Kanban.jsx";
 import CommonTable from "../../../components/common/CommonTable.jsx";
-import { IoSearchSharp } from "react-icons/io5";
+
+import { adminGetAllLeads } from "../../../services/lead/adminGetAllLeadsApi.js";
 
 export default function Leads() {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
   const [activeTab, setActiveTab] = useState("kanban");
   const [filter, setFilter] = useState("All");
-  const navigate = useNavigate();
+  const [searchTerm, setSearchTerm] = useState("");
 
-  useEffect(() => {
-    setActiveTab("kanban");
-  }, []);
-
-  const columns = [
-    {
-      title: "New Leads",
-      cards: [
-        {
-          id: 48,
-          name: "Mr. Suresh Naik",
-          email: "survesh@gmail.com",
-          phone: "+91 85796 56892",
-          source: "",
-          status: "New",
-          assigned_to: "",
-          customer_id: "",
-          department_id: "",
-        },
-      ],
-    },
-    {
-      title: "Contacted",
-      cards: [
-        {
-          id: 49,
-          name: "Mr. Raj Patel",
-          email: "raj@gmail.com",
-          phone: "+91 99887 11223",
-          source: "",
-          status: "Contacted",
-          assigned_to: "",
-          customer_id: "",
-          department_id: "",
-        },
-      ],
-    },
-    {
-      title: "Lost",
-      cards: [
-        {
-          id: 32,
-          name: "Mr. Milind Goyal",
-          email: "milind@gmail.com",
-          phone: "+91 88994 22112",
-          source: "",
-          status: "Lost",
-          assigned_to: "",
-          customer_id: "",
-          department_id: "",
-          
-        },
-      ],
-    },
-  ];
-
-  const tableData = columns.flatMap((col) => col.cards);
-
-  const filteredTableData = tableData.filter(
-    (card) => filter === "All" || card.status === filter
+  const { loading, leads = [], error } = useSelector(
+    (state) => state.adminGetAllLeads
   );
 
-  const statuses = [
-    "All",
-    "New",
-    "Contacted",
-    "Proposal",
-    "Lost",
-    "In Progress",
-  ];
+  useEffect(() => {
+    dispatch(adminGetAllLeads());
+  }, [dispatch]);
+
+  // 🔹 Filtered Leads
+  const filteredLeads = leads
+    .filter((lead) => filter === "All" || lead.status === filter)
+    .filter((lead) =>
+      [lead.name, lead.email, lead.phone].some(
+        (field) =>
+          field &&
+          field.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    );
+
+  const statuses = ["All", "NEW", "CONTACTED", "QUALIFIED", "LOST", "WON"];
+
+  // 🔹 Kanban columns
+  const columns = statuses
+    .filter((status) => status !== "All")
+    .map((status) => ({
+      title: status,
+      cards: leads.filter((lead) => lead.status === status),
+    }));
 
   return (
     <>
-      <div className="flex flex-row justify-between items-center mb-4">
+      {/* Header */}
+      <div className="flex justify-between items-center mb-4">
         <div>
           <h3 className="text-[22px] font-lato">Leads</h3>
           <p className="text-sm text-fontgrey">
@@ -99,19 +65,20 @@ export default function Leads() {
         </button>
       </div>
 
+      {/* Status Filter */}
       {activeTab === "table" && (
         <div className="flex gap-2 mb-4 flex-wrap">
           {statuses.map((status) => (
             <button
               key={status}
               onClick={() => setFilter(status)}
-              className={`rounded-[8px] px-4 py-1 text-sm font-medium border-[0.8px]
-        w-[123px] h-[27px] opacity-100
-        ${
-          filter === status
-            ? "bg-cyan text-white"
-            : "bg-white text-[#5f5f5f] hover:bg-cyan hover:text-white"
-        }`}
+              className={`rounded-[8px] px-4 py-1 text-sm font-medium border
+                w-[123px] h-[27px]
+                ${
+                  filter === status
+                    ? "bg-cyan text-white"
+                    : "bg-white text-[#5f5f5f] hover:bg-cyan hover:text-white"
+                }`}
             >
               {status}
             </button>
@@ -119,30 +86,33 @@ export default function Leads() {
         </div>
       )}
 
-      <div className="flex flex-row">
+      {/* Search + Tabs */}
+      <div className="flex">
         {activeTab === "table" && (
           <div className="w-full flex justify-start mt-4 mb-2">
             <div className="relative w-[430px]">
               <IoSearchSharp className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
               <input
                 type="text"
-                placeholder="Search leads, contacts, deals....."
-                className="w-full h-[30px] rounded-[8px] border-[0.5px] pl-10 pr-3 text-sm outline-none"
+                placeholder="Search leads by name, email, phone..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full h-[30px] rounded-[8px] border pl-10 pr-3 text-sm outline-none"
               />
             </div>
           </div>
         )}
 
-        <div className="w-full flex   justify-end mt-4">
-          <div className="flex flex-row gap-4">
+        <div className="w-full flex justify-end mt-4">
+          <div className="flex gap-4">
             <button
               onClick={() => setActiveTab("kanban")}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg border 
-        ${
-          activeTab === "kanban"
-            ? "bg-white border-cyan text-cyan shadow"
-            : "bg-transparent hover:bg-gray-100 border-gray-300"
-        }`}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg border
+                ${
+                  activeTab === "kanban"
+                    ? "bg-white border-cyan text-cyan shadow"
+                    : "border-gray-300 hover:bg-gray-100"
+                }`}
             >
               <RxDashboard size={14} />
               Kanban
@@ -150,12 +120,12 @@ export default function Leads() {
 
             <button
               onClick={() => setActiveTab("table")}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg border 
-        ${
-          activeTab === "table"
-            ? "bg-white border-cyan text-cyan shadow"
-            : "bg-transparent hover:bg-gray-100 border-gray-300"
-        }`}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg border
+                ${
+                  activeTab === "table"
+                    ? "bg-white border-cyan text-cyan shadow"
+                    : "border-gray-300 hover:bg-gray-100"
+                }`}
             >
               <RxTable size={14} />
               Table
@@ -164,12 +134,26 @@ export default function Leads() {
         </div>
       </div>
 
+      {/* States */}
+      {loading && (
+        <p className="mt-4 text-sm text-gray-500">Loading leads...</p>
+      )}
+      {error && (
+        <p className="mt-4 text-sm text-red-500">{error}</p>
+      )}
+
+      {/* Content */}
       <div className="mt-6">
         {activeTab === "kanban" && <Kanban columns={columns} />}
+
         {activeTab === "table" && (
-          <CommonTable type="leads" data={filteredTableData} />
+          <CommonTable
+            type="leads"
+            data={filteredLeads}
+            onRowClick={(leadId) => navigate(`/admin/lead-details/${leadId}`)}
+          />
         )}
       </div>
-    </>
+    </> 
   );
 }

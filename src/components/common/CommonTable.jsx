@@ -1,9 +1,10 @@
 import React from "react";
 
 export default function CommonTable({
-  type = "leads" ,
+  type = "leads",
   data = [],
   onStatusToggle,
+  onRowClick, // for row click navigation
 }) {
   const headersByType = {
     departments: [
@@ -19,9 +20,11 @@ export default function CommonTable({
       { header: "Phone", accessor: "phone" },
       { header: "Source", accessor: "source" },
       { header: "Status", accessor: "status" },
-      { header: "AssignedTo", accessor: "assigned_to" },
-      { header: "CustomerId", accessor: "customer_id" },
-      { header: "DepartmentId", accessor: "department_id" },
+      { header: "Owner", accessor: "ownerName" },
+      { header: "Assigned To", accessor: "assignedToName" },
+      { header: "Department", accessor: "departmentName" },
+      { header: "Customer ID", accessor: "customerId" },
+      { header: "Created At", accessor: "createdAt" },
     ],
 
     Contact: [
@@ -92,22 +95,17 @@ export default function CommonTable({
             data.map((row, idx) => (
               <tr
                 key={idx}
-                className="border-t hover:bg-gray-50 transition-colors"
+                className="border-t hover:bg-gray-50 transition-colors cursor-pointer"
+                onClick={() => onRowClick && onRowClick(row.id)}
               >
                 {columns.map((col, cidx) => (
                   <td key={cidx} className="px-4 py-2 text-sm text-gray-700">
                     {col.accessor === "actions" ? (
                       <div className="flex gap-2">
-                        <button
-                          className="px-2 py-1 bg-blue-500 text-white rounded text-xs"
-                          onClick={() => console.log("Edit", row.id)}
-                        >
+                        <button className="px-2 py-1 bg-blue-500 text-white rounded text-xs">
                           Edit
                         </button>
-                        <button
-                          className="px-2 py-1 bg-red-500 text-white rounded text-xs"
-                          onClick={() => console.log("Delete", row.id)}
-                        >
+                        <button className="px-2 py-1 bg-red-500 text-white rounded text-xs">
                           Delete
                         </button>
                       </div>
@@ -117,21 +115,7 @@ export default function CommonTable({
                           type="checkbox"
                           className="sr-only peer"
                           checked={row.status === "ACTIVE"}
-                          onChange={() =>
-                            onStatusToggle &&
-                            onStatusToggle(
-                              row.id,
-                              row.status === "ACTIVE" ? "INACTIVE" : "ACTIVE"
-                            )
-                          }
                         />
-                        {/* <div
-                          className="relative w-11 h-6 bg-gray-300 rounded-full peer
-      peer-checked:bg-green-500
-      after:content-[''] after:absolute after:top-0.5 after:left-0.5
-      after:bg-white after:h-5 after:w-5 after:rounded-full after:transition-all
-      peer-checked:after:translate-x-full"
-                        /> */}
                         <span className="ml-2 text-xs font-medium text-gray-700">
                           {row.status}
                         </span>
