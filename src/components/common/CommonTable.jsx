@@ -66,6 +66,20 @@ export default function CommonTable({
       { header: "Status", accessor: "status" },
       { header: "Actions", accessor: "actions" },
     ],
+
+   
+tickets: [
+  { header: "ID", accessor: "id", sortable: true },
+  { header: "Title", accessor: "title", sortable: true },
+  { header: "Priority", accessor: "priority", sortable: true },
+  { header: "Status", accessor: "status", sortable: true },
+  { header: "Type", accessor: "type", sortable: true },
+  { header: "Assignee", accessor: "assignee", sortable: true },
+  { header: "Reporter", accessor: "reporter", sortable: true },
+  { header: "Created", accessor: "createdAt", sortable: true },
+  { header: "Due Date", accessor: "dueDate", sortable: true },
+  { header: "Actions", accessor: "actions", sortable: false },
+]
   };
 
   const columns = headersByType[type] || [];

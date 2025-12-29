@@ -1,57 +1,58 @@
 import React from "react";
-import { LuUsers, LuTrendingUp, LuPackage } from "react-icons/lu";
-import { FiUserCheck, FiUserMinus } from "react-icons/fi";
-import { GoGraph } from "react-icons/go";
+import { LuTicket } from "react-icons/lu";
+import { FiClock, FiCheckCircle, FiAlertCircle, FiUsers } from "react-icons/fi";
+import { GoIssueOpened } from "react-icons/go";
+import { MdOutlinePriorityHigh } from "react-icons/md";
 
-export default function CustomerStats({ stats }) {
+export default function TicketStats({ stats }) {
   const cards = [
     {
-      title: "Total Customers",
+      title: "Total Tickets",
       value: stats.total,
-      icon: <LuUsers size={24} className="text-white" />,
+      icon: <LuTicket size={24} className="text-white" />,
       color: "bg-blue-500",
       trend: "+12%",
-      description: "vs last month",
+      description: "vs last week",
     },
     {
-      title: "Active Customers",
-      value: stats.active,
-      icon: <FiUserCheck size={24} className="text-white" />,
-      color: "bg-green-500",
-      trend: "+8%",
-      description: "vs last month",
-    },
-    {
-      title: "New Customers",
-      value: stats.new,
-      icon: <LuTrendingUp size={24} className="text-white" />,
-      color: "bg-purple-500",
-      trend: "+15%",
-      description: "this month",
-    },
-    {
-      title: "Prospects",
-      value: stats.prospect,
-      icon: <FiUserMinus size={24} className="text-white" />,
-      color: "bg-yellow-500",
-      trend: "+5%",
-      description: "potential customers",
-    },
-    {
-      title: "Total Value",
-      value: `₹${stats.totalValue.toLocaleString('en-IN')}`,
-      icon: <GoGraph size={24} className="text-white" />,
+      title: "Open Tickets",
+      value: stats.open,
+      icon: <GoIssueOpened size={24} className="text-white" />,
       color: "bg-amber-500",
-      trend: "+18%",
-      description: "revenue",
+      trend: "-3%",
+      description: "vs last week",
     },
     {
-      title: "Avg. Value",
-      value: `₹${Math.round(stats.avgValue).toLocaleString('en-IN')}`,
-      icon: <LuPackage size={24} className="text-white" />,
-      color: "bg-cyan",
+      title: "In Progress",
+      value: stats.inProgress,
+      icon: <FiClock size={24} className="text-white" />,
+      color: "bg-purple-500",
+      trend: "+8%",
+      description: "active tickets",
+    },
+    {
+      title: "Resolved",
+      value: stats.resolved,
+      icon: <FiCheckCircle size={24} className="text-white" />,
+      color: "bg-green-500",
+      trend: "+15%",
+      description: "this week",
+    },
+    {
+      title: "High Priority",
+      value: stats.highPriority,
+      icon: <MdOutlinePriorityHigh size={24} className="text-white" />,
+      color: "bg-red-500",
       trend: "+5%",
-      description: "per customer",
+      description: "urgent tickets",
+    },
+    {
+      title: "Avg. Resolution",
+      value: `${stats.avgResolutionTime}h`,
+      icon: <FiAlertCircle size={24} className="text-white" />,
+      color: "bg-cyan",
+      trend: "-10%",
+      description: "faster than last month",
     },
   ];
 

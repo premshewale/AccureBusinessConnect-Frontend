@@ -9,6 +9,7 @@ import Kanban from "../../../components/common/Kanban.jsx";
 import CommonTable from "../../../components/common/CommonTable.jsx";
 import CustomerStats from "./CustomerStats.jsx";
 import CustomerFilter from "./CustomerFilter.jsx";
+import { useCustomers } from "../../../contexts/CustomerContext"; // Import context
 
 export default function Customers() {
   const [activeTab, setActiveTab] = useState("table");
@@ -24,131 +25,53 @@ export default function Customers() {
   
   const navigate = useNavigate();
   
-  // Static customer data
-  const customers = [
-    {
-      id: 1,
-      name: "Rajesh Kumar",
-      email: "rajesh@techcorp.com",
-      phone: "+91 98765 43210",
-      company: "TechCorp Solutions",
-      industry: "Technology",
-      status: "active",
-      source: "Website",
-      totalValue: 250000,
-      lastContact: "2024-01-15",
-      createdAt: "2024-01-10",
-    },
-    {
-      id: 2,
-      name: "Priya Sharma",
-      email: "priya@healthplus.com",
-      phone: "+91 87654 32109",
-      company: "HealthPlus Clinics",
-      industry: "Healthcare",
-      status: "new",
-      source: "Referral",
-      totalValue: 150000,
-      lastContact: "2024-01-14",
-      createdAt: "2024-01-12",
-    },
-    {
-      id: 3,
-      name: "Amit Patel",
-      email: "amit@finwise.com",
-      phone: "+91 76543 21098",
-      company: "FinWise Advisors",
-      industry: "Finance",
-      status: "active",
-      source: "Email",
-      totalValue: 500000,
-      lastContact: "2024-01-13",
-      createdAt: "2024-01-05",
-    },
-    {
-      id: 4,
-      name: "Sneha Reddy",
-      email: "sneha@retailmart.com",
-      phone: "+91 65432 10987",
-      company: "RetailMart Stores",
-      industry: "Retail",
-      status: "inactive",
-      source: "Social Media",
-      totalValue: 100000,
-      lastContact: "2023-12-20",
-      createdAt: "2023-12-15",
-    },
-    {
-      id: 5,
-      name: "Vikram Singh",
-      email: "vikram@manufacture.com",
-      phone: "+91 54321 09876",
-      company: "ManufacturePro Ltd",
-      industry: "Manufacturing",
-      status: "active",
-      source: "Cold Call",
-      totalValue: 750000,
-      lastContact: "2024-01-14",
-      createdAt: "2024-01-08",
-    },
-    {
-      id: 6,
-      name: "Anjali Mehta",
-      email: "anjali@eduplus.com",
-      phone: "+91 43210 98765",
-      company: "EduPlus Academy",
-      industry: "Education",
-      status: "prospect",
-      source: "Event",
-      totalValue: 300000,
-      lastContact: "2024-01-12",
-      createdAt: "2024-01-10",
-    },
-    {
-      id: 7,
-      name: "Karthik Nair",
-      email: "karthik@realtors.com",
-      phone: "+91 32109 87654",
-      company: "Prime Realtors",
-      industry: "Real Estate",
-      status: "active",
-      source: "Website",
-      totalValue: 1200000,
-      lastContact: "2024-01-15",
-      createdAt: "2024-01-03",
-    },
-    {
-      id: 8,
-      name: "Meera Joshi",
-      email: "meera@hotelgroup.com",
-      phone: "+91 21098 76543",
-      company: "Grand Hotel Group",
-      industry: "Hospitality",
-      status: "new",
-      source: "Referral",
-      totalValue: 80000,
-      lastContact: "2024-01-13",
-      createdAt: "2024-01-11",
-    },
-  ];
-
+  // Get customers and functions from context
+  const { customers, loading, deleteCustomer, getCustomerStats } = useCustomers();
+  const customerStats = getCustomerStats();
+  
   // Refresh customers
   const handleRefresh = () => {
-    alert("Customers refreshed!");
+    window.location.reload(); // Simple refresh
   };
- 
-  {/* // Export customers
+  
+  // Export customers
   const handleExport = () => {
-    alert("Export functionality would download customer data as CSV");
-  };*/}
- 
+    const csvData = customers.map(customer => ({
+      ID: customer.id,
+      Name: customer.name,
+      Email: customer.email,
+      Phone: customer.phone,
+      Company: customer.company,
+      Industry: customer.industry,
+      Status: customer.status,
+      Source: customer.source,
+      "Total Value": customer.totalValue,
+      "Last Contact": customer.lastContact,
+    }));
+    
+    // Simple CSV export
+    const csvContent = [
+      Object.keys(csvData[0]).join(','),
+      ...csvData.map(row => Object.values(row).join(','))
+    ].join('\n');
+    
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `customers-export-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    
+    alert("Customers exported successfully!");
+  };
   
   // Filter customers based on active filters
   const filteredCustomers = customers.filter(customer => {
     // Search filter
-    if (searchQuery && !customer.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
-        !customer.email.toLowerCase().includes(searchQuery.toLowerCase()) &&
-        !customer.company.toLowerCase().includes(searchQuery.toLowerCase())) {
+    if (searchQuery && 
+        !customer.name?.toLowerCase().includes(searchQuery.toLowerCase()) &&
+        !customer.email?.toLowerCase().includes(searchQuery.toLowerCase()) &&
+        !customer.company?.toLowerCase().includes(searchQuery.toLowerCase())) {
       return false;
     }
     
@@ -173,10 +96,10 @@ export default function Customers() {
     return true;
   });
   
-  // Convert filtered customers to Kanban format 
+  // Convert filtered customers to Kanban format
   const kanbanColumns = [
     {
-      title: "New",
+      title: "New/Prospect",
       cards: filteredCustomers.filter(c => c.status === "new" || c.status === "prospect").map(customer => ({
         id: customer.id,
         name: customer.name,
@@ -229,17 +152,24 @@ export default function Customers() {
   const statuses = ["All", "Active", "Inactive", "New", "Prospect", "Lost"];
 
   const handleEdit = (customer) => {
-    alert(`Edit customer: ${customer.name}\nID: ${customer.id}`);
+    navigate(`/admin/edit-customer/${customer.id}`);
+    // Or show edit modal
   };
 
-  const handleDelete = (customer) => {
+  const handleDelete = async (customer) => {
     if (confirm(`Are you sure you want to delete ${customer.name}?`)) {
-      alert(`Customer ${customer.name} deleted!`);
+      try {
+        await deleteCustomer(customer.id);
+        alert(`Customer ${customer.name} deleted successfully!`);
+      } catch (error) {
+        alert(`Error deleting customer: ${error.message}`);
+      }
     }
   };
 
   const handleView = (customer) => {
-    alert(`View customer details for: ${customer.name}`);
+    navigate(`/admin/customers/${customer.id}`);
+    // Or show view modal
   };
 
   return (
@@ -259,17 +189,17 @@ export default function Customers() {
       </div>
 
       {/* Statistics Cards */}
-      <CustomerStats customers={customers} />
+      <CustomerStats stats={customerStats} />
 
       {/* Actions Bar */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 p-4 bg-white rounded-lg shadow-sm border">
         <div className="flex items-center gap-4">
-          {/*<button
+          <button
             onClick={handleExport}
             className="px-4 py-2 border border-cyan text-cyan rounded-lg hover:bg-cyan-50 transition-colors flex items-center gap-2"
           >
             <FiDownload /> Export
-          </button>*/}
+          </button>
           
           <button
             onClick={handleRefresh}
@@ -363,7 +293,11 @@ export default function Customers() {
       
       {/* Content Area */}
       <div className="bg-white rounded-xl shadow-sm border p-4">
-        {filteredCustomers.length === 0 ? (
+        {loading ? (
+          <div className="flex justify-center items-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-cyan"></div>
+          </div>
+        ) : filteredCustomers.length === 0 ? (
           <div className="text-center p-8 text-gray-500">
             <div className="text-4xl mb-4">📁</div>
             <p className="text-lg mb-2">No customers found</p>
@@ -382,7 +316,7 @@ export default function Customers() {
                 onEdit={handleEdit}
                 onDelete={handleDelete}
                 onView={handleView}
-                showExport={true}
+                showExport={false} 
                 showActions={true}
               />
             )}

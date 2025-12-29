@@ -1,5 +1,3 @@
-//Router
-
 import { createBrowserRouter, Navigate } from "react-router-dom";
 
 import Login from "../pages/admin/auth/Login.jsx";
@@ -20,7 +18,8 @@ import Customers from "../pages/admin/customers/Customers.jsx";
 import CreateCustomer from "../pages/admin/customers/CreateCustomer.jsx";
 import Contacts from "../pages/admin/contacts/Contacts.jsx";
 import Task from "../pages/admin/task/Task.jsx";
-import Ticket from "../pages/admin/ticket/Ticket.jsx";
+import Tickets from "../pages/admin/ticket/Ticket.jsx";
+import CreateTicket from "../pages/admin/ticket/CreateTicket.jsx";
 import Expences from "../pages/admin/expences/Expences.jsx";
 import Invoices from "../pages/admin/invoices/Invoices.jsx";
 import Payment from "../pages/admin/payment/Payment.jsx";
@@ -29,12 +28,14 @@ import Staff from "../pages/admin/staff/Staff.jsx";
 import CreateContact from "../pages/admin/contacts/CreateContact.jsx";
 
 import RoleInterceptor from "../security/RoleInterceptor.jsx";
+import CustomerProvider from "../contexts/CustomerContext.jsx";
+import TicketProvider from "../contexts/TicketContext.jsx";
 
 const router = createBrowserRouter([
   // Public Routes
   {
     path: "/",
-    element: <Navigate to="/admin/login" replace />, // Redirect root to login for consistency
+    element: <Navigate to="/admin/login" replace />,
     errorElement: <ErrorPage />,
   },
   { path: "/admin/login", element: <Login /> },
@@ -52,10 +53,6 @@ const router = createBrowserRouter([
     ),
     errorElement: <ErrorPage />,
     children: [
-      // { 
-      //   index: true, // Handle /admin directly -> dashboard
-      //   element: <Navigate to="dashboard" replace /> 
-      // },
       { path: "dashboard", element: <Dashboard /> },
 
       // -------- Admin Only --------
@@ -113,7 +110,7 @@ const router = createBrowserRouter([
         path: "customers",
         element: (
           <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN"]}>
-            <Customers />
+          <Customers /> 
           </RoleInterceptor>
         ),
       },
@@ -160,11 +157,20 @@ const router = createBrowserRouter([
           </RoleInterceptor>
         ),
       },
+      
       {
         path: "ticket",
         element: (
           <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
-            <Ticket />
+          <Tickets />
+          </RoleInterceptor>
+        ),
+      },
+      {
+        path: "create-ticket",
+        element: (
+          <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
+            <CreateTicket />
           </RoleInterceptor>
         ),
       },
@@ -177,7 +183,7 @@ const router = createBrowserRouter([
         ),
       },
 
-      // Payment — all roles (added wrapper for consistency)
+      // Payment
       {
         path: "payment",
         element: (
