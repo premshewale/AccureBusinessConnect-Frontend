@@ -2,14 +2,15 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { RxDashboard, RxTable } from "react-icons/rx";
 import { IoSearchSharp, IoFilterSharp } from "react-icons/io5";
-import { FiDownload } from "react-icons/fi";
 import { MdOutlineRefresh } from "react-icons/md";
+import { FiDownload } from "react-icons/fi";
 
 import Kanban from "../../../components/common/Kanban.jsx";
 import CommonTable from "../../../components/common/CommonTable.jsx";
+import CommonExportButton from "../../../components/common/CommonExportButton.jsx";
 import CustomerStats from "./CustomerStats.jsx";
 import CustomerFilter from "./CustomerFilter.jsx";
-import { useCustomers } from "../../../contexts/CustomerContext"; // Import context
+import { useCustomers } from "../../../contexts/CustomerContext";
 
 export default function Customers() {
   const [activeTab, setActiveTab] = useState("table");
@@ -31,39 +32,23 @@ export default function Customers() {
   
   // Refresh customers
   const handleRefresh = () => {
-    window.location.reload(); // Simple refresh
+    window.location.reload();
   };
   
-  // Export customers
-  const handleExport = () => {
-    const csvData = customers.map(customer => ({
-      ID: customer.id,
-      Name: customer.name,
-      Email: customer.email,
-      Phone: customer.phone,
-      Company: customer.company,
-      Industry: customer.industry,
-      Status: customer.status,
-      Source: customer.source,
-      "Total Value": customer.totalValue,
-      "Last Contact": customer.lastContact,
-    }));
-    
-    // Simple CSV export
-    const csvContent = [
-      Object.keys(csvData[0]).join(','),
-      ...csvData.map(row => Object.values(row).join(','))
-    ].join('\n');
-    
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `customers-export-${new Date().toISOString().split('T')[0]}.csv`;
-    a.click();
-    
-    alert("Customers exported successfully!");
-  };
+  // Prepare data for export
+  const exportData = customers.map(customer => ({
+    ID: customer.id,
+    Name: customer.name,
+    Email: customer.email,
+    Phone: customer.phone,
+    Company: customer.company,
+    Industry: customer.industry,
+    Status: customer.status,
+    Source: customer.source,
+    "Total Value": customer.totalValue,
+    "Last Contact": customer.lastContact,
+    Created: customer.createdAt,
+  }));
   
   // Filter customers based on active filters
   const filteredCustomers = customers.filter(customer => {
@@ -153,7 +138,6 @@ export default function Customers() {
 
   const handleEdit = (customer) => {
     navigate(`/admin/edit-customer/${customer.id}`);
-    // Or show edit modal
   };
 
   const handleDelete = async (customer) => {
@@ -169,7 +153,6 @@ export default function Customers() {
 
   const handleView = (customer) => {
     navigate(`/admin/customers/${customer.id}`);
-    // Or show view modal
   };
 
   return (
@@ -194,12 +177,11 @@ export default function Customers() {
       {/* Actions Bar */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 p-4 bg-white rounded-lg shadow-sm border">
         <div className="flex items-center gap-4">
-          <button
-            onClick={handleExport}
-            className="px-4 py-2 border border-cyan text-cyan rounded-lg hover:bg-cyan-50 transition-colors flex items-center gap-2"
-          >
-            <FiDownload /> Export
-          </button>
+          {/* Use CommonExportButton instead of custom export */}
+          <CommonExportButton 
+            data={exportData}
+            fileName="customers"
+          />
           
           <button
             onClick={handleRefresh}
@@ -316,7 +298,7 @@ export default function Customers() {
                 onEdit={handleEdit}
                 onDelete={handleDelete}
                 onView={handleView}
-                showExport={false} 
+                showExport={false} // Disable export in table since we have CommonExportButton
                 showActions={true}
               />
             )}

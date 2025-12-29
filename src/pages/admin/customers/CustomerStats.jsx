@@ -40,7 +40,7 @@ export default function CustomerStats({ stats }) {
     {
       title: "Total Value",
       value: `₹${stats.totalValue.toLocaleString('en-IN')}`,
-      icon: <GoGraph size={24} className="text-white" />,
+      icon: <GoGraph size={20} className="text-white" />,
       color: "bg-amber-500",
       trend: "+18%",
       description: "revenue",

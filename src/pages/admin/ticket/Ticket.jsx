@@ -2,11 +2,12 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { RxDashboard, RxTable } from "react-icons/rx";
 import { IoSearchSharp, IoFilterSharp } from "react-icons/io5";
-import { FiDownload, FiPlus } from "react-icons/fi";
 import { MdOutlineRefresh } from "react-icons/md";
+import { FiPlus } from "react-icons/fi";
 
 import Kanban from "../../../components/common/Kanban.jsx";
 import CommonTable from "../../../components/common/CommonTable.jsx";
+import CommonExportButton from "../../../components/common/CommonExportButton.jsx";
 import TicketStats from "./TicketStats.jsx";
 import TicketFilter from "./TicketFilter.jsx";
 import { useTickets } from "../../../contexts/TicketContext.jsx";
@@ -34,35 +35,21 @@ export default function Tickets() {
     window.location.reload();
   };
   
-  // Export tickets
-  const handleExport = () => {
-    const csvData = tickets.map(ticket => ({
-      ID: ticket.id,
-      Title: ticket.title,
-      Priority: ticket.priority,
-      Status: ticket.status,
-      Type: ticket.type,
-      Assignee: ticket.assignee,
-      Reporter: ticket.reporter,
-      Created: ticket.createdAt,
-      Due: ticket.dueDate,
-    }));
-    
-    // Simple CSV export
-    const csvContent = [
-      Object.keys(csvData[0]).join(','),
-      ...csvData.map(row => Object.values(row).join(','))
-    ].join('\n');
-    
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `tickets-export-${new Date().toISOString().split('T')[0]}.csv`;
-    a.click();
-    
-    alert("Tickets exported successfully!");
-  };
+  // Prepare data for export
+  const exportData = tickets.map(ticket => ({
+    ID: ticket.id,
+    Title: ticket.title,
+    Description: ticket.description,
+    Priority: ticket.priority,
+    Status: ticket.status,
+    Type: ticket.type,
+    Assignee: ticket.assignee,
+    Reporter: ticket.reporter,
+    Customer: ticket.customerName,
+    Created: ticket.createdAt,
+    Updated: ticket.updatedAt,
+    "Due Date": ticket.dueDate,
+  }));
   
   // Filter tickets based on active filters
   const filteredTickets = tickets.filter(ticket => {
@@ -109,14 +96,13 @@ export default function Tickets() {
         service: ticket.type,
         phone: ticket.priority === "high" ? "🔥 High" : 
                 ticket.priority === "medium" ? "⚠️ Medium" : "✅ Low",
+        email: ticket.assignee,
         createdOn: new Date(ticket.createdAt).toLocaleDateString('en-IN', {
           day: '2-digit',
           month: 'short',
           year: 'numeric'
         }),
         status: "Open",
-        description: ticket.description?.substring(0, 50) + "...",
-        assignee: ticket.assignee,
       })),
     },
     {
@@ -127,14 +113,13 @@ export default function Tickets() {
         service: ticket.type,
         phone: ticket.priority === "high" ? "🔥 High" : 
                 ticket.priority === "medium" ? "⚠️ Medium" : "✅ Low",
+        email: ticket.assignee,
         createdOn: new Date(ticket.createdAt).toLocaleDateString('en-IN', {
           day: '2-digit',
           month: 'short',
           year: 'numeric'
         }),
         status: "In Progress",
-        description: ticket.description?.substring(0, 50) + "...",
-        assignee: ticket.assignee,
       })),
     },
     {
@@ -145,14 +130,13 @@ export default function Tickets() {
         service: ticket.type,
         phone: ticket.priority === "high" ? "🔥 High" : 
                 ticket.priority === "medium" ? "⚠️ Medium" : "✅ Low",
+        email: ticket.assignee,
         createdOn: new Date(ticket.createdAt).toLocaleDateString('en-IN', {
           day: '2-digit',
           month: 'short',
           year: 'numeric'
         }),
         status: "Resolved",
-        description: ticket.description?.substring(0, 50) + "...",
-        assignee: ticket.assignee,
       })),
     },
     {
@@ -163,14 +147,13 @@ export default function Tickets() {
         service: ticket.type,
         phone: ticket.priority === "high" ? "🔥 High" : 
                 ticket.priority === "medium" ? "⚠️ Medium" : "✅ Low",
+        email: ticket.assignee,
         createdOn: new Date(ticket.createdAt).toLocaleDateString('en-IN', {
           day: '2-digit',
           month: 'short',
           year: 'numeric'
         }),
         status: "Closed",
-        description: ticket.description?.substring(0, 50) + "...",
-        assignee: ticket.assignee,
       })),
     },
   ];
@@ -197,12 +180,6 @@ export default function Tickets() {
     navigate(`/admin/tickets/${ticket.id}`);
   };
 
-  // Update CommonTable data format for tickets
-  const tableData = filteredTickets.map(ticket => ({
-    ...ticket,
-    actions: "", // Placeholder for actions column
-  }));
-
   return (
     <div className="p-4">
       {/* Header */}
@@ -225,12 +202,11 @@ export default function Tickets() {
       {/* Actions Bar */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 p-4 bg-white rounded-lg shadow-sm border">
         <div className="flex items-center gap-4">
-          <button
-            onClick={handleExport}
-            className="px-4 py-2 border border-cyan text-cyan rounded-lg hover:bg-cyan-50 transition-colors flex items-center gap-2"
-          >
-            <FiDownload /> Export
-          </button>
+          {/* Use CommonExportButton */}
+          <CommonExportButton 
+            data={exportData}
+            fileName="tickets"
+          />
           
           <button
             onClick={handleRefresh}
@@ -349,11 +325,11 @@ export default function Tickets() {
             {activeTab === "table" && (
               <CommonTable
                 type="tickets"
-                data={tableData}
+                data={filteredTickets}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
                 onView={handleView}
-                showExport={false} 
+                showExport={false}
                 showActions={true}
               />
             )}

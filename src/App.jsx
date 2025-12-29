@@ -5,6 +5,8 @@ import router from "./routes/router.jsx";
 import { initializeAuth } from "./slices/auth/loginSlice.js";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import CustomerProvider from "./contexts/CustomerContext.jsx";
+import TicketProvider from "./contexts/TicketContext.jsx";
 
 
 function App() {

@@ -4,9 +4,12 @@ import Login from "../pages/admin/auth/Login.jsx";
 import ForgotPassword from "../pages/admin/auth/ForgotPassword.jsx";
 import ResetPassword from "../pages/admin/auth/ResetPassword.jsx";
 import Unauthorized from "../pages/admin/auth/Unauthorized.jsx";
+
 import Dashboard from "../pages/admin/dashboard/Dashboard.jsx";
 import AdminLayout from "../layouts/admin/AdminLayout.jsx";
+
 import ErrorPage from "../components/common/ErrorPage.jsx";
+
 import CreateUser from "../pages/admin/user/CreateUser.jsx";
 import Users from "../pages/admin/user/Users.jsx";
 import Leads from "../pages/admin/leads/Leads.jsx";
@@ -24,7 +27,12 @@ import CreateLead from "../pages/admin/leads/CreateLead.jsx";
 import Staff from "../pages/subadmin/staff/Staff.jsx";
 import CreateStaff from "../pages/subadmin/staff/CreateStaff.jsx";
 import CreateContact from "../pages/admin/contacts/CreateContact.jsx";
+
 import RoleInterceptor from "../security/RoleInterceptor.jsx";
+
+import Department from "../pages/admin/department/Department.jsx";
+import Profile from "../pages/common/Profile.jsx";
+import LeadDetailsPage from "../pages/admin/leads/Leads.jsx";
 
 const router = createBrowserRouter([
   // Public Routes
@@ -52,14 +60,6 @@ const router = createBrowserRouter([
 
       // -------- Admin Only --------
       {
-        path: "department",
-        element: (
-          <RoleInterceptor allowedRoles={["ADMIN"]}>
-            <Department />
-          </RoleInterceptor>
-        ),
-      },
-      {
         path: "users",
         element: (
           <RoleInterceptor allowedRoles={["ADMIN"]}>
@@ -83,8 +83,16 @@ const router = createBrowserRouter([
           </RoleInterceptor>
         ),
       },
-            // -------- SubAdmin --------
+      {
+        path: "department",
+        element: (
+          <RoleInterceptor allowedRoles={["ADMIN"]}>
+            <Department />
+          </RoleInterceptor>
+        ),
+      },
 
+      // -------- SubAdmin Only --------
       {
         path: "staff",
         element: (
@@ -120,22 +128,29 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: "customers",
+        path: "lead-details/:id",
         element: (
           <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN"]}>
-          <Customers /> 
+            <LeadDetailsPage />
           </RoleInterceptor>
         ),
       },
       {
-        path: "create-customer", 
+        path: "customers",
+        element: (
+          <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN"]}>
+            <Customers />
+          </RoleInterceptor>
+        ),
+      },
+      {
+        path: "create-customer",
         element: (
           <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN"]}>
             <CreateCustomer />
           </RoleInterceptor>
         ),
       },
-            
       {
         path: "invoices",
         element: (
@@ -155,14 +170,6 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: "profile",
-        element: (
-          <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
-            <Profile />
-          </RoleInterceptor>
-        ),
-      },
-      {
         path: "create-contact",
         element: (
           <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
@@ -178,12 +185,11 @@ const router = createBrowserRouter([
           </RoleInterceptor>
         ),
       },
-      
       {
         path: "ticket",
         element: (
           <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
-          <Tickets />
+            <Tickets />
           </RoleInterceptor>
         ),
       },
@@ -200,6 +206,14 @@ const router = createBrowserRouter([
         element: (
           <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
             <Expences />
+          </RoleInterceptor>
+        ),
+      },
+      {
+        path: "profile",
+        element: (
+          <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
+            <Profile />
           </RoleInterceptor>
         ),
       },

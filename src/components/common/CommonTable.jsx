@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { FiDownload, FiFilter, FiEye, FiEdit, FiTrash2, FiMoreVertical } from "react-icons/fi";
-import { CSVLink } from "react-csv"; // You'll need to install: npm install react-csv
+import { CSVLink } from "react-csv";
 
 export default function CommonTable({ 
   type = "customers", 
@@ -38,48 +38,63 @@ export default function CommonTable({
       { header: "Actions", accessor: "actions", sortable: false },
     ],
     leads: [
-      { header: "ID", accessor: "id" },
-      { header: "Name", accessor: "name" },
-      { header: "Email", accessor: "email" },
-      { header: "Phone", accessor: "phone" },
-      { header: "Source", accessor: "source" },
-      { header: "Owner Id", accessor: "ownerId" },
-      { header: "Department Id", accessor: "departmentId" },
-      { header: "Actions", accessor: "actions" },
+      { header: "ID", accessor: "id", sortable: true },
+      { header: "Name", accessor: "name", sortable: true },
+      { header: "Email", accessor: "email", sortable: true },
+      { header: "Phone", accessor: "phone", sortable: false },
+      { header: "Source", accessor: "source", sortable: true },
+      { header: "Owner", accessor: "ownerName", sortable: true },
+      { header: "Assigned To", accessor: "assignedToName", sortable: true },
+      { header: "Department", accessor: "departmentName", sortable: true },
+      { header: "Customer ID", accessor: "customerId", sortable: true },
+      { header: "Status", accessor: "status", sortable: true },
+      { header: "Created", accessor: "createdAt", sortable: true },
+      { header: "Actions", accessor: "actions", sortable: false },
+    ],
+    Contact: [
+      { header: "ID", accessor: "id", sortable: true },
+      { header: "Customer ID", accessor: "customer_id", sortable: true },
+      { header: "First Name", accessor: "firstname", sortable: true },
+      { header: "Last Name", accessor: "lastname", sortable: true },
+      { header: "Email", accessor: "email", sortable: true },
+      { header: "Phone", accessor: "phone", sortable: false },
+      { header: "Status", accessor: "status", sortable: true },
+      { header: "Role", accessor: "role", sortable: true },
+      { header: "Primary", accessor: "is_primary", sortable: true },
+      { header: "Actions", accessor: "actions", sortable: false },
     ],
     users: [
-      { header: "ID", accessor: "id" },
-      { header: "Name", accessor: "name" },
-      { header: "Email", accessor: "email" },
-      { header: "Role", accessor: "roleKey" },
-      { header: "Job Title", accessor: "jobTitle" },
-      { header: "Department", accessor: "department" },
-      { header: "Created At", accessor: "createdAt" },
-      { header: "Actions", accessor: "actions" },
+      { header: "ID", accessor: "id", sortable: true },
+      { header: "Name", accessor: "name", sortable: true },
+      { header: "Email", accessor: "email", sortable: true },
+      { header: "Role", accessor: "roleKey", sortable: true },
+      { header: "Job Title", accessor: "jobTitle", sortable: true },
+      { header: "Department", accessor: "department", sortable: true },
+      { header: "Created At", accessor: "createdAt", sortable: true },
+      { header: "Actions", accessor: "actions", sortable: false },
     ],
     contacts: [
-      { header: "ID", accessor: "id" },
-      { header: "Name", accessor: "name" },
-      { header: "Email", accessor: "email" },
-      { header: "Phone", accessor: "phone" },
-      { header: "Company", accessor: "company" },
-      { header: "Status", accessor: "status" },
-      { header: "Actions", accessor: "actions" },
+      { header: "ID", accessor: "id", sortable: true },
+      { header: "Name", accessor: "name", sortable: true },
+      { header: "Email", accessor: "email", sortable: true },
+      { header: "Phone", accessor: "phone", sortable: false },
+      { header: "Company", accessor: "company", sortable: true },
+      { header: "Status", accessor: "status", sortable: true },
+      { header: "Actions", accessor: "actions", sortable: false },
     ],
-
-   
-tickets: [
-  { header: "ID", accessor: "id", sortable: true },
-  { header: "Title", accessor: "title", sortable: true },
-  { header: "Priority", accessor: "priority", sortable: true },
-  { header: "Status", accessor: "status", sortable: true },
-  { header: "Type", accessor: "type", sortable: true },
-  { header: "Assignee", accessor: "assignee", sortable: true },
-  { header: "Reporter", accessor: "reporter", sortable: true },
-  { header: "Created", accessor: "createdAt", sortable: true },
-  { header: "Due Date", accessor: "dueDate", sortable: true },
-  { header: "Actions", accessor: "actions", sortable: false },
-]
+    tickets: [
+      { header: "ID", accessor: "id", sortable: true },
+      { header: "Title", accessor: "title", sortable: true },
+      { header: "Priority", accessor: "priority", sortable: true },
+      { header: "Status", accessor: "status", sortable: true },
+      { header: "Type", accessor: "type", sortable: true },
+      { header: "Assignee", accessor: "assignee", sortable: true },
+      { header: "Reporter", accessor: "reporter", sortable: true },
+      { header: "Customer", accessor: "customerName", sortable: true },
+      { header: "Created", accessor: "createdAt", sortable: true },
+      { header: "Due Date", accessor: "dueDate", sortable: true },
+      { header: "Actions", accessor: "actions", sortable: false },
+    ]
   };
 
   const columns = headersByType[type] || [];
@@ -142,9 +157,33 @@ tickets: [
       new: { color: "bg-blue-100 text-blue-800", label: "New" },
       prospect: { color: "bg-yellow-100 text-yellow-800", label: "Prospect" },
       lost: { color: "bg-red-100 text-red-800", label: "Lost" },
+      open: { color: "bg-blue-100 text-blue-800", label: "Open" },
+      in_progress: { color: "bg-yellow-100 text-yellow-800", label: "In Progress" },
+      resolved: { color: "bg-green-100 text-green-800", label: "Resolved" },
+      closed: { color: "bg-gray-100 text-gray-800", label: "Closed" },
+      high: { color: "bg-red-100 text-red-800", label: "High" },
+      medium: { color: "bg-yellow-100 text-yellow-800", label: "Medium" },
+      low: { color: "bg-green-100 text-green-800", label: "Low" },
     };
     
     const config = statusConfig[status?.toLowerCase()] || { color: "bg-gray-100 text-gray-800", label: status };
+    
+    return (
+      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${config.color}`}>
+        {config.label}
+      </span>
+    );
+  };
+
+  // Priority badge styling
+  const getPriorityBadge = (priority) => {
+    const priorityConfig = {
+      high: { color: "bg-red-100 text-red-800", label: "High" },
+      medium: { color: "bg-yellow-100 text-yellow-800", label: "Medium" },
+      low: { color: "bg-green-100 text-green-800", label: "Low" },
+    };
+    
+    const config = priorityConfig[priority?.toLowerCase()] || { color: "bg-gray-100 text-gray-800", label: priority };
     
     return (
       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${config.color}`}>
@@ -330,14 +369,18 @@ tickets: [
                         </div>
                       ) : col.accessor === "status" ? (
                         getStatusBadge(row[col.accessor])
+                      ) : col.accessor === "priority" ? (
+                        getPriorityBadge(row[col.accessor])
                       ) : col.accessor === "totalValue" ? (
                         <span className="font-medium">₹{row[col.accessor]?.toLocaleString('en-IN') || '0'}</span>
-                      ) : col.accessor === "createdAt" || col.accessor === "lastContact" ? (
+                      ) : col.accessor === "createdAt" || col.accessor === "lastContact" || col.accessor === "dueDate" ? (
                         <span className="text-gray-600">
                           {row[col.accessor] ? new Date(row[col.accessor]).toLocaleDateString('en-IN') : '-'}
                         </span>
+                      ) : col.accessor === "is_primary" ? (
+                        row[col.accessor] ? "Yes" : "No"
                       ) : (
-                        row[col.accessor]
+                        row[col.accessor] || '-'
                       )}
                     </td>
                   ))}
