@@ -27,7 +27,7 @@ import CreateContact from "../pages/admin/contacts/CreateContact.jsx";
 import RoleInterceptor from "../security/RoleInterceptor.jsx";
 import Department from "../pages/admin/department/Department.jsx";
 import Profile from "../pages/common/Profile.jsx";
-
+import LeadDetailsPage from "../pages/admin/leads/LeadDetailsPage.jsx";
 const router = createBrowserRouter([
   // Public Routes
   {
@@ -85,7 +85,7 @@ const router = createBrowserRouter([
           </RoleInterceptor>
         ),
       },
-            // -------- SubAdmin --------
+      // -------- SubAdmin --------
 
       {
         path: "staff",
@@ -121,6 +121,15 @@ const router = createBrowserRouter([
           </RoleInterceptor>
         ),
       },
+      {
+        path: "lead-details/:id",
+        element: (
+          <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN"]}>
+            <LeadDetailsPage />
+          </RoleInterceptor>
+        ),
+      },
+
       {
         path: "customers",
         element: (

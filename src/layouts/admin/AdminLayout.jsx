@@ -8,23 +8,24 @@ const AdminLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="flex h-screen">
-      {/* Sidebar */}
-      <AdminSidebar 
-        sidebarOpen={sidebarOpen} 
-        setSidebarOpen={setSidebarOpen} 
+    <div className="flex h-screen overflow-hidden">
+      
+      {/* Sidebar (fixed, no scroll) */}
+      <AdminSidebar
+        sidebarOpen={sidebarOpen}
+        setSidebarOpen={setSidebarOpen}
       />
 
-      {/* Main Section */}
-      <div className="flex-1 flex flex-col">
+      {/* Right Section */}
+      <div className="flex-1 flex flex-col overflow-hidden">
         
-        {/* Header */}
-        <AdminHeader 
+        {/* Header (fixed, no scroll) */}
+        <AdminHeader
           sidebarOpen={sidebarOpen}
           setSidebarOpen={setSidebarOpen}
         />
 
-        {/* Main Content */}
+        {/* Main Content (ONLY THIS SCROLLS) */}
         <main className="flex-1 bg-gray-50 overflow-y-auto">
           <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6">
             <ScrollToTop />
