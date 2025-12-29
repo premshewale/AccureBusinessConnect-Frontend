@@ -13,6 +13,9 @@ import adminGetLeadByIdReducer from "../slices/lead/adminGetLeadByIdSlice";
 import adminUpdateLeadReducer from "../slices/lead/adminUpdateLeadSlice";
 import adminDeleteLeadReducer from "../slices/lead/adminDeleteLeadSlice";
 import adminConvertLeadReducer from "../slices/lead/adminConvertLeadSlice";
+import adminUpdateUserReducer from "../slices/user/adminUpdateUserSlice";
+import adminGetUserByIdReducer from "../slices/user/adminGetUserByIdSlice";
+
 
 
 
@@ -40,6 +43,9 @@ export default configureStore({
     adminUpdateLead: adminUpdateLeadReducer,
     adminDeleteLead: adminDeleteLeadReducer,
     adminConvertLead: adminConvertLeadReducer,
+    adminUpdateUser: adminUpdateUserReducer,
+adminGetUserById: adminGetUserByIdReducer,
+
 
 
 
