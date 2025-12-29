@@ -8,8 +8,10 @@ const initialState = {
   role: null,
   isAuthenticated: false,
   isLoading: false,
+  isInitialized: false, // ✅ ADD THIS
   error: null,
 };
+
 
 const authSlice = createSlice({
   name: 'auth',
@@ -18,22 +20,27 @@ const authSlice = createSlice({
     clearError: (state) => {
       state.error = null;
     },
-    initializeAuth: (state) => {
-      const possibleRoles = ['admin', 'staff', 'subadmin'];
-      for (const role of possibleRoles) {
-        const accessTokenKey = `${role}AccessToken`;
-        const userKey = `${role}User`; // New: Store user data
-        const token = localStorage.getItem(accessTokenKey);
-        const userStr = localStorage.getItem(userKey);
-        if (token && userStr) {
-          state.user = JSON.parse(userStr);
-          state.role = role;
-          state.isAuthenticated = true;
-          return; // Stop after first valid session
-        }
-      }
-      // If no valid session, state remains initial (unauthenticated)
-    },
+initializeAuth: (state) => {
+  const possibleRoles = ['ADMIN', 'SUB_ADMIN', 'STAFF']; // ✅ FIXED
+
+  for (const role of possibleRoles) {
+    const accessTokenKey = `${role}AccessToken`;
+    const userKey = `${role}User`;
+
+    const token = localStorage.getItem(accessTokenKey);
+    const userStr = localStorage.getItem(userKey);
+
+    if (token && userStr) {
+      state.user = JSON.parse(userStr);
+      state.role = role;
+      state.isAuthenticated = true;
+      state.isInitialized = true;
+      return;
+    }
+  }
+
+  state.isInitialized = true;
+},
   },
   extraReducers: (builder) => {
     builder

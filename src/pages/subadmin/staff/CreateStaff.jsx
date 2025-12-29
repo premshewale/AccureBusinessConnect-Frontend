@@ -5,7 +5,7 @@ import CommonForm from "../../../components/common/CommonForm";
 import { adminCreateUser } from "../../../services/user/adminCreateUserApi";
 import { resetAdminCreateUser } from "../../../slices/user/adminCreateUserSlice";
 
-export default function CreateUser() {
+export default function CreateStaff() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -13,32 +13,35 @@ export default function CreateUser() {
     (state) => state.adminCreateUser
   );
 
-  const fields = [
-    { type: "text", label: "Name", name: "name" },
-    { type: "email", label: "Email", name: "email" },
-    { type: "password", label: "Password", name: "password" },
-    { type: "text", label: "Job Title", name: "jobTitle" },
-    {
-      type: "select",
-      label: "Role",
-      name: "roleKey",
-      options: [
-        { label: "Sub Admin", value: "SUB_ADMIN" },
-        { label: "Staff", value: "STAFF" },
-      ],
-    },
-    { type: "number", label: "Department ID", name: "departmentId" },
-  ];
+const fields = [
+  { type: "text", label: "Name", name: "name" },
+  { type: "email", label: "Email", name: "email" },
+  { type: "password", label: "Password", name: "password" },
+  { type: "text", label: "Job Title", name: "jobTitle" },
 
-  const handleSubmit = (data) => {
-    dispatch(adminCreateUser(data));
-  };
+  {
+    type: "text",
+    label: "Role",
+    name: "roleKey",
+    readOnly: true,
+    value: "STAFF",
+  },
+
+  { type: "number", label: "Department ID", name: "departmentId" },
+];
+
+
+
+const handleSubmit = (data) => {
+  console.log("Submitting data:", data); 
+  dispatch(adminCreateUser(data));
+};
 
   useEffect(() => {
     if (success) {
-      alert("User created successfully");
+      alert("Staff created successfully");
       dispatch(resetAdminCreateUser());
-      navigate("/admin/users");
+      navigate("/admin/staff"); 
     }
   }, [success, dispatch, navigate]);
 
@@ -52,7 +55,7 @@ export default function CreateUser() {
       )}
 
       <CommonForm
-        title="Create User"
+        title="Create Staff"
         fields={fields}
         onSubmit={handleSubmit}
       />

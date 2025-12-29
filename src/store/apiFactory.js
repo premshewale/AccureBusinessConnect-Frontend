@@ -2,22 +2,25 @@ import axios from "axios";
 
 const BASE_URL = "https://backend.abc.techsofast.com/api";
 
-const api = (role) => {
+const api = () => {
   const apiInstance = axios.create({
     baseURL: BASE_URL,
   });
 
-  const roleUpper = role.toUpperCase();
-
-  const accessTokenKey = `${role}AccessToken`;
-  const refreshTokenKey = `${role}RefreshToken`;
-
   // REQUEST
   apiInstance.interceptors.request.use(
     (config) => {
-      const token = localStorage.getItem(accessTokenKey);
-      if (token) config.headers.Authorization = `Bearer ${token}`;
-      config.headers["X-User-Role"] = roleUpper;
+      const possibleRoles = ["ADMIN", "SUB_ADMIN", "STAFF"];
+
+      for (const role of possibleRoles) {
+        const token = localStorage.getItem(`${role}AccessToken`);
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+          config.headers["X-User-Role"] = role;
+          break;
+        }
+      }
+
       config.headers["Content-Type"] = "application/json";
       return config;
     },
@@ -33,23 +36,32 @@ const api = (role) => {
       if (error.response?.status === 401 && !original._retry) {
         original._retry = true;
 
-        try {
-          const refreshToken = localStorage.getItem(refreshTokenKey);
+        const possibleRoles = ["ADMIN", "SUB_ADMIN", "STAFF"];
 
-          const res = await axios.post(`${BASE_URL}/auth/refresh-token`, {
-            refreshToken,
-          });
+        for (const role of possibleRoles) {
+          const refreshToken = localStorage.getItem(`${role}RefreshToken`);
 
-          localStorage.setItem(accessTokenKey, res.data.accessToken);
+          if (refreshToken) {
+            try {
+              const res = await axios.post(
+                `${BASE_URL}/auth/refresh-token`,
+                { refreshToken }
+              );
 
-          apiInstance.defaults.headers.common["Authorization"] = `Bearer ${res.data.accessToken}`;
+              localStorage.setItem(
+                `${role}AccessToken`,
+                res.data.accessToken
+              );
 
-          return apiInstance(original);
-        } catch (err) {
-          localStorage.removeItem(accessTokenKey);
-          localStorage.removeItem(refreshTokenKey);
+              original.headers.Authorization = `Bearer ${res.data.accessToken}`;
+              original.headers["X-User-Role"] = role;
 
-          window.location.href = `/${role}/login`;
+              return apiInstance(original);
+            } catch {
+              localStorage.clear();
+              window.location.href = "/admin/login";
+            }
+          }
         }
       }
 
@@ -61,4 +73,4 @@ const api = (role) => {
 };
 
 export default api;
- 
+

@@ -1,4 +1,3 @@
-import api from "../api/apiFactory";
-
-const adminApi = api("admin");
+import api from "../store/apiFactory";
+const adminApi = api();
 export default adminApi;

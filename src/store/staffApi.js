@@ -1,3 +1,4 @@
-import api from "../api/apiFactory";
+import api from "../store/apiFactory";
+
 const staffApi = api("staff");
 export default staffApi;
