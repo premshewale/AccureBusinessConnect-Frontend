@@ -22,7 +22,7 @@ export default function CommonTable({
   const [sortColumn, setSortColumn] = useState("");
   const [sortDirection, setSortDirection] = useState("asc");
 
-  // Define headers based on type
+  // Define headers based on types
   const headersByType = {
     customers: [
       { header: "ID", accessor: "id", sortable: true },
@@ -36,6 +36,7 @@ export default function CommonTable({
       { header: "Last Contact", accessor: "lastContact", sortable: true },
       { header: "Created", accessor: "createdAt", sortable: true },
       { header: "Actions", accessor: "actions", sortable: false },
+      { header: "Actions", accessor: "actions" },
     ],
     leads: [
       { header: "ID", accessor: "id", sortable: true },

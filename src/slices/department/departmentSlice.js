@@ -3,6 +3,8 @@ import {
   createDepartment,
   getAllDepartments,
 } from "../../services/department/departmentAPI";
+import { updateDepartment } from "../../services/department/updatedepartmentAPI";
+import { deleteDepartment } from "../../services/department/deleteDepartmentAPI";
 
 const initialState = {
   departments: [],
@@ -23,6 +25,7 @@ const departmentSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      /* CREATE */
       .addCase(createDepartment.pending, (state) => {
         state.isLoading = true;
         state.error = null;
@@ -37,6 +40,8 @@ const departmentSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload;
       })
+
+      /* GET ALL */
       .addCase(getAllDepartments.pending, (state) => {
         state.isLoading = true;
       })
@@ -45,6 +50,42 @@ const departmentSlice = createSlice({
         state.departments = action.payload;
       })
       .addCase(getAllDepartments.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      })
+
+      /* UPDATE */
+      .addCase(updateDepartment.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+        state.success = false;
+      })
+      .addCase(updateDepartment.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.success = true;
+        state.departments = state.departments.map((dept) =>
+          dept.id === action.payload.id ? action.payload : dept
+        );
+      })
+      .addCase(updateDepartment.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      })
+
+      /* DELETE */
+      .addCase(deleteDepartment.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+        state.success = false;
+      })
+      .addCase(deleteDepartment.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.success = true;
+        state.departments = state.departments.filter(
+          (dept) => dept.id !== action.payload.id
+        );
+      })
+      .addCase(deleteDepartment.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
       });
