@@ -68,6 +68,15 @@ const router = createBrowserRouter([
         ),
       },
       {
+        path: "users/:id", // ✅ User Details / Edit
+        element: (
+          <RoleInterceptor allowedRoles={["ADMIN"]}>
+            <UserDetails />
+          </RoleInterceptor>
+        ),
+      },
+      ,
+      {
         path: "create-user",
         element: (
           <RoleInterceptor allowedRoles={["ADMIN"]}>
@@ -75,6 +84,7 @@ const router = createBrowserRouter([
           </RoleInterceptor>
         ),
       },
+
       {
         path: "reports",
         element: (
