@@ -15,15 +15,7 @@ import adminDeleteLeadReducer from "../slices/lead/adminDeleteLeadSlice";
 import adminConvertLeadReducer from "../slices/lead/adminConvertLeadSlice";
 import adminUpdateUserReducer from "../slices/user/adminUpdateUserSlice";
 import adminGetUserByIdReducer from "../slices/user/adminGetUserByIdSlice";
-
-
-
-
-
-
- 
-
-
+import adminDeleteUserReducer from "../slices/user/adminDeleteUserSlice";
 
 
 
@@ -44,7 +36,9 @@ export default configureStore({
     adminDeleteLead: adminDeleteLeadReducer,
     adminConvertLead: adminConvertLeadReducer,
     adminUpdateUser: adminUpdateUserReducer,
-adminGetUserById: adminGetUserByIdReducer,
+    adminGetUserById: adminGetUserByIdReducer,
+    adminDeleteUser: adminDeleteUserReducer,
+
 
 
 

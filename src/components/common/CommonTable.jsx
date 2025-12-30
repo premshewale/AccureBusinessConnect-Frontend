@@ -13,6 +13,7 @@ export default function CommonTable({
       { header: "ID", accessor: "id" },
       { header: "Department Name", accessor: "name" },
       { header: "Created At", accessor: "createdAt" },
+      { header: "Actions", accessor: "actions" },
     ],
 
     leads: [

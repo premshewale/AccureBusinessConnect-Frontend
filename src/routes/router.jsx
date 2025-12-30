@@ -29,6 +29,7 @@ import Department from "../pages/admin/department/Department.jsx";
 import Profile from "../pages/common/Profile.jsx";
 import LeadDetailsPage from "../pages/admin/leads/LeadDetailsPage.jsx";
 import UserDetails from "../pages/admin/user/UserDetails.jsx";
+import UpdateDepartment from "../pages/admin/department/UpdateDepartment.jsx";
 
 const router = createBrowserRouter([
   // Public Routes
@@ -55,6 +56,7 @@ const router = createBrowserRouter([
       { path: "dashboard", element: <Dashboard /> },
 
       // -------- Admin Only --------
+      // -------- Admin Only --------
       {
         path: "department",
         element: (
@@ -63,6 +65,15 @@ const router = createBrowserRouter([
           </RoleInterceptor>
         ),
       },
+      {
+  path: "departments/:id/edit", // plural "departments"
+        element: (
+          <RoleInterceptor allowedRoles={["ADMIN"]}>
+            <UpdateDepartment />
+          </RoleInterceptor>
+        ),
+      },
+
       {
         path: "users",
         element: (
