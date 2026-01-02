@@ -94,7 +94,21 @@ export default function CommonTable({
       { header: "Created", accessor: "createdAt", sortable: true },
       { header: "Due Date", accessor: "dueDate", sortable: true },
       { header: "Actions", accessor: "actions", sortable: false },
-    ]
+    ],
+
+    expenses: [
+  { header: "ID", accessor: "id", sortable: true },
+  { header: "Title", accessor: "title", sortable: true },
+  { header: "Amount", accessor: "amount", sortable: true },
+  { header: "Category", accessor: "category", sortable: true },
+  { header: "Date", accessor: "date", sortable: true },
+  { header: "Vendor", accessor: "vendor", sortable: true },
+  { header: "Payment Method", accessor: "paymentMethod", sortable: true },
+  { header: "Status", accessor: "status", sortable: true },
+  { header: "Receipt No", accessor: "receiptNumber", sortable: true },
+  { header: "Created By", accessor: "createdBy", sortable: true },
+  { header: "Actions", accessor: "actions", sortable: false },
+]
   };
 
   const columns = headersByType[type] || [];

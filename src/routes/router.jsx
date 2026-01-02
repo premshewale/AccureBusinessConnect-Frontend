@@ -33,6 +33,7 @@ import RoleInterceptor from "../security/RoleInterceptor.jsx";
 import Department from "../pages/admin/department/Department.jsx";
 import Profile from "../pages/common/Profile.jsx";
 import LeadDetailsPage from "../pages/admin/leads/Leads.jsx";
+import CreateExpense from "../pages/admin/expences/CreateExpense.jsx";
 
 const router = createBrowserRouter([
   // Public Routes
@@ -217,6 +218,15 @@ const router = createBrowserRouter([
           </RoleInterceptor>
         ),
       },
+
+      {
+      path: "create-expense",
+      element: (
+        <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
+          <CreateExpense />
+        </RoleInterceptor>
+      ),
+    },
 
       // Payment
       {
