@@ -13,17 +13,23 @@ import ErrorPage from "../components/common/ErrorPage.jsx";
 import CreateUser from "../pages/admin/user/CreateUser.jsx";
 import Users from "../pages/admin/user/Users.jsx";
 import Leads from "../pages/admin/leads/Leads.jsx";
+import LeadDetailsPage from "../pages/admin/leads/LeadDetailsPage.jsx";
+import CreateLead from "../pages/admin/leads/CreateLead.jsx";
+
 import Reports from "../pages/admin/reports/Reports.jsx";
 import Customers from "../pages/admin/customers/Customers.jsx";
+import CustomerDetails from "../pages/admin/customers/CustomerDetails.jsx";
+
 import CreateCustomer from "../pages/admin/customers/CreateCustomer.jsx";
 import Contacts from "../pages/admin/contacts/Contacts.jsx";
+import ContactDetails from "../pages/admin/contacts/ContactDetails.jsx";
+
 import Task from "../pages/admin/task/Task.jsx";
 import Tickets from "../pages/admin/ticket/Ticket.jsx";
 import CreateTicket from "../pages/admin/ticket/CreateTicket.jsx";
 import Expences from "../pages/admin/expences/Expences.jsx";
 import Invoices from "../pages/admin/invoices/Invoices.jsx";
 import Payment from "../pages/admin/payment/Payment.jsx";
-import CreateLead from "../pages/admin/leads/CreateLead.jsx";
 import Staff from "../pages/subadmin/staff/Staff.jsx";
 import CreateStaff from "../pages/subadmin/staff/CreateStaff.jsx";
 import CreateContact from "../pages/admin/contacts/CreateContact.jsx";
@@ -32,7 +38,6 @@ import RoleInterceptor from "../security/RoleInterceptor.jsx";
 
 import Department from "../pages/admin/department/Department.jsx";
 import Profile from "../pages/common/Profile.jsx";
-import LeadDetailsPage from "../pages/admin/leads/Leads.jsx";
 import UpdateDepartment from "../pages/admin/department/UpdateDepartment.jsx";
 import UserDetails from "../pages/admin/user/UserDetails.jsx";
 const router = createBrowserRouter([
@@ -85,7 +90,7 @@ const router = createBrowserRouter([
           </RoleInterceptor>
         ),
       },
-      ,
+
       {
         path: "create-user",
         element: (
@@ -140,6 +145,15 @@ const router = createBrowserRouter([
         ),
       },
       {
+  path: "lead-details/:id",
+  element: (
+    <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN"]}>
+      <LeadDetailsPage />
+    </RoleInterceptor>
+  ),
+}
+,
+      {
         path: "create-lead",
         element: (
           <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN"]}>
@@ -155,12 +169,11 @@ const router = createBrowserRouter([
           </RoleInterceptor>
         ),
       },
-
       {
-        path: "lead-details/:id",
+        path: "customers/:id",
         element: (
           <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN"]}>
-            <LeadDetailsPage />
+            <CustomerDetails />
           </RoleInterceptor>
         ),
       },
@@ -190,8 +203,10 @@ const router = createBrowserRouter([
       },
 
       // -------- All Roles (ADMIN, SUB_ADMIN, STAFF) --------
+
+      // -------- Contacts --------
       {
-        path: "contacts",
+        path: "customers/:customerId/contacts",
         element: (
           <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
             <Contacts />
@@ -199,13 +214,22 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: "create-contact",
+        path: "contacts/:id",
+        element: (
+          <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
+            <ContactDetails />
+          </RoleInterceptor>
+        ),
+      },
+      {
+        path: "create-contact/:customerId",
         element: (
           <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
             <CreateContact />
           </RoleInterceptor>
         ),
       },
+
       {
         path: "task",
         element: (

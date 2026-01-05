@@ -81,9 +81,9 @@ export default function Contacts() {
     }));
 
   // --- Action Handlers ---
-  const handleEdit = (contact) => {
-    navigate(`/admin/edit-contact/${contact.id}`);
-  };
+const handleEdit = (contact) => {
+  navigate(`/admin/contacts/${contact.id}`);
+};
 
   const handleView = (contact) => {
     navigate(`/admin/contacts/${contact.id}`);

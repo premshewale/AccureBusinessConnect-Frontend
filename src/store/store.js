@@ -10,6 +10,9 @@ import adminGetAllUsersReducer from "../slices/user/adminGetAllUsersSlice";
 import adminCreateStaffReducer from "../slices/staff/adminCreateStaffSlice";
 import adminCreateContactReducer from "../slices/contact/adminCreateContactSlice";
 import adminGetContactsReducer from "../slices/contact/adminGetContactsSlice";
+import adminGetContactByIdReducer from "../slices/contact/adminGetContactByIdSlice";
+import adminUpdateContactReducer from "../slices/contact/adminUpdateContactSlice";
+
 import profileReducer from "../slices/profile/profileSlice";
 
 import adminCreateLeadReducer from "../slices/lead/adminCreateLeadSlice";
@@ -21,6 +24,9 @@ import adminConvertLeadReducer from "../slices/lead/adminConvertLeadSlice";
 
 import adminGetAllCustomersReducer from "../slices/customers/adminGetAllCustomersSlice";
 import adminCreateCustomerReducer from "../slices/customers/adminCreateCustomerSlice";
+import adminGetCustomerByIdReducer from "../slices/customers/adminGetCustomerByIdSlice";
+import adminUpdateCustomerReducer from "../slices/customers/adminUpdateCustomerSlice";
+import adminDeleteCustomerReducer from "../slices/customers/adminDeleteCustomerSlice";
 
 
 
@@ -44,16 +50,23 @@ export default configureStore({
     // staff
     adminCreateStaff: adminCreateStaffReducer,
 
-    // customers
     // Customers
-adminGetAllCustomers: adminGetAllCustomersReducer,
+    adminGetAllCustomers: adminGetAllCustomersReducer,
     adminCreateCustomer: adminCreateCustomerReducer,
+    adminGetCustomerById: adminGetCustomerByIdReducer,
+    adminUpdateCustomer: adminUpdateCustomerReducer,
+    adminDeleteCustomer: adminDeleteCustomerReducer,
+
+
 
 
 
     // Contact
     adminCreateContact: adminCreateContactReducer,
     adminGetContacts: adminGetContactsReducer,
+    adminGetContactById: adminGetContactByIdReducer,
+    adminUpdateContact: adminUpdateContactReducer,
+
     // Lead
     adminCreateLead: adminCreateLeadReducer,
     adminGetAllLeads: adminGetAllLeadsReducer,
