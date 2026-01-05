@@ -33,6 +33,7 @@ export default function LeadDetailsPage() {
   const [showConvertPopup, setShowConvertPopup] = useState(false);
 
   useEffect(() => {
+  
     dispatch(adminGetLeadByIdApi(id));
     return () => {
       dispatch(resetLeadDetails());

@@ -1,12 +1,19 @@
 import React, { useState } from "react";
-import { FiDownload, FiFilter, FiEye, FiEdit, FiTrash2, FiMoreVertical } from "react-icons/fi";
+import {
+  FiDownload,
+  FiFilter,
+  FiEye,
+  FiEdit,
+  FiTrash2,
+  FiMoreVertical,
+} from "react-icons/fi";
 import { CSVLink } from "react-csv";
 
-export default function CommonTable({ 
-  type = "customers", 
-  data = [], 
-  onEdit, 
-  onDelete, 
+export default function CommonTable({
+  type = "customers",
+  data = [],
+  onEdit,
+  onDelete,
   onView,
   showExport = true,
   showActions = true,
@@ -24,19 +31,26 @@ export default function CommonTable({
 
   // Define headers based on types
   const headersByType = {
+    departments: [
+      { header: "ID", accessor: "id", sortable: true },
+      { header: "Department Name", accessor: "name", sortable: true },
+      { header: "Manager", accessor: "managerName", sortable: true },
+      { header: "Actions", accessor: "actions", sortable: false },
+    ],
+
     customers: [
       { header: "ID", accessor: "id", sortable: true },
       { header: "Name", accessor: "name", sortable: true },
       { header: "Email", accessor: "email", sortable: true },
       { header: "Phone", accessor: "phone", sortable: false },
-      { header: "Company", accessor: "company", sortable: true },
       { header: "Industry", accessor: "industry", sortable: true },
+      { header: "Type", accessor: "type", sortable: true },
       { header: "Status", accessor: "status", sortable: true },
-      { header: "Value", accessor: "totalValue", sortable: true },
-      { header: "Last Contact", accessor: "lastContact", sortable: true },
+      { header: "Total Contacts", accessor: "totalContacts", sortable: true },
+      { header: "Assigned To", accessor: "assignedUserName", sortable: true },
+      { header: "Department", accessor: "departmentName", sortable: true },
       { header: "Created", accessor: "createdAt", sortable: true },
       { header: "Actions", accessor: "actions", sortable: false },
-      { header: "Actions", accessor: "actions" },
     ],
     leads: [
       { header: "ID", accessor: "id", sortable: true },
@@ -95,15 +109,15 @@ export default function CommonTable({
       { header: "Created", accessor: "createdAt", sortable: true },
       { header: "Due Date", accessor: "dueDate", sortable: true },
       { header: "Actions", accessor: "actions", sortable: false },
-    ]
+    ],
   };
 
   const columns = headersByType[type] || [];
 
   // Filter data based on search term
   const filteredData = searchTerm
-    ? data.filter(item =>
-        Object.values(item).some(value =>
+    ? data.filter((item) =>
+        Object.values(item).some((value) =>
           String(value).toLowerCase().includes(searchTerm.toLowerCase())
         )
       )
@@ -112,13 +126,13 @@ export default function CommonTable({
   // Sort data
   const sortedData = [...filteredData].sort((a, b) => {
     if (!sortColumn) return 0;
-    
-    const sortableColumn = columns.find(col => col.accessor === sortColumn);
+
+    const sortableColumn = columns.find((col) => col.accessor === sortColumn);
     if (!sortableColumn || !sortableColumn.sortable) return 0;
-    
+
     const aValue = a[sortColumn];
     const bValue = b[sortColumn];
-    
+
     if (aValue < bValue) return sortDirection === "asc" ? -1 : 1;
     if (aValue > bValue) return sortDirection === "asc" ? 1 : -1;
     return 0;
@@ -140,9 +154,9 @@ export default function CommonTable({
   };
 
   // Handle export
-  const exportData = sortedData.map(item => {
+  const exportData = sortedData.map((item) => {
     const exportItem = {};
-    columns.forEach(col => {
+    columns.forEach((col) => {
       if (col.accessor !== "actions") {
         exportItem[col.header] = item[col.accessor];
       }
@@ -159,18 +173,26 @@ export default function CommonTable({
       prospect: { color: "bg-yellow-100 text-yellow-800", label: "Prospect" },
       lost: { color: "bg-red-100 text-red-800", label: "Lost" },
       open: { color: "bg-blue-100 text-blue-800", label: "Open" },
-      in_progress: { color: "bg-yellow-100 text-yellow-800", label: "In Progress" },
+      in_progress: {
+        color: "bg-yellow-100 text-yellow-800",
+        label: "In Progress",
+      },
       resolved: { color: "bg-green-100 text-green-800", label: "Resolved" },
       closed: { color: "bg-gray-100 text-gray-800", label: "Closed" },
       high: { color: "bg-red-100 text-red-800", label: "High" },
       medium: { color: "bg-yellow-100 text-yellow-800", label: "Medium" },
       low: { color: "bg-green-100 text-green-800", label: "Low" },
     };
-    
-    const config = statusConfig[status?.toLowerCase()] || { color: "bg-gray-100 text-gray-800", label: status };
-    
+
+    const config = statusConfig[status?.toLowerCase()] || {
+      color: "bg-gray-100 text-gray-800",
+      label: status,
+    };
+
     return (
-      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${config.color}`}>
+      <span
+        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${config.color}`}
+      >
         {config.label}
       </span>
     );
@@ -183,11 +205,16 @@ export default function CommonTable({
       medium: { color: "bg-yellow-100 text-yellow-800", label: "Medium" },
       low: { color: "bg-green-100 text-green-800", label: "Low" },
     };
-    
-    const config = priorityConfig[priority?.toLowerCase()] || { color: "bg-gray-100 text-gray-800", label: priority };
-    
+
+    const config = priorityConfig[priority?.toLowerCase()] || {
+      color: "bg-gray-100 text-gray-800",
+      label: priority,
+    };
+
     return (
-      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${config.color}`}>
+      <span
+        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${config.color}`}
+      >
         {config.label}
       </span>
     );
@@ -210,7 +237,7 @@ export default function CommonTable({
               <FiFilter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
             </div>
           )}
-          
+
           {onSelectAll && (
             <div className="flex items-center">
               <input
@@ -223,18 +250,20 @@ export default function CommonTable({
             </div>
           )}
         </div>
-        
+
         <div className="flex items-center gap-2">
           {showExport && (
             <CSVLink
               data={exportData}
-              filename={`${type}-export-${new Date().toISOString().split('T')[0]}.csv`}
+              filename={`${type}-export-${
+                new Date().toISOString().split("T")[0]
+              }.csv`}
               className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors text-sm"
             >
               <FiDownload /> Export CSV
             </CSVLink>
           )}
-          
+
           <div className="flex items-center gap-2">
             <span className="text-sm text-gray-600">Show:</span>
             <select
@@ -275,7 +304,11 @@ export default function CommonTable({
                     {col.header}
                     {col.sortable && (
                       <span className="text-gray-400">
-                        {sortColumn === col.accessor ? (sortDirection === "asc" ? "↑" : "↓") : "↕"}
+                        {sortColumn === col.accessor
+                          ? sortDirection === "asc"
+                            ? "↑"
+                            : "↓"
+                          : "↕"}
                       </span>
                     )}
                   </div>
@@ -293,7 +326,9 @@ export default function CommonTable({
                   <div className="flex flex-col items-center">
                     <div className="text-4xl mb-4">📭</div>
                     <p className="text-lg font-medium mb-2">No records found</p>
-                    <p className="text-sm">Try adjusting your search or filters</p>
+                    <p className="text-sm">
+                      Try adjusting your search or filters
+                    </p>
                   </div>
                 </td>
               </tr>
@@ -301,9 +336,9 @@ export default function CommonTable({
               paginatedData.map((row, rowIndex) => (
                 <tr
                   key={rowIndex}
-                  className={`hover:bg-gray-50 transition-colors ${onRowClick ? 'cursor-pointer' : ''} ${
-                    selectedRows.includes(row.id) ? 'bg-blue-50' : ''
-                  }`}
+                  className={`hover:bg-gray-50 transition-colors ${
+                    onRowClick ? "cursor-pointer" : ""
+                  } ${selectedRows.includes(row.id) ? "bg-blue-50" : ""}`}
                   onClick={() => onRowClick && onRowClick(row)}
                 >
                   {onSelectRow && (
@@ -317,7 +352,7 @@ export default function CommonTable({
                       />
                     </td>
                   )}
-                  
+
                   {columns.map((col, colIndex) => (
                     <td
                       key={colIndex}
@@ -373,15 +408,27 @@ export default function CommonTable({
                       ) : col.accessor === "priority" ? (
                         getPriorityBadge(row[col.accessor])
                       ) : col.accessor === "totalValue" ? (
-                        <span className="font-medium">₹{row[col.accessor]?.toLocaleString('en-IN') || '0'}</span>
-                      ) : col.accessor === "createdAt" || col.accessor === "lastContact" || col.accessor === "dueDate" ? (
+                        <span className="font-medium">
+                          ₹{row[col.accessor]?.toLocaleString("en-IN") || "0"}
+                        </span>
+                      ) : col.accessor === "createdAt" ||
+                        col.accessor === "lastContact" ||
+                        col.accessor === "dueDate" ? (
                         <span className="text-gray-600">
-                          {row[col.accessor] ? new Date(row[col.accessor]).toLocaleDateString('en-IN') : '-'}
+                          {row[col.accessor]
+                            ? new Date(row[col.accessor]).toLocaleDateString(
+                                "en-IN"
+                              )
+                            : "-"}
                         </span>
                       ) : col.accessor === "is_primary" ? (
-                        row[col.accessor] ? "Yes" : "No"
+                        row[col.accessor] ? (
+                          "Yes"
+                        ) : (
+                          "No"
+                        )
                       ) : (
-                        row[col.accessor] || '-'
+                        row[col.accessor] || "-"
                       )}
                     </td>
                   ))}
@@ -402,16 +449,16 @@ export default function CommonTable({
             </span>{" "}
             of <span className="font-medium">{sortedData.length}</span> results
           </div>
-          
+
           <div className="flex items-center gap-2">
             <button
-              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
               disabled={currentPage === 1}
               className="px-3 py-1 border rounded-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100"
             >
               Previous
             </button>
-            
+
             {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
               let pageNum;
               if (totalPages <= 5) {
@@ -423,7 +470,7 @@ export default function CommonTable({
               } else {
                 pageNum = currentPage - 2 + i;
               }
-              
+
               return (
                 <button
                   key={i}
@@ -438,9 +485,11 @@ export default function CommonTable({
                 </button>
               );
             })}
-            
+
             <button
-              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+              onClick={() =>
+                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+              }
               disabled={currentPage === totalPages}
               className="px-3 py-1 border rounded-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100"
             >
