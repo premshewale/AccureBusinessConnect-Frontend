@@ -7,12 +7,9 @@ export default function CommonDetails({
   isEditMode,
   editedData,
   setEditedData,
-  onEdit,
   onSave,
-  onCancel,
-  onDelete,
-  onConvert,
-  showConvert,
+  onBack,
+  loading,
 }) {
   const handleChange = (name, value) => {
     setEditedData((prev) => ({
@@ -25,11 +22,11 @@ export default function CommonDetails({
     const value = editedData[field.name] ?? "";
 
     // READ ONLY
-    if (!isEditMode || field.readOnly) {
+    if (field.readOnly) {
       return <p className="font-medium">{data[field.name] ?? "-"}</p>;
     }
 
-    // SELECT (ENUM)
+    // SELECT
     if (field.type === "select") {
       return (
         <select
@@ -62,46 +59,23 @@ export default function CommonDetails({
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-semibold">{title}</h2>
 
+        {/* ✅ Only Save & Back */}
         <div className="flex gap-2">
-          {!isEditMode && (
+          {onBack && (
             <button
-              onClick={onEdit}
-              className="px-4 py-1 bg-blue-600 text-white rounded"
+              onClick={onBack}
+              className="px-4 py-2 bg-gray-300 text-gray-800 rounded"
             >
-              Edit
+              Back
             </button>
           )}
-
-          {isEditMode && (
-            <>
-              <button
-                onClick={onSave}
-                className="px-4 py-1 bg-green-600 text-white rounded"
-              >
-                Save
-              </button>
-              <button
-                onClick={onCancel}
-                className="px-4 py-1 bg-gray-400 text-white rounded"
-              >
-                Cancel
-              </button>
-            </>
-          )}
-
-          <button
-            onClick={onDelete}
-            className="px-4 py-1 bg-red-600 text-white rounded"
-          >
-            Delete
-          </button>
-
-          {showConvert && (
+          {onSave && (
             <button
-              onClick={onConvert}
-              className="px-4 py-1 bg-purple-600 text-white rounded"
+              onClick={onSave}
+              disabled={loading}
+              className="px-4 py-2 bg-cyan text-white rounded"
             >
-              Convert
+              {loading ? "Saving..." : "Save"}
             </button>
           )}
         </div>
@@ -110,9 +84,7 @@ export default function CommonDetails({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {fields.map((field) => (
           <div key={field.name}>
-            <label className="text-sm text-gray-500">
-              {field.label}
-            </label>
+            <label className="text-sm text-gray-500">{field.label}</label>
             {renderField(field)}
           </div>
         ))}
