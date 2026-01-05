@@ -8,9 +8,13 @@ import { FiDownload } from "react-icons/fi";
 import Kanban from "../../../components/common/Kanban.jsx";
 import CommonTable from "../../../components/common/CommonTable.jsx";
 import CommonExportButton from "../../../components/common/CommonExportButton.jsx";
-import CustomerStats from "./CustomerStats.jsx";
+// import CustomerStats from "./CustomerStats.jsx";
 import CustomerFilter from "./CustomerFilter.jsx";
-import { useCustomers } from "../../../contexts/CustomerContext";
+// import { useCustomers } from "../../../contexts/CustomerContext";
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect } from "react";
+import { adminGetAllCustomers } from "../../../services/customers/adminGetAllCustomersApi";
+
 
 export default function Customers() {
   const [activeTab, setActiveTab] = useState("table");
@@ -27,9 +31,24 @@ export default function Customers() {
   const navigate = useNavigate();
   
   // Get customers and functions from context
-  const { customers, loading, deleteCustomer, getCustomerStats } = useCustomers();
-  const customerStats = getCustomerStats();
-  
+  // const { customers, loading, deleteCustomer, getCustomerStats } = useCustomers();
+  // const customerStats = getCustomerStats();
+  const dispatch = useDispatch();
+
+const { customers, loading } = useSelector(
+  (state) => state.adminGetAllCustomers
+);
+
+  useEffect(() => {
+  dispatch(
+    adminGetAllCustomers({
+      page: 0,
+      size: 10,
+      search: searchQuery,
+    })
+  );
+}, [dispatch, searchQuery]);
+
   // Refresh customers
   const handleRefresh = () => {
     window.location.reload();
@@ -140,20 +159,20 @@ export default function Customers() {
     navigate(`/admin/edit-customer/${customer.id}`);
   };
 
-  const handleDelete = async (customer) => {
-    if (confirm(`Are you sure you want to delete ${customer.name}?`)) {
-      try {
-        await deleteCustomer(customer.id);
-        alert(`Customer ${customer.name} deleted successfully!`);
-      } catch (error) {
-        alert(`Error deleting customer: ${error.message}`);
-      }
-    }
-  };
+  // const handleDelete = async (customer) => {
+  //   if (confirm(`Are you sure you want to delete ${customer.name}?`)) {
+  //     try {
+  //       await deleteCustomer(customer.id);
+  //       alert(`Customer ${customer.name} deleted successfully!`);
+  //     } catch (error) {
+  //       alert(`Error deleting customer: ${error.message}`);
+  //     }
+  //   }
+  // };
 
-  const handleView = (customer) => {
-    navigate(`/admin/customers/${customer.id}`);
-  };
+const handleView = (customer) => {
+    navigate(`/admin/customers/${customer.id}/contacts`);
+};
 
   return (
     <div className="p-4">
@@ -172,7 +191,7 @@ export default function Customers() {
       </div>
 
       {/* Statistics Cards */}
-      <CustomerStats stats={customerStats} />
+      {/* <CustomerStats stats={customerStats} /> */}
 
       {/* Actions Bar */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 p-4 bg-white rounded-lg shadow-sm border">
@@ -296,9 +315,10 @@ export default function Customers() {
                 type="customers"
                 data={filteredCustomers}
                 onEdit={handleEdit}
-                onDelete={handleDelete}
+                // onDelete={handleDelete}
                 onView={handleView}
-                showExport={false} // Disable export in table since we have CommonExportButton
+                onRowClick={handleView}
+                showExport={false} 
                 showActions={true}
               />
             )}
