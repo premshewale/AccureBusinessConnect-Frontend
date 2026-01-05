@@ -1,17 +1,28 @@
-import { createSlice } from "@reduxjs/toolkit";
-import { adminDeleteLeadApi } from "../../services/lead/adminDeleteLeadApi";
+// src/slices/lead/adminDeleteLeadSlice.js
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import adminApi from "../../store/adminApi";
 
-const initialState = {
-  loading: false,
-  success: false,
-  error: null,
-};
+// Thunk to delete lead by ID
+export const adminDeleteLeadApi = createAsyncThunk(
+  "adminLead/delete",
+  async (id, { rejectWithValue }) => {
+    try {
+      await adminApi.delete(`/leads/${id}`);
+      return id; // return deleted lead id
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to delete lead"
+      );
+    }
+  }
+);
 
+// Slice
 const adminDeleteLeadSlice = createSlice({
   name: "adminDeleteLead",
-  initialState,
+  initialState: { loading: false, success: false, error: null },
   reducers: {
-    resetDeleteLeadState: () => initialState,
+    resetDeleteLeadState: (state) => ({ loading: false, success: false, error: null }),
   },
   extraReducers: (builder) => {
     builder

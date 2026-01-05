@@ -92,12 +92,12 @@ export default function AdminSidebar({ sidebarOpen, setSidebarOpen }) {
       allowedRoles: ["ADMIN", "SUB_ADMIN"],
     },
     // -------- All Roles (ADMIN, SUB_ADMIN, STAFF) --------
-    {
-      name: "Contacts",
-      icon: <RiContactsBook3Line size={24} />,
-      path: "/admin/contacts",
-      allowedRoles: ["ADMIN", "SUB_ADMIN", "STAFF"],
-    },
+    // {
+    //   name: "Contacts",
+    //   icon: <RiContactsBook3Line size={24} />,
+    //   path: "/admin/contacts",
+    //   allowedRoles: ["ADMIN", "SUB_ADMIN", "STAFF"],
+    // },
     // {
     //   name: "Create Contact",
     //   icon: <MdAdd size={24} />,
