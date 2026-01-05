@@ -8,6 +8,8 @@ import Kanban from "../../../components/common/Kanban.jsx";
 import CommonTable from "../../../components/common/CommonTable.jsx";
 
 import { adminGetAllLeads } from "../../../services/lead/adminGetAllLeadsApi.js";
+import { adminDeleteLeadApi } from "../../../slices/lead/adminDeleteLeadSlice.js";
+import { resetDeleteLeadState } from "../../../slices/lead/adminDeleteLeadSlice.js";
 
 export default function Leads() {
   const navigate = useNavigate();
@@ -31,8 +33,7 @@ export default function Leads() {
     .filter((lead) =>
       [lead.name, lead.email, lead.phone].some(
         (field) =>
-          field &&
-          field.toLowerCase().includes(searchTerm.toLowerCase())
+          field && field.toLowerCase().includes(searchTerm.toLowerCase())
       )
     );
 
@@ -45,6 +46,26 @@ export default function Leads() {
       title: status,
       cards: leads.filter((lead) => lead.status === status),
     }));
+
+  const handleEdit = (lead) => {
+    navigate(`/admin/lead-details/${lead.id}`);
+  };
+
+  // 🔹 Delete lead handler
+  const handleDelete = async (lead) => {
+    if (!window.confirm(`Are you sure you want to delete ${lead.name}?`))
+      return;
+
+    try {
+      await dispatch(adminDeleteLeadApi(lead.id)).unwrap();
+      alert(`${lead.name} deleted successfully`);
+      dispatch(adminGetAllLeads()); // refresh list
+    } catch (err) {
+      alert(err || "Failed to delete lead");
+    } finally {
+      dispatch(resetDeleteLeadState());
+    }
+  };
 
   return (
     <>
@@ -138,9 +159,7 @@ export default function Leads() {
       {loading && (
         <p className="mt-4 text-sm text-gray-500">Loading leads...</p>
       )}
-      {error && (
-        <p className="mt-4 text-sm text-red-500">{error}</p>
-      )}
+      {error && <p className="mt-4 text-sm text-red-500">{error}</p>}
 
       {/* Content */}
       <div className="mt-6">
@@ -150,10 +169,14 @@ export default function Leads() {
           <CommonTable
             type="leads"
             data={filteredLeads}
-            onRowClick={(leadId) => navigate(`/admin/lead-details/${leadId}`)}
+            onEdit={handleEdit}
+            onDelete={handleDelete} // ✅ Pass delete handler
+            onView={handleEdit}
+            onRowClick={(lead) => navigate(`/admin/lead-details/${lead.id}`)}
+            showActions={true}
           />
         )}
       </div>
-    </> 
+    </>
   );
 }

@@ -10,7 +10,13 @@ const initialState = {
 const adminGetCustomerByIdSlice = createSlice({
   name: "adminGetCustomerById",
   initialState,
-  reducers: {},
+  reducers: {
+    resetCustomerDetails: (state) => {
+      state.loading = false;
+      state.customer = null;
+      state.error = null;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(adminGetCustomerById.pending, (state) => {
@@ -19,13 +25,15 @@ const adminGetCustomerByIdSlice = createSlice({
       })
       .addCase(adminGetCustomerById.fulfilled, (state, action) => {
         state.loading = false;
-        state.customer = action.payload;
+        state.customer = action.payload; // ✅ API returns flat object
       })
       .addCase(adminGetCustomerById.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload;
+        state.error =
+          action.payload?.message || "Failed to fetch customer details";
       });
   },
 });
 
+export const { resetCustomerDetails } = adminGetCustomerByIdSlice.actions;
 export default adminGetCustomerByIdSlice.reducer;
