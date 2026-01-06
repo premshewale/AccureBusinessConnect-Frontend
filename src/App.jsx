@@ -8,6 +8,7 @@ import "react-toastify/dist/ReactToastify.css";
 import CustomerProvider from "./contexts/CustomerContext.jsx";
 import TicketProvider from "./contexts/TicketContext.jsx";
 import ExpenseProvider from "./contexts/ExpenseContext.jsx";
+import PaymentProvider  from "./contexts/PaymentContext";
 
 
 function App() {
@@ -29,7 +30,9 @@ function App() {
     <CustomerProvider>
       <TicketProvider>
         <ExpenseProvider>
+          <PaymentProvider>
         <RouterProvider router={router} />
+        </PaymentProvider>
         </ExpenseProvider>
       </TicketProvider>
     </CustomerProvider>

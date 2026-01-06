@@ -34,6 +34,9 @@ import Department from "../pages/admin/department/Department.jsx";
 import Profile from "../pages/common/Profile.jsx";
 import LeadDetailsPage from "../pages/admin/leads/Leads.jsx";
 import CreateExpense from "../pages/admin/expences/CreateExpense.jsx";
+import CreatePayment from "../pages/admin/payment/CreatePayment.jsx";
+import UserDetial from "../pages/admin/user/UserDetails.jsx";
+
 
 const router = createBrowserRouter([
   // Public Routes
@@ -72,11 +75,11 @@ const router = createBrowserRouter([
         path: "users/:id", // ✅ User Details / Edit
         element: (
           <RoleInterceptor allowedRoles={["ADMIN"]}>
-            <UserDetails />
+            <UserDetial/>
           </RoleInterceptor>
         ),
       },
-      ,
+      
       {
         path: "create-user",
         element: (
@@ -239,16 +242,26 @@ const router = createBrowserRouter([
     },
 
       // Payment
+
+       {
+  path: "payment", 
+  element: (
+    <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
+      <Payment />
+    </RoleInterceptor>
+  ),
+},
       {
-        path: "payment",
+        path: "create-payment",
         element: (
           <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
-            <Payment />
+            <CreatePayment/>
           </RoleInterceptor>
         ),
       },
     ],
   },
+ 
 ]);
 
 export default router;
