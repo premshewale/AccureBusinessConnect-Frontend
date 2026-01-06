@@ -7,7 +7,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import CustomerProvider from "./contexts/CustomerContext.jsx";
 import TicketProvider from "./contexts/TicketContext.jsx";
-
+import ProposalProvider from "./contexts/ProposalContext.jsx";
 
 function App() {
   const dispatch = useDispatch();
@@ -26,10 +26,12 @@ function App() {
     <>
     
     <CustomerProvider>
-      <TicketProvider>
-        <RouterProvider router={router} />
-      </TicketProvider>
-    </CustomerProvider>
+        <TicketProvider>
+          <ProposalProvider>
+            <RouterProvider router={router} />
+          </ProposalProvider>
+        </TicketProvider>
+      </CustomerProvider>
    
    
      

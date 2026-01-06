@@ -35,7 +35,8 @@ import CreateStaff from "../pages/subadmin/staff/CreateStaff.jsx";
 import CreateContact from "../pages/admin/contacts/CreateContact.jsx";
 
 import RoleInterceptor from "../security/RoleInterceptor.jsx";
-
+import Proposals from "../pages/admin/proposals/Proposals.jsx";
+import CreateProposal from "../pages/admin/proposals/CreateProposal.jsx";
 import Department from "../pages/admin/department/Department.jsx";
 import Profile from "../pages/common/Profile.jsx";
 import UpdateDepartment from "../pages/admin/department/UpdateDepartment.jsx";
@@ -235,6 +236,22 @@ const router = createBrowserRouter([
         element: (
           <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
             <Task />
+          </RoleInterceptor>
+        ),
+      },
+      {
+        path: "proposals",
+        element: (
+          <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
+            <Proposals />
+          </RoleInterceptor>
+        ),
+      },
+      {
+        path: "create-proposal",
+        element: (
+          <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
+            <CreateProposal />
           </RoleInterceptor>
         ),
       },

@@ -11,6 +11,7 @@ import { SlPeople } from "react-icons/sl";
 import { FiUsers, FiUserPlus } from "react-icons/fi";
 import { VscGraph } from "react-icons/vsc";
 import { MdAdd } from "react-icons/md"; // For generic add icons
+import { HiOutlineDocumentText } from "react-icons/hi";
 
 export default function AdminSidebar({ sidebarOpen, setSidebarOpen }) {
   // State for role (from localStorage)
@@ -104,6 +105,12 @@ export default function AdminSidebar({ sidebarOpen, setSidebarOpen }) {
     //   path: "/admin/create-contact",
     //   allowedRoles: ["ADMIN", "SUB_ADMIN", "STAFF"],
     // },
+    {
+      name: "Proposals",
+      icon: <HiOutlineDocumentText  size={24} />,
+      path: "/admin/proposals",
+      allowedRoles: ["ADMIN", "SUB_ADMIN", "STAFF"],
+    },
     {
       name: "Task",
       icon: <FaTasks size={24} />,

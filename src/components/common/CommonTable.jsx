@@ -110,6 +110,15 @@ export default function CommonTable({
       { header: "Due Date", accessor: "dueDate", sortable: true },
       { header: "Actions", accessor: "actions", sortable: false },
     ],
+    proposals: [
+      { header: "ID", accessor: "id" },
+      { header: "Customer Id", accessor: "customer_id" },
+      { header: "Department Id", accessor: "departmentId" },
+      { header: "Description", accessor: "description" },
+      { header: "Budget", accessor: "budget" },
+      { header: "Status", accessor: "status" },
+      { header: "Deadline", accessor: "deadline" },
+    ],
   };
 
   const columns = headersByType[type] || [];
