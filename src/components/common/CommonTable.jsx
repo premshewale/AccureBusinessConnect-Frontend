@@ -110,6 +110,55 @@ export default function CommonTable({
       { header: "Due Date", accessor: "dueDate", sortable: true },
       { header: "Actions", accessor: "actions", sortable: false },
     ],
+
+    expenses: [
+  { header: "ID", accessor: "id", sortable: true },
+  { header: "Title", accessor: "title", sortable: true },
+  { header: "Amount", accessor: "amount", sortable: true },
+  { header: "Category", accessor: "category", sortable: true },
+  { header: "Date", accessor: "date", sortable: true },
+  { header: "Vendor", accessor: "vendor", sortable: true },
+  { header: "Payment Method", accessor: "paymentMethod", sortable: true },
+  { header: "Status", accessor: "status", sortable: true },
+  { header: "Receipt No", accessor: "receiptNumber", sortable: true },
+  { header: "Created By", accessor: "createdBy", sortable: true },
+  { header: "Actions", accessor: "actions", sortable: false },
+],
+
+payments: [
+  { header: "ID", accessor: "id", sortable: true },
+  { header: "Invoice No", accessor: "invoiceNumber", sortable: true },
+  { header: "Customer", accessor: "customerName", sortable: true },
+  { header: "Amount", accessor: "amount", sortable: true },
+  { header: "Amount Paid", accessor: "amountPaid", sortable: true },
+  { header: "Due Amount", accessor: "dueAmount", sortable: true },
+  { header: "Payment Date", accessor: "paymentDate", sortable: true },
+  { header: "Payment Method", accessor: "paymentMethod", sortable: true },
+  { header: "Status", accessor: "status", sortable: true },
+  { header: "Transaction ID", accessor: "transactionId", sortable: true },
+  { header: "Actions", accessor: "actions", sortable: false },
+],
+
+
+invoices: [
+  { header: "Invoice No", accessor: "invoiceNumber", sortable: true },
+  { header: "Customer", accessor: "customerName", sortable: true },
+  { header: "Issue Date", accessor: "issueDate", sortable: true },
+  { header: "Due Date", accessor: "dueDate", sortable: true },
+  { header: "Total Amount", accessor: "totalAmount", sortable: true },
+  { header: "Amount Paid", accessor: "amountPaid", sortable: true },
+  { header: "Due Amount", accessor: "dueAmount", sortable: true },
+  { header: "Status", accessor: "status", sortable: true },
+  { header: "Payment Method", accessor: "paymentMethod", sortable: true },
+  { header: "Actions", accessor: "actions", sortable: false },
+],
+
+
+draft: { color: "bg-gray-100 text-gray-800", label: "Draft" },
+paid: { color: "bg-green-100 text-green-800", label: "Paid" },
+pending: { color: "bg-yellow-100 text-yellow-800", label: "Pending" },
+partial: { color: "bg-blue-100 text-blue-800", label: "Partial" },
+overdue: { color: "bg-red-100 text-red-800", label: "Overdue" },
     proposals: [
       { header: "ID", accessor: "id" },
       { header: "Customer Id", accessor: "customer_id" },
@@ -191,6 +240,11 @@ export default function CommonTable({
       high: { color: "bg-red-100 text-red-800", label: "High" },
       medium: { color: "bg-yellow-100 text-yellow-800", label: "Medium" },
       low: { color: "bg-green-100 text-green-800", label: "Low" },
+
+    paid: { color: "bg-green-100 text-green-800", label: "Paid" },
+    pending: { color: "bg-yellow-100 text-yellow-800", label: "Pending" },
+    partial: { color: "bg-blue-100 text-blue-800", label: "Partial" },
+    overdue: { color: "bg-red-100 text-red-800", label: "Overdue" },
     };
 
     const config = statusConfig[status?.toLowerCase()] || {
