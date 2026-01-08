@@ -1,8 +1,11 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 import CommonForm from "../../../components/common/CommonForm";
 import CommonTable from "../../../components/common/CommonTable";
+import { deleteDepartment } from "../../../services/department/deleteDepartmentAPI";
+
 
 import {
   createDepartment,
@@ -11,6 +14,7 @@ import {
 
 export default function Department() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const { departments, isLoading, error } = useSelector(
     (state) => state.department
@@ -38,6 +42,21 @@ export default function Department() {
       });
   };
 
+  // Edit button handler
+  const handleEdit = (id) => {
+    navigate(`/admin/departments/${id}/edit`);
+  };
+
+// Delete button handler
+const handleDelete = (id) => {
+  if (window.confirm("Are you sure you want to delete this department?")) {
+    dispatch(deleteDepartment(id))
+      .unwrap()
+      .then(() => dispatch(getAllDepartments()))
+      .catch((err) => console.error(err));
+  }
+};
+
   return (
     <div className="p-6 space-y-8">
       {/* Create Department Form */}
@@ -63,6 +82,8 @@ export default function Department() {
         <CommonTable
           type="departments"
           data={departments || []}
+          onEdit={handleEdit}      // ✅ Add Edit button
+          onDelete={handleDelete}  // ✅ Add Delete button
         />
       </div>
     </div>

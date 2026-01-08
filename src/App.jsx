@@ -11,6 +11,7 @@ import ExpenseProvider from "./contexts/ExpenseContext.jsx";
 import PaymentProvider  from "./contexts/PaymentContext";
 import InvoiceProvider from "./contexts/InvoiceContext.jsx";
 
+import ProposalProvider from "./contexts/ProposalContext.jsx";
 
 function App() {
   const dispatch = useDispatch();

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { RxDashboard, RxTable } from "react-icons/rx";
 import { IoSearchSharp, IoFilterSharp } from "react-icons/io5";
@@ -8,9 +8,13 @@ import { FiDownload } from "react-icons/fi";
 import Kanban from "../../../components/common/Kanban.jsx";
 import CommonTable from "../../../components/common/CommonTable.jsx";
 import CommonExportButton from "../../../components/common/CommonExportButton.jsx";
-import CustomerStats from "./CustomerStats.jsx";
 import CustomerFilter from "./CustomerFilter.jsx";
-import { useCustomers } from "../../../contexts/CustomerContext";
+// import { useCustomers } from "../../../contexts/CustomerContext";
+import { useDispatch, useSelector } from "react-redux";
+import { adminGetAllCustomers } from "../../../services/customers/adminGetAllCustomersApi";
+
+// ✅ Import delete customer thunk and reset state
+import { deleteCustomer, resetDeleteCustomerState } from "../../../slices/customers/adminDeleteCustomerSlice";
 
 export default function Customers() {
   const [activeTab, setActiveTab] = useState("table");
@@ -23,20 +27,29 @@ export default function Customers() {
     dateRange: "All",
     industry: "All",
   });
-  
+
   const navigate = useNavigate();
-  
-  // Get customers and functions from context
-  const { customers, loading, deleteCustomer, getCustomerStats } = useCustomers();
-  const customerStats = getCustomerStats();
-  
-  // Refresh customers
+  const dispatch = useDispatch();
+
+  const { customers = [], loading } = useSelector(
+    (state) => state.adminGetAllCustomers
+  );
+
+  useEffect(() => {
+    dispatch(
+      adminGetAllCustomers({
+        page: 0,
+        size: 10,
+        search: searchQuery,
+      })
+    );
+  }, [dispatch, searchQuery]);
+
   const handleRefresh = () => {
     window.location.reload();
   };
-  
-  // Prepare data for export
-  const exportData = customers.map(customer => ({
+
+  const exportData = customers.map((customer) => ({
     ID: customer.id,
     Name: customer.name,
     Email: customer.email,
@@ -49,110 +62,150 @@ export default function Customers() {
     "Last Contact": customer.lastContact,
     Created: customer.createdAt,
   }));
-  
-  // Filter customers based on active filters
-  const filteredCustomers = customers.filter(customer => {
-    // Search filter
-    if (searchQuery && 
-        !customer.name?.toLowerCase().includes(searchQuery.toLowerCase()) &&
-        !customer.email?.toLowerCase().includes(searchQuery.toLowerCase()) &&
-        !customer.company?.toLowerCase().includes(searchQuery.toLowerCase())) {
+
+  /* ===========================
+     FILTER LOGIC (FIXED)
+  ============================ */
+  const filteredCustomers = customers.filter((customer) => {
+    if (
+      searchQuery &&
+      !customer.name?.toLowerCase().includes(searchQuery.toLowerCase()) &&
+      !customer.email?.toLowerCase().includes(searchQuery.toLowerCase()) &&
+      !customer.company?.toLowerCase().includes(searchQuery.toLowerCase())
+    ) {
       return false;
     }
-    
-    // Status filter buttons (All, Active, Inactive, etc.)
-    if (filter !== "All" && customer.status !== filter.toLowerCase()) {
+
+    if (filter !== "All" && customer.status !== filter.toUpperCase()) {
       return false;
     }
-    
-    // Additional filter options from filter panel
-    if (filterOptions.status !== "All" && customer.status !== filterOptions.status.toLowerCase()) {
+
+    if (
+      filterOptions.status !== "All" &&
+      customer.status !== filterOptions.status.toUpperCase()
+    ) {
       return false;
     }
-    
-    if (filterOptions.source !== "All" && customer.source !== filterOptions.source) {
+
+    if (
+      filterOptions.source !== "All" &&
+      customer.source !== filterOptions.source
+    ) {
       return false;
     }
-    
-    if (filterOptions.industry !== "All" && customer.industry !== filterOptions.industry) {
+
+    if (
+      filterOptions.industry !== "All" &&
+      customer.industry !== filterOptions.industry
+    ) {
       return false;
     }
-    
+
     return true;
   });
-  
-  // Convert filtered customers to Kanban format
+
+  /* ===========================
+     KANBAN (FIXED)
+  ============================ */
   const kanbanColumns = [
     {
-      title: "New/Prospect",
-      cards: filteredCustomers.filter(c => c.status === "new" || c.status === "prospect").map(customer => ({
-        id: customer.id,
-        name: customer.name,
-        service: customer.company,
-        phone: customer.phone,
-        email: customer.email,
-        createdOn: new Date(customer.createdAt).toLocaleDateString('en-IN', {
-          day: '2-digit',
-          month: 'short',
-          year: 'numeric'
-        }),
-        status: customer.status === "new" ? "New" : "Prospect",
-      })),
+      title: "Prospect",
+      cards: filteredCustomers
+        .filter((c) => c.status === "PROSPECT")
+        .map((customer) => ({
+          id: customer.id,
+          name: customer.name,
+          service: customer.company,
+          phone: customer.phone,
+          email: customer.email,
+          createdOn: new Date(customer.createdAt).toLocaleDateString("en-IN", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+          }),
+          status: "Prospect",
+        })),
     },
     {
       title: "Active",
-      cards: filteredCustomers.filter(c => c.status === "active").map(customer => ({
-        id: customer.id,
-        name: customer.name,
-        service: customer.company,
-        phone: customer.phone,
-        email: customer.email,
-        createdOn: new Date(customer.createdAt).toLocaleDateString('en-IN', {
-          day: '2-digit',
-          month: 'short',
-          year: 'numeric'
-        }),
-        status: "Active",
-      })),
+      cards: filteredCustomers
+        .filter((c) => c.status === "ACTIVE")
+        .map((customer) => ({
+          id: customer.id,
+          name: customer.name,
+          service: customer.company,
+          phone: customer.phone,
+          email: customer.email,
+          createdOn: new Date(customer.createdAt).toLocaleDateString("en-IN", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+          }),
+          status: "Active",
+        })),
     },
     {
       title: "Inactive",
-      cards: filteredCustomers.filter(c => c.status === "inactive").map(customer => ({
-        id: customer.id,
-        name: customer.name,
-        service: customer.company,
-        phone: customer.phone,
-        email: customer.email,
-        createdOn: new Date(customer.createdAt).toLocaleDateString('en-IN', {
-          day: '2-digit',
-          month: 'short',
-          year: 'numeric'
-        }),
-        status: "Inactive",
-      })),
+      cards: filteredCustomers
+        .filter((c) => c.status === "INACTIVE")
+        .map((customer) => ({
+          id: customer.id,
+          name: customer.name,
+          service: customer.company,
+          phone: customer.phone,
+          email: customer.email,
+          createdOn: new Date(customer.createdAt).toLocaleDateString("en-IN", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+          }),
+          status: "Inactive",
+        })),
+    },
+    {
+      title: "Blocked",
+      cards: filteredCustomers
+        .filter((c) => c.status === "BLOCKED")
+        .map((customer) => ({
+          id: customer.id,
+          name: customer.name,
+          service: customer.company,
+          phone: customer.phone,
+          email: customer.email,
+          createdOn: new Date(customer.createdAt).toLocaleDateString("en-IN", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+          }),
+          status: "Blocked",
+        })),
     },
   ];
-  
-  // Status options for filter buttons
-  const statuses = ["All", "Active", "Inactive", "New", "Prospect", "Lost"];
+
+  const statuses = ["All", "Active", "Inactive", "Prospect", "Blocked"];
 
   const handleEdit = (customer) => {
-    navigate(`/admin/edit-customer/${customer.id}`);
-  };
-
-  const handleDelete = async (customer) => {
-    if (confirm(`Are you sure you want to delete ${customer.name}?`)) {
-      try {
-        await deleteCustomer(customer.id);
-        alert(`Customer ${customer.name} deleted successfully!`);
-      } catch (error) {
-        alert(`Error deleting customer: ${error.message}`);
-      }
-    }
+    navigate(`/admin/customers/${customer.id}`);
   };
 
   const handleView = (customer) => {
-    navigate(`/admin/customers/${customer.id}`);
+    navigate(`/admin/customers/${customer.id}/contacts`);
+  };
+
+  // ✅ ADD handleDelete function
+  const handleDelete = async (customer) => {
+    if (!window.confirm(`Are you sure you want to delete ${customer.name}?`)) return;
+
+    try {
+      await dispatch(deleteCustomer(customer.id)).unwrap();
+      alert("Customer deleted successfully!");
+      // refresh table
+      dispatch(adminGetAllCustomers({ page: 0, size: 10, search: searchQuery }));
+    } catch (err) {
+      alert(err || "Failed to delete customer");
+    } finally {
+      dispatch(resetDeleteCustomerState());
+    }
   };
 
   return (
@@ -172,17 +225,12 @@ export default function Customers() {
       </div>
 
       {/* Statistics Cards */}
-      <CustomerStats stats={customerStats} />
+      {/* <CustomerStats stats={customerStats} /> */}
 
       {/* Actions Bar */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 p-4 bg-white rounded-lg shadow-sm border">
         <div className="flex items-center gap-4">
-          {/* Use CommonExportButton instead of custom export */}
-          <CommonExportButton 
-            data={exportData}
-            fileName="customers"
-          />
-          
+          <CommonExportButton data={exportData} fileName="customers" />
           <button
             onClick={handleRefresh}
             className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
@@ -191,9 +239,8 @@ export default function Customers() {
             <MdOutlineRefresh />
           </button>
         </div>
-        
+
         <div className="flex items-center gap-4">
-          {/* Search Bar */}
           <div className="relative">
             <IoSearchSharp className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
@@ -204,8 +251,6 @@ export default function Customers() {
               className="w-full md:w-64 h-10 rounded-lg border pl-10 pr-3 text-sm outline-none focus:border-cyan"
             />
           </div>
-          
-          {/* Filter Button */}
           <button
             onClick={() => setShowFilter(!showFilter)}
             className={`px-4 py-2 rounded-lg border flex items-center gap-2 ${
@@ -216,7 +261,7 @@ export default function Customers() {
           </button>
         </div>
       </div>
-      
+
       {/* Filter Panel */}
       {showFilter && (
         <CustomerFilter
@@ -225,7 +270,7 @@ export default function Customers() {
           onClose={() => setShowFilter(false)}
         />
       )}
-      
+
       {/* Status Filter Buttons */}
       <div className="flex gap-2 mb-6 flex-wrap">
         {statuses.map((status) => (
@@ -242,7 +287,7 @@ export default function Customers() {
           </button>
         ))}
       </div>
-      
+
       {/* View Toggle */}
       <div className="flex justify-between items-center mb-4">
         <p className="text-gray-600">
@@ -259,7 +304,6 @@ export default function Customers() {
           >
             <RxDashboard /> Kanban View
           </button>
-          
           <button
             onClick={() => setActiveTab("table")}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${
@@ -272,7 +316,7 @@ export default function Customers() {
           </button>
         </div>
       </div>
-      
+
       {/* Content Area */}
       <div className="bg-white rounded-xl shadow-sm border p-4">
         {loading ? (
@@ -287,18 +331,16 @@ export default function Customers() {
           </div>
         ) : (
           <>
-            {/* Kanban View */}
             {activeTab === "kanban" && <Kanban columns={kanbanColumns} />}
-            
-            {/* Table View */}
             {activeTab === "table" && (
               <CommonTable
                 type="customers"
                 data={filteredCustomers}
                 onEdit={handleEdit}
-                onDelete={handleDelete}
+                onDelete={handleDelete} // ✅ added delete
                 onView={handleView}
-                showExport={false} // Disable export in table since we have CommonExportButton
+                onRowClick={handleView}
+                showExport={false}
                 showActions={true}
               />
             )}

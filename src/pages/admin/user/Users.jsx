@@ -8,14 +8,17 @@ import CommonPagination from "../../../components/common/CommonPagination.jsx";
 import CommonExportButton from "../../../components/common/CommonExportButton.jsx";
 
 import { adminGetAllUsers } from "../../../services/user/adminGetAllUsersApi";
+import { adminDeleteUser } from "../../../services/user/adminDeleteUserApi";
 
 export default function Users() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { users = [], loading, error } = useSelector(
-    (state) => state.adminGetAllUsers
-  );
+  const {
+    users = [],
+    loading,
+    error,
+  } = useSelector((state) => state.adminGetAllUsers);
 
   const [filter, setFilter] = useState("All");
   const [search, setSearch] = useState("");
@@ -63,6 +66,17 @@ export default function Users() {
   const handleStatusToggle = (id, status) => {
     console.log("User ID:", id, "New Status:", status);
     // dispatch(updateUserStatus({ id, status }))
+  };
+
+  // 🔹 Delete handler
+  const handleDelete = (id) => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this user?"
+    );
+
+    if (confirmDelete) {
+      dispatch(adminDeleteUser(id));
+    }
   };
 
   return (
@@ -128,8 +142,9 @@ export default function Users() {
         <CommonTable
           type="users"
           data={paginatedUsers}
-          onEdit={handleEdit}          
+          onEdit={handleEdit}
           onStatusToggle={handleStatusToggle}
+          onDelete={handleDelete}
         />
 
         <CommonPagination

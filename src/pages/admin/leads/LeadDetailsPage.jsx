@@ -1,13 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  LEAD_SOURCE_OPTIONS,
-  LEAD_STATUS_OPTIONS,
-} from "../../../constants/leadEnums.js";
 
 import CommonDetails from "../../../components/common/CommonDetails.jsx";
 import ConvertToCustomerPopup from "./ConvertToCustomerPopup.jsx";
+import { LEAD_SOURCE_OPTIONS, LEAD_STATUS_OPTIONS } from "../../../constants/leadEnums.js";
 
 import { adminGetLeadByIdApi } from "../../../services/lead/adminGetLeadByIdApi";
 import { resetLeadDetails } from "../../../slices/lead/adminGetLeadByIdSlice";
@@ -17,21 +14,20 @@ import { resetDeleteLeadState } from "../../../slices/lead/adminDeleteLeadSlice"
 import { adminConvertLeadApi } from "../../../services/lead/adminConvertLeadApi";
 import { resetConvertLeadState } from "../../../slices/lead/adminConvertLeadSlice";
 
-
-
 export default function LeadDetailsPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const { loading, lead, error } = useSelector(
-    (state) => state.adminGetLeadById
-  );
+  const { loading, lead, error } = useSelector((state) => state.adminGetLeadById);
 
   const [isEditMode, setIsEditMode] = useState(false);
   const [editedData, setEditedData] = useState({});
   const [showConvertPopup, setShowConvertPopup] = useState(false);
 
+  /* =======================
+     FETCH LEAD
+  ======================= */
   useEffect(() => {
     dispatch(adminGetLeadByIdApi(id));
     return () => {
@@ -39,35 +35,42 @@ export default function LeadDetailsPage() {
     };
   }, [dispatch, id]);
 
-  if (loading)
-    return (
-      <p className="mt-6 text-gray-500 text-center">
-        Loading lead details...
-      </p>
-    );
+  // Populate editable data when lead loads
+  useEffect(() => {
+    if (lead) {
+      setEditedData({
+        id: lead.id || "",
+        name: lead.name || "",
+        email: lead.email || "",
+        phone: lead.phone || "",
+        source: lead.source || "",
+        status: lead.status || "",
+        ownerName: lead.ownerName || "",
+        assignedToName: lead.assignedToName || "",
+        departmentName: lead.departmentName || "",
+        customerId: lead.customerId || "",
+        createdAt: lead.createdAt || "",
+        updatedAt: lead.updatedAt || "",
+      });
+    }
+  }, [lead]);
 
+  if (loading)
+    return <p className="mt-6 text-gray-500 text-center">Loading lead details...</p>;
   if (error)
     return <p className="mt-6 text-red-500 text-center">{error}</p>;
-
   if (!lead) return null;
 
+  /* =======================
+     LEAD FIELDS
+  ======================= */
   const leadFields = [
     { name: "id", label: "ID", readOnly: true },
     { name: "name", label: "Name" },
     { name: "email", label: "Email" },
     { name: "phone", label: "Phone" },
-    {
-      name: "source",
-      label: "Source",
-      type: "select",
-      options: LEAD_SOURCE_OPTIONS,
-    },
-    {
-      name: "status",
-      label: "Status",
-      type: "select",
-      options: LEAD_STATUS_OPTIONS,
-    },
+    { name: "source", label: "Source", type: "select", options: LEAD_SOURCE_OPTIONS },
+    { name: "status", label: "Status", type: "select", options: LEAD_STATUS_OPTIONS },
     { name: "ownerName", label: "Owner", readOnly: true },
     { name: "assignedToName", label: "Assigned To", readOnly: true },
     { name: "departmentName", label: "Department", readOnly: true },
@@ -76,11 +79,20 @@ export default function LeadDetailsPage() {
       name: "createdAt",
       label: "Created At",
       readOnly: true,
-      format: (val) => new Date(val).toLocaleString(),
+      format: (val) => (val ? new Date(val).toLocaleString("en-IN") : "N/A"),
+    },
+    {
+      name: "updatedAt",
+      label: "Last Updated",
+      readOnly: true,
+      format: (val) => (val ? new Date(val).toLocaleString("en-IN") : "N/A"),
     },
   ];
 
-  const formattedLead = { ...lead };
+  /* =======================
+     FORMAT DISPLAY DATA
+  ======================= */
+  const formattedLead = { ...editedData };
   leadFields.forEach((field) => {
     if (field.format && formattedLead[field.name]) {
       formattedLead[field.name] = field.format(formattedLead[field.name]);
@@ -90,73 +102,59 @@ export default function LeadDetailsPage() {
   /* =======================
      HANDLERS
   ======================= */
-
-  const handleEdit = () => {
-    setEditedData(lead); // prefill editable data
-    setIsEditMode(true);
-  };
-
-  const handleCancelEdit = () => {
-    setIsEditMode(false);
-    setEditedData({});
-  };
+  const handleEdit = () => setIsEditMode(true);
+  const handleCancelEdit = () => setIsEditMode(false);
 
   const handleSave = async () => {
     try {
       await dispatch(adminUpdateLeadApi({ id, payload: editedData })).unwrap();
-      // Re-fetch updated lead
       dispatch(adminGetLeadByIdApi(id));
       alert("Lead updated successfully");
       setIsEditMode(false);
     } catch (err) {
-      alert(err || "Failed to update lead");
+      alert(err?.message || "Failed to update lead");
     }
   };
 
-// Inside component
-const handleDelete = async () => {
-  if (!window.confirm("Are you sure you want to delete this lead?")) return;
-
-  try {
-    await dispatch(adminDeleteLeadApi(id)).unwrap();
-    alert("Lead deleted successfully");
-    navigate("/admin/leads");
-    dispatch(resetDeleteLeadState());
-  } catch (err) {
-    alert(err || "Failed to delete lead");
-  }
-};
-  const handleConvert = () => {
-    setShowConvertPopup(true);
+  const handleDelete = async () => {
+    if (!window.confirm("Are you sure you want to delete this lead?")) return;
+    try {
+      await dispatch(adminDeleteLeadApi(id)).unwrap();
+      alert("Lead deleted successfully");
+      navigate("/admin/leads");
+      dispatch(resetDeleteLeadState());
+    } catch (err) {
+      alert(err?.message || "Failed to delete lead");
+    }
   };
 
+  const handleConvert = () => setShowConvertPopup(true);
 
   const handleConvertSubmit = async (payload) => {
-  try {
-    await dispatch(
-      adminConvertLeadApi({
-        leadId: payload.leadId,
-        payload: {
-          customerType: payload.customerType,
-          industry: payload.industry,
-          address: payload.address,
-          website: payload.website,
-        },
-      })
-    ).unwrap();
+    try {
+      await dispatch(
+        adminConvertLeadApi({
+          leadId: payload.leadId,
+          payload: {
+            customerType: payload.customerType,
+            industry: payload.industry,
+            address: payload.address,
+            website: payload.website,
+          },
+        })
+      ).unwrap();
+      alert("Lead converted to customer successfully");
+      setShowConvertPopup(false);
+      dispatch(adminGetLeadByIdApi(id));
+      dispatch(resetConvertLeadState());
+    } catch (err) {
+      alert(err?.message || "Failed to convert lead");
+    }
+  };
 
-    alert("Lead converted to customer successfully");
-    setShowConvertPopup(false);
-
-    // Optional refresh
-    dispatch(adminGetLeadByIdApi(id));
-    dispatch(resetConvertLeadState());
-  } catch (err) {
-    alert(err || "Failed to convert lead");
-  }
-};
-
-
+  /* =======================
+     UI
+  ======================= */
   return (
     <div className="p-6 md:p-12">
       <button
