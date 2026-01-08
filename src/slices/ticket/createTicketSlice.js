@@ -1,32 +1,22 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { createTicket } from "../../services/ticket/createTicketApi";
+import { createSlice } from "@reduxjs/toolkit";
+import { createTicketThunk } from "../../services/ticket/createTicketApi";
 
-// Async thunk for creating a ticket
-export const createTicketThunk = createAsyncThunk(
-  "tickets/create",
-  async (ticketData, { rejectWithValue }) => {
-    try {
-      const result = await createTicket(ticketData);
-      return result;
-    } catch (err) {
-      return rejectWithValue(err);
-    }
-  }
-);
+const initialState = {
+  loading: false,
+  ticket: null,
+  success: false,
+  error: null,
+};
 
 const createTicketSlice = createSlice({
   name: "createTicket",
-  initialState: {
-    ticket: null,
-    loading: false,
-    error: null,
-  },
+  initialState,
   reducers: {
-    clearCreateTicketError(state) {
-      state.error = null;
-    },
-    clearCreatedTicket(state) {
+    resetCreateTicketState: (state) => {
+      state.loading = false;
       state.ticket = null;
+      state.success = false;
+      state.error = null;
     },
   },
   extraReducers: (builder) => {
@@ -34,17 +24,20 @@ const createTicketSlice = createSlice({
       .addCase(createTicketThunk.pending, (state) => {
         state.loading = true;
         state.error = null;
+        state.success = false;
       })
       .addCase(createTicketThunk.fulfilled, (state, action) => {
         state.loading = false;
         state.ticket = action.payload;
+        state.success = true;
       })
       .addCase(createTicketThunk.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+        state.success = false;
       });
   },
 });
 
-export const { clearCreateTicketError, clearCreatedTicket } = createTicketSlice.actions;
+export const { resetCreateTicketState } = createTicketSlice.actions;
 export default createTicketSlice.reducer;

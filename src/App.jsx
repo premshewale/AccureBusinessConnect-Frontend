@@ -8,6 +8,10 @@ import "react-toastify/dist/ReactToastify.css";
 
 import CustomerProvider from "./contexts/CustomerContext.jsx";
 import TicketProvider from "./contexts/TicketContext.jsx";
+import ExpenseProvider from "./contexts/ExpenseContext.jsx";
+import PaymentProvider  from "./contexts/PaymentContext";
+import InvoiceProvider from "./contexts/InvoiceContext.jsx";
+
 import ProposalProvider from "./contexts/ProposalContext.jsx";
 import TaskProvider from "./contexts/TaskContext.jsx"; // ✅ REQUIRED
 
@@ -23,15 +27,22 @@ function App() {
 
   return (
     <>
-      <CustomerProvider>
-        <TicketProvider>
-          <ProposalProvider>
-            <TaskProvider> {/* ✅ MUST wrap Router */}
-              <RouterProvider router={router} />
-            </TaskProvider>
-          </ProposalProvider>
-        </TicketProvider>
-      </CustomerProvider>
+
+    
+    <CustomerProvider>
+      <TicketProvider>
+        <ExpenseProvider>
+          <PaymentProvider>
+            <InvoiceProvider>
+        <RouterProvider router={router} />
+        </InvoiceProvider>
+        </PaymentProvider>
+        </ExpenseProvider>
+      </TicketProvider>
+    </CustomerProvider>
+   
+   
+     
 
       <ToastContainer />
     </>
