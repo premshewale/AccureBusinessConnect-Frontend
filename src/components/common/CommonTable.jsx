@@ -123,6 +123,27 @@ payments: [
   { header: "Transaction ID", accessor: "transactionId", sortable: true },
   { header: "Actions", accessor: "actions", sortable: false },
 ],
+
+
+invoices: [
+  { header: "Invoice No", accessor: "invoiceNumber", sortable: true },
+  { header: "Customer", accessor: "customerName", sortable: true },
+  { header: "Issue Date", accessor: "issueDate", sortable: true },
+  { header: "Due Date", accessor: "dueDate", sortable: true },
+  { header: "Total Amount", accessor: "totalAmount", sortable: true },
+  { header: "Amount Paid", accessor: "amountPaid", sortable: true },
+  { header: "Due Amount", accessor: "dueAmount", sortable: true },
+  { header: "Status", accessor: "status", sortable: true },
+  { header: "Payment Method", accessor: "paymentMethod", sortable: true },
+  { header: "Actions", accessor: "actions", sortable: false },
+],
+
+
+draft: { color: "bg-gray-100 text-gray-800", label: "Draft" },
+paid: { color: "bg-green-100 text-green-800", label: "Paid" },
+pending: { color: "bg-yellow-100 text-yellow-800", label: "Pending" },
+partial: { color: "bg-blue-100 text-blue-800", label: "Partial" },
+overdue: { color: "bg-red-100 text-red-800", label: "Overdue" },
   };
 
   const columns = headersByType[type] || [];

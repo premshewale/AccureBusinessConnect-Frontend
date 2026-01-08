@@ -9,6 +9,7 @@ import CustomerProvider from "./contexts/CustomerContext.jsx";
 import TicketProvider from "./contexts/TicketContext.jsx";
 import ExpenseProvider from "./contexts/ExpenseContext.jsx";
 import PaymentProvider  from "./contexts/PaymentContext";
+import InvoiceProvider from "./contexts/InvoiceContext.jsx";
 
 
 function App() {
@@ -31,7 +32,9 @@ function App() {
       <TicketProvider>
         <ExpenseProvider>
           <PaymentProvider>
+            <InvoiceProvider>
         <RouterProvider router={router} />
+        </InvoiceProvider>
         </PaymentProvider>
         </ExpenseProvider>
       </TicketProvider>

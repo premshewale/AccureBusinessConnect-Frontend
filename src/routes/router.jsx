@@ -37,6 +37,8 @@ import CreateExpense from "../pages/admin/expences/CreateExpense.jsx";
 import CreatePayment from "../pages/admin/payment/CreatePayment.jsx";
 import UserDetial from "../pages/admin/user/UserDetails.jsx";
 
+import CreateInvoice from "../pages/admin/invoices/CreateInvoice.jsx";
+
 
 const router = createBrowserRouter([
   // Public Routes
@@ -165,6 +167,8 @@ const router = createBrowserRouter([
           </RoleInterceptor>
         ),
       },
+    
+
       {
         path: "invoices",
         element: (
@@ -173,6 +177,15 @@ const router = createBrowserRouter([
           </RoleInterceptor>
         ),
       },
+      {
+        path: "create-invoice",
+        element: (
+          <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN"]}>
+            <CreateInvoice />
+          </RoleInterceptor>
+        ),
+      },
+     
 
       // -------- All Roles (ADMIN, SUB_ADMIN, STAFF) --------
       {
