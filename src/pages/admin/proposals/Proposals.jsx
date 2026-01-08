@@ -14,7 +14,9 @@ import { useProposals } from "../../../contexts/ProposalContext";
 
 export default function Proposals() {
   const navigate = useNavigate();
-  const { proposals, loading, deleteProposal, getProposalStats } = useProposals();
+
+  const { proposals = [], loading, deleteProposal, getProposalStats } =
+    useProposals();
 
   const [activeTab, setActiveTab] = useState("table");
   const [searchQuery, setSearchQuery] = useState("");
@@ -51,11 +53,14 @@ export default function Proposals() {
       return false;
     }
 
-    if (filter !== "All" && p.status !== filter) {
+    if (filter !== "All" && p.status?.toUpperCase() !== filter) {
       return false;
     }
 
-    if (filterOptions.status !== "All" && p.status !== filterOptions.status) {
+    if (
+      filterOptions.status !== "All" &&
+      p.status?.toUpperCase() !== filterOptions.status
+    ) {
       return false;
     }
 
@@ -68,6 +73,7 @@ export default function Proposals() {
 
     if (filterOptions.budgetRange !== "All") {
       const budget = p.budget || 0;
+
       if (
         (filterOptions.budgetRange === "Below 50k" && budget >= 50000) ||
         (filterOptions.budgetRange === "50k - 1L" &&
@@ -87,10 +93,10 @@ export default function Proposals() {
     {
       title: "Pending",
       cards: filteredProposals
-        .filter((p) => p.status === "PENDING")
+        .filter((p) => p.status?.toUpperCase() === "PENDING")
         .map((p) => ({
           id: p.id,
-          name: `Proposal #${p.id}`,
+          name: `#${p.id} Proposal`,
           service: `Customer ${p.customer_id}`,
           status: "Pending",
         })),
@@ -98,10 +104,10 @@ export default function Proposals() {
     {
       title: "Sent",
       cards: filteredProposals
-        .filter((p) => p.status === "SENT")
+        .filter((p) => p.status?.toUpperCase() === "SENT")
         .map((p) => ({
           id: p.id,
-          name: `Proposal #${p.id}`,
+          name: `#${p.id} Proposal`,
           service: `Customer ${p.customer_id}`,
           status: "Sent",
         })),
@@ -109,10 +115,10 @@ export default function Proposals() {
     {
       title: "Accepted",
       cards: filteredProposals
-        .filter((p) => p.status === "ACCEPTED")
+        .filter((p) => p.status?.toUpperCase() === "ACCEPTED")
         .map((p) => ({
           id: p.id,
-          name: `Proposal #${p.id}`,
+          name: `#${p.id} Proposal`,
           service: `Customer ${p.customer_id}`,
           status: "Accepted",
         })),
@@ -120,10 +126,10 @@ export default function Proposals() {
     {
       title: "Rejected",
       cards: filteredProposals
-        .filter((p) => p.status === "REJECTED")
+        .filter((p) => p.status?.toUpperCase() === "REJECTED")
         .map((p) => ({
           id: p.id,
-          name: `Proposal #${p.id}`,
+          name: `#${p.id} Proposal`,
           service: `Customer ${p.customer_id}`,
           status: "Rejected",
         })),
@@ -133,7 +139,7 @@ export default function Proposals() {
   const statuses = ["All", "PENDING", "SENT", "ACCEPTED", "REJECTED"];
 
   const handleDelete = async (proposal) => {
-    if (confirm(`Delete Proposal #${proposal.id}?`)) {
+    if (window.confirm(`Delete Proposal #${proposal.id}?`)) {
       await deleteProposal(proposal.id);
     }
   };
@@ -160,10 +166,7 @@ export default function Proposals() {
       <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6 p-4 bg-white rounded-lg border">
         <div className="flex gap-4">
           <CommonExportButton data={exportData} fileName="proposals" />
-          <button
-            onClick={handleRefresh}
-            className="p-2 border rounded-lg"
-          >
+          <button onClick={handleRefresh} className="p-2 border rounded-lg">
             <MdOutlineRefresh />
           </button>
         </div>
@@ -215,6 +218,36 @@ export default function Proposals() {
             {s}
           </button>
         ))}
+      </div>
+
+      <div className="flex justify-between items-center mb-4">
+        <p className="text-gray-600">
+          Showing {filteredProposals.length} of {proposals.length} proposals
+        </p>
+
+        <div className="flex gap-2">
+          <button
+            onClick={() => setActiveTab("kanban")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg border ${
+              activeTab === "kanban"
+                ? "bg-white border-cyan text-cyan shadow"
+                : "border-gray-300"
+            }`}
+          >
+            <RxDashboard /> Kanban View
+          </button>
+
+          <button
+            onClick={() => setActiveTab("table")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg border ${
+              activeTab === "table"
+                ? "bg-white border-cyan text-cyan shadow"
+                : "border-gray-300"
+            }`}
+          >
+            <RxTable /> Table View
+          </button>
+        </div>
       </div>
 
       <div className="bg-white rounded-xl border p-4">

@@ -119,6 +119,15 @@ export default function CommonTable({
       { header: "Status", accessor: "status" },
       { header: "Deadline", accessor: "deadline" },
     ],
+    tasks: [
+      { header: "ID", accessor: "id"},
+      { header: "Customer ID", accessor: "customerId" },
+      { header: "Title", accessor: "title" },
+      { header: "Status", accessor: "status" },
+      { header: "Assigned ID", accessor: "assignee_id" },
+      { header: "Department Id", accessor: "departmentId" },
+      { header: "Due Date", accessor: "dueDate" },
+    ],
   };
 
   const columns = headersByType[type] || [];
