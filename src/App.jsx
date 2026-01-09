@@ -5,6 +5,7 @@ import router from "./routes/router.jsx";
 import { initializeAuth } from "./slices/auth/loginSlice.js";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+
 import CustomerProvider from "./contexts/CustomerContext.jsx";
 import TicketProvider from "./contexts/TicketContext.jsx";
 import ExpenseProvider from "./contexts/ExpenseContext.jsx";
@@ -12,6 +13,7 @@ import PaymentProvider  from "./contexts/PaymentContext";
 import InvoiceProvider from "./contexts/InvoiceContext.jsx";
 
 import ProposalProvider from "./contexts/ProposalContext.jsx";
+import TaskProvider from "./contexts/TaskContext.jsx"; // ✅ REQUIRED
 
 function App() {
   const dispatch = useDispatch();
@@ -21,13 +23,11 @@ function App() {
     dispatch(initializeAuth());
   }, [dispatch]);
 
-  // ⏳ Wait until auth is restored
-  if (!isInitialized) {
-    return null; // or splash / loader
-  }
+  if (!isInitialized) return null;
 
   return (
     <>
+
     
     <CustomerProvider>
       <TicketProvider>
@@ -43,29 +43,10 @@ function App() {
    
    
      
+
       <ToastContainer />
-     
     </>
   );
 }
 
 export default App;
-
-
-// import { RouterProvider } from "react-router-dom";
-// import "./App.css";
-// import router from "./routes/router.jsx";
-// import { ToastContainer } from "react-toastify";
-// import "react-toastify/dist/ReactToastify.css";
-
-
-// function App() {
-//   return (
-//     <>
-//       <RouterProvider router={router} />
-//       <ToastContainer />
-//     </>
-//   );
-// }
-
-// export default App;
