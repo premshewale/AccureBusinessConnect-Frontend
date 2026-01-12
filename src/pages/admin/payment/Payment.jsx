@@ -10,7 +10,12 @@ import CommonTable from "../../../components/common/CommonTable.jsx";
 import CommonExportButton from "../../../components/common/CommonExportButton.jsx";
 import PaymentStats from "./PaymentStats.jsx";
 import PaymentFilter from "./PaymentFilter.jsx";
-import { usePayments } from "../../../contexts/PaymentContext.jsx";
+// import { usePayments } from "../../../contexts/PaymentContext.jsx";
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect } from "react";
+import { adminGetAllPaymentsApi } from "../../../services/payment/adminGetAllPaymentsApi.js";
+
+
 
 export default function Payment() {
   const navigate = useNavigate();
@@ -29,8 +34,49 @@ export default function Payment() {
   });
   
   // Get payments from context
-  const { payments, loading, deletePayment, getPaymentStats, markPaymentAsPaid } = usePayments();
-  const paymentStats = getPaymentStats();
+  // const { payments, loading, deletePayment, getPaymentStats, markPaymentAsPaid } = usePayments();
+  // const paymentStats = getPaymentStats();
+  const dispatch = useDispatch();
+
+// const { payments, loading } = useSelector(
+//   (state) => state.adminGetAllPayments
+// );
+const { payments = [], loading } = useSelector(
+  (state) => state.adminGetAllPayments
+);
+
+useEffect(() => {
+  dispatch(adminGetAllPaymentsApi());
+}, [dispatch]);
+
+// ================= PAYMENT STATS =================
+const paymentStats = {
+  totalPaid: payments
+    .filter(p => p.status === "paid")
+    .reduce((sum, p) => sum + (p.amountPaid || 0), 0),
+
+  totalDue: payments
+    .filter(p => p.status !== "paid")
+    .reduce((sum, p) => sum + (p.dueAmount || 0), 0),
+
+  collectionRate: payments.length
+    ? Math.round(
+        (payments.filter(p => p.status === "paid").length / payments.length) * 100
+      )
+    : 0,
+
+  thisMonthAmount: payments
+    .filter(p => {
+      const d = new Date(p.paymentDate);
+      const now = new Date();
+      return (
+        d.getMonth() === now.getMonth() &&
+        d.getFullYear() === now.getFullYear()
+      );
+    })
+    .reduce((sum, p) => sum + (p.amountPaid || 0), 0),
+};
+
   
   // Handle refresh
   const handleRefresh = () => {
@@ -38,22 +84,29 @@ export default function Payment() {
   };
   
   // Prepare data for export
-  const exportData = payments.map(payment => ({
-    ID: payment.id,
-    "Invoice No": payment.invoiceNumber,
-    Customer: payment.customerName,
-    Amount: `₹${payment.amount.toLocaleString('en-IN')}`,
-    "Amount Paid": `₹${payment.amountPaid.toLocaleString('en-IN')}`,
-    "Due Amount": `₹${payment.dueAmount.toLocaleString('en-IN')}`,
-    "Payment Date": new Date(payment.paymentDate).toLocaleDateString('en-IN'),
-    "Payment Method": payment.paymentMethod,
-    Status: payment.status.charAt(0).toUpperCase() + payment.status.slice(1),
-    "Transaction ID": payment.transactionId,
-    "Payment Type": payment.paymentType,
-    Notes: payment.notes,
-    "Created By": payment.createdBy,
-    "Created At": new Date(payment.createdAt).toLocaleDateString('en-IN'),
-  }));
+const exportData = payments.map(payment => ({
+  ID: payment.id,
+  "Invoice No": payment.invoiceNumber || "N/A",
+  Customer: payment.customerName || "N/A",
+  Amount: `₹${(payment.amount || 0).toLocaleString('en-IN')}`,
+  "Amount Paid": `₹${(payment.amountPaid || 0).toLocaleString('en-IN')}`,
+  "Due Amount": `₹${(payment.dueAmount || 0).toLocaleString('en-IN')}`,
+  "Payment Date": payment.paymentDate
+    ? new Date(payment.paymentDate).toLocaleDateString('en-IN')
+    : "N/A",
+  "Payment Method": payment.paymentMethod || "N/A",
+  Status: payment.status
+    ? payment.status.charAt(0).toUpperCase() + payment.status.slice(1)
+    : "N/A",
+  "Transaction ID": payment.transactionId || "N/A",
+  "Payment Type": payment.paymentType || "N/A",
+  Notes: payment.notes || "",
+  "Created By": payment.createdBy || "N/A",
+  "Created At": payment.createdAt
+    ? new Date(payment.createdAt).toLocaleDateString('en-IN')
+    : "N/A",
+}));
+
   
   // Filter payments based on active filters
   const filteredPayments = payments.filter(payment => {
@@ -145,72 +198,89 @@ export default function Payment() {
   });
   
   // Convert filtered payments to Kanban format
-  const kanbanColumns = [
-    {
-      title: "Paid",
-      cards: filteredPayments.filter(p => p.status === "paid").map(payment => ({
+const kanbanColumns = [
+  {
+    title: "Paid",
+    cards: filteredPayments
+      .filter(p => p.status?.toLowerCase() === "paid")
+      .map(payment => ({
         id: payment.id,
-        name: `INV: ${payment.invoiceNumber}`,
-        service: payment.customerName,
-        phone: `₹${payment.amount.toLocaleString('en-IN')}`,
-        email: payment.paymentMethod,
-        createdOn: new Date(payment.paymentDate).toLocaleDateString('en-IN', {
-          day: '2-digit',
-          month: 'short',
-          year: 'numeric'
-        }),
+        name: `INV: ${payment.invoiceNumber || "N/A"}`,
+        service: payment.customerName || "N/A",
+        phone: `₹${(payment.amount || 0).toLocaleString('en-IN')}`,
+        email: payment.paymentMethod || "N/A",
+        createdOn: payment.paymentDate
+          ? new Date(payment.paymentDate).toLocaleDateString('en-IN', {
+              day: '2-digit',
+              month: 'short',
+              year: 'numeric'
+            })
+          : "N/A",
         status: "Paid",
       })),
-    },
-    {
-      title: "Pending",
-      cards: filteredPayments.filter(p => p.status === "pending").map(payment => ({
+  },
+  {
+    title: "Pending",
+    cards: filteredPayments
+      .filter(p => p.status?.toLowerCase() === "pending")
+      .map(payment => ({
         id: payment.id,
-        name: `INV: ${payment.invoiceNumber}`,
-        service: payment.customerName,
-        phone: `₹${payment.dueAmount.toLocaleString('en-IN')}`,
-        email: payment.paymentMethod,
-        createdOn: new Date(payment.paymentDate).toLocaleDateString('en-IN', {
-          day: '2-digit',
-          month: 'short',
-          year: 'numeric'
-        }),
+        name: `INV: ${payment.invoiceNumber || "N/A"}`,
+        service: payment.customerName || "N/A",
+        phone: `₹${(payment.dueAmount || 0).toLocaleString('en-IN')}`,
+        email: payment.paymentMethod || "N/A",
+        createdOn: payment.paymentDate
+          ? new Date(payment.paymentDate).toLocaleDateString('en-IN', {
+              day: '2-digit',
+              month: 'short',
+              year: 'numeric'
+            })
+          : "N/A",
         status: "Pending",
       })),
-    },
-    {
-      title: "Partial",
-      cards: filteredPayments.filter(p => p.status === "partial").map(payment => ({
+  },
+  {
+    title: "Partial",
+    cards: filteredPayments
+      .filter(p => p.status?.toLowerCase() === "partial")
+      .map(payment => ({
         id: payment.id,
-        name: `INV: ${payment.invoiceNumber}`,
-        service: payment.customerName,
-        phone: `₹${payment.dueAmount.toLocaleString('en-IN')} due`,
-        email: payment.paymentMethod,
-        createdOn: new Date(payment.paymentDate).toLocaleDateString('en-IN', {
-          day: '2-digit',
-          month: 'short',
-          year: 'numeric'
-        }),
-        status: `Paid: ₹${payment.amountPaid.toLocaleString('en-IN')}`,
+        name: `INV: ${payment.invoiceNumber || "N/A"}`,
+        service: payment.customerName || "N/A",
+        phone: `₹${(payment.dueAmount || 0).toLocaleString('en-IN')} due`,
+        email: payment.paymentMethod || "N/A",
+        createdOn: payment.paymentDate
+          ? new Date(payment.paymentDate).toLocaleDateString('en-IN', {
+              day: '2-digit',
+              month: 'short',
+              year: 'numeric'
+            })
+          : "N/A",
+        status: `Paid: ₹${(payment.amountPaid || 0).toLocaleString('en-IN')}`,
       })),
-    },
-    {
-      title: "Overdue",
-      cards: filteredPayments.filter(p => p.status === "overdue").map(payment => ({
+  },
+  {
+    title: "Overdue",
+    cards: filteredPayments
+      .filter(p => p.status?.toLowerCase() === "overdue")
+      .map(payment => ({
         id: payment.id,
-        name: `INV: ${payment.invoiceNumber}`,
-        service: payment.customerName,
-        phone: `₹${payment.dueAmount.toLocaleString('en-IN')}`,
-        email: payment.paymentMethod,
-        createdOn: new Date(payment.paymentDate).toLocaleDateString('en-IN', {
-          day: '2-digit',
-          month: 'short',
-          year: 'numeric'
-        }),
+        name: `INV: ${payment.invoiceNumber || "N/A"}`,
+        service: payment.customerName || "N/A",
+        phone: `₹${(payment.dueAmount || 0).toLocaleString('en-IN')}`,
+        email: payment.paymentMethod || "N/A",
+        createdOn: payment.paymentDate
+          ? new Date(payment.paymentDate).toLocaleDateString('en-IN', {
+              day: '2-digit',
+              month: 'short',
+              year: 'numeric'
+            })
+          : "N/A",
         status: "Overdue",
       })),
-    },
-  ];
+  },
+];
+
   
   // Status options for filter buttons
   const statuses = ["All", "Paid", "Pending", "Partial", "Overdue"];
@@ -222,64 +292,65 @@ export default function Payment() {
     navigate(`/admin/edit-payment/${payment.id}`);
   };
 
-  const handleDelete = async (payment) => {
-    if (confirm(`Are you sure you want to delete payment record: ${payment.invoiceNumber}?`)) {
-      try {
-        await deletePayment(payment.id);
-        alert(`Payment record "${payment.invoiceNumber}" deleted successfully!`);
-      } catch (error) {
-        alert(`Error deleting payment: ${error.message}`);
-      }
-    }
-  };
+const handleDelete = () => {
+  alert("Delete API not wired yet");
+};
 
-  const handleView = (payment) => {
-    navigate(`/admin/payments/${payment.id}`);
-  };
+const handleMarkAsPaid = () => {
+  alert("Mark as paid API not wired yet");
+};
 
-  const handleMarkAsPaid = async (payment) => {
-    if (confirm(`Mark payment ${payment.invoiceNumber} as fully paid?`)) {
-      try {
-        await markPaymentAsPaid(payment.id);
-        alert(`Payment ${payment.invoiceNumber} marked as paid!`);
-      } catch (error) {
-        alert(`Error updating payment: ${error.message}`);
-      }
-    }
-  };
+
+const handleView = (payment) => {
+  navigate(`/admin/payments/${payment.id}`);
+};
+
+  // const handleMarkAsPaid = async (payment) => {
+  //   if (confirm(`Mark payment ${payment.invoiceNumber} as fully paid?`)) {
+  //     try {
+  //       await markPaymentAsPaid(payment.id);
+  //       alert(`Payment ${payment.invoiceNumber} marked as paid!`);
+  //     } catch (error) {
+  //       alert(`Error updating payment: ${error.message}`);
+  //     }
+  //   }
+  // };
 
   const handleCreatePayment = () => {
     navigate("/admin/create-payment");
     
   };
 
+  
+
   // Quick stats for header
-  const quickStats = [
-    {
-      title: "Total Collected",
-      value: `₹${paymentStats.totalPaid.toLocaleString('en-IN')}`,
-      icon: <FiDollarSign className="text-white" />,
-      color: "bg-green-500",
-    },
-    {
-      title: "Pending",
-      value: `₹${paymentStats.totalDue.toLocaleString('en-IN')}`,
-      icon: <FiDollarSign className="text-white" />,
-      color: "bg-yellow-500",
-    },
-    {
-      title: "Collection Rate",
-      value: `${paymentStats.collectionRate}%`,
-      icon: <FiDollarSign className="text-white" />,
-      color: "bg-blue-500",
-    },
-    {
-      title: "This Month",
-      value: `₹${paymentStats.thisMonthAmount.toLocaleString('en-IN')}`,
-      icon: <FiDollarSign className="text-white" />,
-      color: "bg-purple-500",
-    },
-  ];
+const quickStats = [
+  {
+    title: "Total Collected",
+    value: `₹${(paymentStats.totalPaid || 0).toLocaleString('en-IN')}`,
+    icon: <FiDollarSign className="text-white" />,
+    color: "bg-green-500",
+  },
+  {
+    title: "Pending",
+    value: `₹${(paymentStats.totalDue || 0).toLocaleString('en-IN')}`,
+    icon: <FiDollarSign className="text-white" />,
+    color: "bg-yellow-500",
+  },
+  {
+    title: "Collection Rate",
+    value: `${paymentStats.collectionRate || 0}%`,
+    icon: <FiDollarSign className="text-white" />,
+    color: "bg-blue-500",
+  },
+  {
+    title: "This Month",
+    value: `₹${(paymentStats.thisMonthAmount || 0).toLocaleString('en-IN')}`,
+    icon: <FiDollarSign className="text-white" />,
+    color: "bg-purple-500",
+  },
+];
+
 
   return (
     <div className="p-4">

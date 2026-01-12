@@ -39,9 +39,9 @@ import Proposals from "../pages/admin/proposals/Proposals.jsx";
 import CreateProposal from "../pages/admin/proposals/CreateProposal.jsx";
 import Department from "../pages/admin/department/Department.jsx";
 import Profile from "../pages/common/Profile.jsx";
-import LeadDetailsPage from "../pages/admin/leads/Leads.jsx";
 import CreateExpense from "../pages/admin/expences/CreateExpense.jsx";
 import CreatePayment from "../pages/admin/payment/CreatePayment.jsx";
+import PaymentDetails from "../pages/admin/payment/PaymentDetails.jsx";
 import UserDetial from "../pages/admin/user/UserDetails.jsx";
 
 import CreateInvoice from "../pages/admin/invoices/CreateInvoice.jsx";
@@ -319,22 +319,32 @@ const router = createBrowserRouter([
 
       // Payment
 
-       {
-  path: "payment", 
+       // Payments
+{
+  path: "payment",
   element: (
     <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
       <Payment />
     </RoleInterceptor>
   ),
 },
-      {
-        path: "create-payment",
-        element: (
-          <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
-            <CreatePayment/>
-          </RoleInterceptor>
-        ),
-      },
+{
+  path: "payments/:id",
+  element: (
+    <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
+      <PaymentDetails />
+    </RoleInterceptor>
+  ),
+},
+{
+  path: "create-payment",
+  element: (
+    <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
+      <CreatePayment />
+    </RoleInterceptor>
+  ),
+},
+
     ],
   },
  
