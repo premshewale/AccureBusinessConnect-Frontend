@@ -12,6 +12,7 @@ import PaymentProvider  from "./contexts/PaymentContext";
 import InvoiceProvider from "./contexts/InvoiceContext.jsx";
 
 import ProposalProvider from "./contexts/ProposalContext.jsx";
+import TaskProvider from "./contexts/TaskContext.jsx";
 
 function App() {
   const dispatch = useDispatch();
@@ -35,8 +36,10 @@ function App() {
           <PaymentProvider>
             <InvoiceProvider>
                         <ProposalProvider>
+                          <TaskProvider>
 
         <RouterProvider router={router} />
+        </TaskProvider>
                   </ProposalProvider>
 
         </InvoiceProvider>
