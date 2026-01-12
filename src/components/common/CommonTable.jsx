@@ -127,15 +127,12 @@ export default function CommonTable({
 
 payments: [
   { header: "ID", accessor: "id", sortable: true },
-  { header: "Invoice No", accessor: "invoiceNumber", sortable: true },
-  { header: "Customer", accessor: "customerName", sortable: true },
   { header: "Amount", accessor: "amount", sortable: true },
-  { header: "Amount Paid", accessor: "amountPaid", sortable: true },
-  { header: "Due Amount", accessor: "dueAmount", sortable: true },
   { header: "Payment Date", accessor: "paymentDate", sortable: true },
-  { header: "Payment Method", accessor: "paymentMethod", sortable: true },
-  { header: "Status", accessor: "status", sortable: true },
-  { header: "Transaction ID", accessor: "transactionId", sortable: true },
+  { header: "Method", accessor: "method", sortable: true },
+  { header: "Invoice Status", accessor: "invoiceStatus", sortable: true },
+  { header: "Created At", accessor: "createdAt", sortable: true },
+  { header: "Invoice ID", accessor: "invoiceId", sortable: true },
   { header: "Actions", accessor: "actions", sortable: false },
 ],
 

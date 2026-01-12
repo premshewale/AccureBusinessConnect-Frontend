@@ -33,6 +33,11 @@ import adminDeleteCustomerReducer from "../slices/customers/adminDeleteCustomerS
 import ticketReducer from "../slices/ticket/ticketSlice";
 import createTicketReducer from "../slices/ticket/createTicketSlice"
 
+import adminGetAllPaymentsReducer from "../slices/payment/adminGetAllPaymentsSlice";
+import adminCreatePaymentReducer from "../slices/payment/adminCreatePaymentSlice";
+import adminGetPaymentByIdReducer from "../slices/payment/adminGetPaymentByIdSlice";
+
+
 
 
 export default configureStore({
@@ -78,6 +83,15 @@ export default configureStore({
     // Ticket
     tickets: ticketReducer,
     createTicket: createTicketReducer,
+
+
+    //Payments
+    adminGetAllPayments: adminGetAllPaymentsReducer,
+    adminCreatePayment: adminCreatePaymentReducer,
+    adminGetPaymentById: adminGetPaymentByIdReducer,
+
+
+
 
   },
 });
