@@ -25,6 +25,7 @@ import Contacts from "../pages/admin/contacts/Contacts.jsx";
 import ContactDetails from "../pages/admin/contacts/ContactDetails.jsx";
 
 import Task from "../pages/admin/task/Task.jsx";
+import CreateTask from "../pages/admin/task/CreateTask.jsx";
 import Tickets from "../pages/admin/ticket/Ticket.jsx";
 import CreateTicket from "../pages/admin/ticket/CreateTicket.jsx";
 import Expences from "../pages/admin/expences/Expences.jsx";
@@ -256,6 +257,14 @@ const router = createBrowserRouter([
         element: (
           <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
             <Task />
+          </RoleInterceptor>
+        ),
+      },
+      {
+        path: "create-task",
+        element: (
+          <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
+            <CreateTask />
           </RoleInterceptor>
         ),
       },
