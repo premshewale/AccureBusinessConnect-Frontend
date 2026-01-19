@@ -3,6 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { RxDashboard, RxTable } from "react-icons/rx";
 import { IoSearchSharp, IoFilterSharp } from "react-icons/io5";
 import { MdOutlineRefresh } from "react-icons/md";
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect } from "react";
+
+import { adminGetAllProposals } from "../../../services/proposal/adminGetAllProposalsApi";
+import { adminDeleteProposalApi } from "../../../services/proposal/adminDeleteProposalApi";
 
 import Kanban from "../../../components/common/Kanban.jsx";
 import CommonTable from "../../../components/common/CommonTable.jsx";
@@ -10,13 +15,18 @@ import CommonExportButton from "../../../components/common/CommonExportButton.js
 
 import ProposalStats from "./ProposalStats.jsx";
 import ProposalFilter from "./ProposalFilter.jsx";
-import { useProposals } from "../../../contexts/ProposalContext";
 
 export default function Proposals() {
   const navigate = useNavigate();
 
-  const { proposals = [], loading, deleteProposal, getProposalStats } =
-    useProposals();
+  const dispatch = useDispatch();
+
+  const { proposals = [], loading } = useSelector(
+    (state) => state.adminGetAllProposals
+  );
+  useEffect(() => {
+    dispatch(adminGetAllProposals());
+  }, [dispatch]);
 
   const [activeTab, setActiveTab] = useState("table");
   const [searchQuery, setSearchQuery] = useState("");
@@ -29,8 +39,6 @@ export default function Proposals() {
     budgetRange: "All",
     deadline: "All",
   });
-
-  const stats = getProposalStats();
 
   const handleRefresh = () => window.location.reload();
 
@@ -88,6 +96,35 @@ export default function Proposals() {
 
     return true;
   });
+  const getProposalStats = () => {
+    const total = proposals.length;
+
+    const pending = proposals.filter(
+      (p) => p.status?.toUpperCase() === "PENDING"
+    ).length;
+
+    const sent = proposals.filter(
+      (p) => p.status?.toUpperCase() === "SENT"
+    ).length;
+
+    const accepted = proposals.filter(
+      (p) => p.status?.toUpperCase() === "ACCEPTED"
+    ).length;
+
+    const rejected = proposals.filter(
+      (p) => p.status?.toUpperCase() === "REJECTED"
+    ).length;
+
+    return [
+      { label: "Total", value: total },
+      { label: "Pending", value: pending },
+      { label: "Sent", value: sent },
+      { label: "Accepted", value: accepted },
+      { label: "Rejected", value: rejected },
+    ];
+  };
+
+  const stats = getProposalStats();
 
   const kanbanColumns = [
     {
@@ -137,10 +174,13 @@ export default function Proposals() {
   ];
 
   const statuses = ["All", "PENDING", "SENT", "ACCEPTED", "REJECTED"];
+  const handleEdit = (proposal) => {
+    navigate(`/admin/proposals/${proposal.id}`);
+  };
 
   const handleDelete = async (proposal) => {
     if (window.confirm(`Delete Proposal #${proposal.id}?`)) {
-      await deleteProposal(proposal.id);
+      dispatch(adminDeleteProposalApi(proposal.id));
     }
   };
 
@@ -186,9 +226,7 @@ export default function Proposals() {
           <button
             onClick={() => setShowFilter(!showFilter)}
             className={`px-4 py-2 rounded-lg border flex gap-2 ${
-              showFilter
-                ? "bg-cyan text-white border-cyan"
-                : "border-gray-300"
+              showFilter ? "bg-cyan text-white border-cyan" : "border-gray-300"
             }`}
           >
             <IoFilterSharp /> Filter
@@ -266,6 +304,7 @@ export default function Proposals() {
               <CommonTable
                 type="proposals"
                 data={filteredProposals}
+                onEdit={handleEdit}
                 onDelete={handleDelete}
                 showActions
               />

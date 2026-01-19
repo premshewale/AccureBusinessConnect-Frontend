@@ -38,6 +38,15 @@ import adminCreatePaymentReducer from "../slices/payment/adminCreatePaymentSlice
 import adminGetPaymentByIdReducer from "../slices/payment/adminGetPaymentByIdSlice";
 
 
+import adminGetAllProposalsReducer from "../slices/proposal/adminGetAllProposalsSlice";
+import adminCreateProposalReducer from "../slices/proposal/adminCreateProposalSlice";
+import adminGetProposalByIdReducer from "../slices/proposal/adminGetProposalByIdSlice";
+import adminUpdateProposalReducer from "../slices/proposal/adminUpdateProposalSlice";
+
+
+
+
+
 
 
 export default configureStore({
@@ -83,6 +92,15 @@ export default configureStore({
     // Ticket
     tickets: ticketReducer,
     createTicket: createTicketReducer,
+
+    // Proposals
+   adminGetAllProposals: adminGetAllProposalsReducer,
+   adminCreateProposal: adminCreateProposalReducer,
+   adminGetProposalById: adminGetProposalByIdReducer,
+   adminUpdateProposal: adminUpdateProposalReducer,
+
+
+
 
 
     //Payments

@@ -38,6 +38,8 @@ import CreateContact from "../pages/admin/contacts/CreateContact.jsx";
 import RoleInterceptor from "../security/RoleInterceptor.jsx";
 import Proposals from "../pages/admin/proposals/Proposals.jsx";
 import CreateProposal from "../pages/admin/proposals/CreateProposal.jsx";
+import ProposalDetails from "../pages/admin/proposals/ProposalDetails.jsx";
+
 import Department from "../pages/admin/department/Department.jsx";
 import Profile from "../pages/common/Profile.jsx";
 import CreateExpense from "../pages/admin/expences/CreateExpense.jsx";
@@ -47,9 +49,9 @@ import UserDetial from "../pages/admin/user/UserDetails.jsx";
 
 import CreateInvoice from "../pages/admin/invoices/CreateInvoice.jsx";
 
-
 import UpdateDepartment from "../pages/admin/department/UpdateDepartment.jsx";
 import UserDetails from "../pages/admin/user/UserDetails.jsx";
+
 const router = createBrowserRouter([
   // Public Routes
   {
@@ -96,11 +98,10 @@ const router = createBrowserRouter([
         path: "users/:id", // ✅ User Details / Edit
         element: (
           <RoleInterceptor allowedRoles={["ADMIN"]}>
-            <UserDetial/>
+            <UserDetial />
           </RoleInterceptor>
         ),
       },
-      
 
       {
         path: "create-user",
@@ -156,14 +157,13 @@ const router = createBrowserRouter([
         ),
       },
       {
-  path: "lead-details/:id",
-  element: (
-    <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN"]}>
-      <LeadDetailsPage />
-    </RoleInterceptor>
-  ),
-}
-,
+        path: "lead-details/:id",
+        element: (
+          <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN"]}>
+            <LeadDetailsPage />
+          </RoleInterceptor>
+        ),
+      },
       {
         path: "create-lead",
         element: (
@@ -204,7 +204,6 @@ const router = createBrowserRouter([
           </RoleInterceptor>
         ),
       },
-    
 
       {
         path: "invoices",
@@ -222,7 +221,6 @@ const router = createBrowserRouter([
           </RoleInterceptor>
         ),
       },
-     
 
       // -------- All Roles (ADMIN, SUB_ADMIN, STAFF) --------
 
@@ -277,6 +275,14 @@ const router = createBrowserRouter([
         ),
       },
       {
+        path: "proposals/:id",
+        element: (
+          <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
+            <ProposalDetails />
+          </RoleInterceptor>
+        ),
+      },
+      {
         path: "create-proposal",
         element: (
           <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
@@ -284,6 +290,7 @@ const router = createBrowserRouter([
           </RoleInterceptor>
         ),
       },
+
       {
         path: "ticket",
         element: (
@@ -318,45 +325,43 @@ const router = createBrowserRouter([
       },
 
       {
-      path: "create-expense",
-      element: (
-        <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
-          <CreateExpense />
-        </RoleInterceptor>
-      ),
-    },
+        path: "create-expense",
+        element: (
+          <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
+            <CreateExpense />
+          </RoleInterceptor>
+        ),
+      },
 
       // Payment
 
-       // Payments
-{
-  path: "payment",
-  element: (
-    <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
-      <Payment />
-    </RoleInterceptor>
-  ),
-},
-{
-  path: "payments/:id",
-  element: (
-    <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
-      <PaymentDetails />
-    </RoleInterceptor>
-  ),
-},
-{
-  path: "create-payment",
-  element: (
-    <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
-      <CreatePayment />
-    </RoleInterceptor>
-  ),
-},
-
+      // Payments
+      {
+        path: "payment",
+        element: (
+          <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
+            <Payment />
+          </RoleInterceptor>
+        ),
+      },
+      {
+        path: "payments/:id",
+        element: (
+          <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
+            <PaymentDetails />
+          </RoleInterceptor>
+        ),
+      },
+      {
+        path: "create-payment",
+        element: (
+          <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
+            <CreatePayment />
+          </RoleInterceptor>
+        ),
+      },
     ],
   },
- 
 ]);
 
 export default router;
