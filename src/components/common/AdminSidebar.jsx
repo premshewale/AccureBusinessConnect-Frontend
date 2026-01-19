@@ -10,11 +10,10 @@ import { MdOutlinePayments } from "react-icons/md";
 import { SlPeople } from "react-icons/sl";
 import { FiUsers, FiUserPlus } from "react-icons/fi";
 import { VscGraph } from "react-icons/vsc";
-import { MdAdd } from "react-icons/md"; // For generic add icons
+import { MdAdd } from "react-icons/md"; 
 import { HiOutlineDocumentText } from "react-icons/hi";
 
 export default function AdminSidebar({ sidebarOpen, setSidebarOpen }) {
-  // State for role (from localStorage)
   const [role, setRole] = useState(null);
 
 
@@ -93,18 +92,6 @@ export default function AdminSidebar({ sidebarOpen, setSidebarOpen }) {
       allowedRoles: ["ADMIN", "SUB_ADMIN"],
     },
     // -------- All Roles (ADMIN, SUB_ADMIN, STAFF) --------
-    // {
-    //   name: "Contacts",
-    //   icon: <RiContactsBook3Line size={24} />,
-    //   path: "/admin/contacts",
-    //   allowedRoles: ["ADMIN", "SUB_ADMIN", "STAFF"],
-    // },
-    // {
-    //   name: "Create Contact",
-    //   icon: <MdAdd size={24} />,
-    //   path: "/admin/create-contact",
-    //   allowedRoles: ["ADMIN", "SUB_ADMIN", "STAFF"],
-    // },
     {
       name: "Proposals",
       icon: <HiOutlineDocumentText  size={24} />,
