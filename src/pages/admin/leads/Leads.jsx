@@ -10,6 +10,18 @@ import CommonTable from "../../../components/common/CommonTable.jsx";
 import { adminGetAllLeads } from "../../../services/lead/adminGetAllLeadsApi.js";
 import { adminDeleteLeadApi } from "../../../slices/lead/adminDeleteLeadSlice.js";
 import { resetDeleteLeadState } from "../../../slices/lead/adminDeleteLeadSlice.js";
+import { adminUpdateLeadStatusApi } from "../../../services/lead/adminUpdateLeadStatusApi.js";
+import { resetUpdateLeadStatusState } from "../../../slices/lead/adminUpdateLeadStatusSlice.js";
+import { adminConvertLeadApi } from "../../../services/lead/adminConvertLeadApi";
+import { resetConvertLeadState } from "../../../slices/lead/adminConvertLeadSlice";
+
+import {
+  adminActivateLead,
+  adminDeactivateLead,
+} from "../../../services/lead/adminToggleLeadStatusApi";
+
+import ConvertToCustomerPopup from "./ConvertToCustomerPopup";
+import { showSuccess, showError, showWarning } from "../../../utils/toast.js";
 
 export default function Leads() {
   const navigate = useNavigate();
@@ -18,14 +30,31 @@ export default function Leads() {
   const [activeTab, setActiveTab] = useState("kanban");
   const [filter, setFilter] = useState("All");
   const [searchTerm, setSearchTerm] = useState("");
+  const [showConvertPopup, setShowConvertPopup] = useState(false);
+  const [selectedLead, setSelectedLead] = useState(null);
+  // ✅ Lead active/inactive toggle (UI source of truth)
+  const [leadToggles, setLeadToggles] = useState({});
 
-  const { loading, leads = [], error } = useSelector(
-    (state) => state.adminGetAllLeads
-  );
+  const {
+    loading,
+    leads = [],
+    error,
+  } = useSelector((state) => state.adminGetAllLeads);
 
   useEffect(() => {
     dispatch(adminGetAllLeads());
   }, [dispatch]);
+  useEffect(() => {
+    setLeadToggles((prev) => {
+      if (Object.keys(prev).length > 0) return prev;
+
+      const initial = {};
+      leads.forEach((lead) => {
+        initial[lead.id] = lead.active === true;
+      });
+      return initial;
+    });
+  }, [leads]);
 
   // 🔹 Filtered Leads
   const filteredLeads = leads
@@ -33,18 +62,18 @@ export default function Leads() {
     .filter((lead) =>
       [lead.name, lead.email, lead.phone].some(
         (field) =>
-          field && field.toLowerCase().includes(searchTerm.toLowerCase())
-      )
+          field && field.toLowerCase().includes(searchTerm.toLowerCase()),
+      ),
     );
 
   const statuses = ["All", "NEW", "CONTACTED", "QUALIFIED", "LOST", "WON"];
 
-  // 🔹 Kanban columns
+  // 🔹 Kanban columns (use filteredLeads to respect search/filter)
   const columns = statuses
     .filter((status) => status !== "All")
     .map((status) => ({
       title: status,
-      cards: leads.filter((lead) => lead.status === status),
+      cards: filteredLeads.filter((lead) => lead.status === status),
     }));
 
   const handleEdit = (lead) => {
@@ -66,6 +95,96 @@ export default function Leads() {
       dispatch(resetDeleteLeadState());
     }
   };
+  const handleConvertToCustomer = (lead) => {
+    if (!["QUALIFIED", "WON"].includes(lead.status)) {
+      showWarning("Only QUALIFIED or WON leads can be converted");
+      return;
+    }
+
+    setSelectedLead(lead);
+    setShowConvertPopup(true);
+  };
+
+  const handleConvertSubmit = async (payload) => {
+    try {
+      await dispatch(
+        adminConvertLeadApi({
+          leadId: payload.leadId,
+          payload: {
+            customerType: payload.customerType,
+            industry: payload.industry,
+            address: payload.address,
+            website: payload.website,
+          },
+        }),
+      ).unwrap();
+
+      showSuccess("Lead converted to customer successfully");
+
+      setShowConvertPopup(false);
+      setSelectedLead(null);
+
+      dispatch(adminGetAllLeads());
+    } catch (err) {
+      showError(err || "Failed to convert lead");
+    } finally {
+      dispatch(resetConvertLeadState());
+    }
+  };
+
+  // 🔹 Update lead status handler
+  const handleStatusChange = async (lead, newStatus) => {
+    try {
+      await dispatch(
+        adminUpdateLeadStatusApi({ id: lead.id, status: newStatus }),
+      ).unwrap();
+
+      dispatch(adminGetAllLeads()); // refresh AFTER update
+    } catch (err) {
+      alert(err || "Failed to update status");
+    } finally {
+      dispatch(resetUpdateLeadStatusState());
+    }
+  };
+  const handleLeadToggle = async (id, isActive) => {
+    // Optimistic update
+    setLeadToggles((prev) => ({
+      ...prev,
+      [id]: isActive,
+    }));
+
+    if (!isActive) {
+      const confirm = window.confirm(
+        "Are you sure you want to deactivate this lead?",
+      );
+      if (!confirm) {
+        setLeadToggles((prev) => ({ ...prev, [id]: true }));
+        return;
+      }
+
+      try {
+        await dispatch(adminDeactivateLead(id)).unwrap();
+        showSuccess("Lead deactivated");
+      } catch (err) {
+        showError(err);
+        setLeadToggles((prev) => ({ ...prev, [id]: true }));
+      }
+    } else {
+      try {
+        await dispatch(adminActivateLead(id)).unwrap();
+        showSuccess("Lead activated");
+      } catch (err) {
+        showError(err);
+        setLeadToggles((prev) => ({ ...prev, [id]: false }));
+      }
+    }
+  };
+
+  const mappedLeads = filteredLeads.map((lead) => ({
+    ...lead,
+    active:
+      leadToggles[lead.id] === undefined ? lead.active : leadToggles[lead.id],
+  }));
 
   return (
     <>
@@ -170,12 +289,21 @@ export default function Leads() {
             type="leads"
             data={filteredLeads}
             onEdit={handleEdit}
-            onDelete={handleDelete} // ✅ Pass delete handler
-            onView={handleEdit}
-            onRowClick={(lead) => navigate(`/admin/lead-details/${lead.id}`)}
+            onConvertToCustomer={handleConvertToCustomer}
             showActions={true}
+            onStatusToggle={handleLeadToggle}
+            onStatusChange={handleStatusChange}
           />
         )}
+        <ConvertToCustomerPopup
+          open={showConvertPopup}
+          onClose={() => {
+            setShowConvertPopup(false);
+            setSelectedLead(null);
+          }}
+          leadId={selectedLead?.id}
+          onSubmit={handleConvertSubmit}
+        />
       </div>
     </>
   );

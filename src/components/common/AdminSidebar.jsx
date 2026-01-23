@@ -236,6 +236,7 @@ import { MdOutlinePayments } from "react-icons/md";
 import { SlPeople } from "react-icons/sl";
 import { FiUsers } from "react-icons/fi";
 import { VscGraph } from "react-icons/vsc";
+import { MdAdd } from "react-icons/md"; 
 import { HiOutlineDocumentText } from "react-icons/hi";
 
 export default function AdminSidebar({ sidebarOpen, setSidebarOpen }) {
@@ -278,31 +279,32 @@ export default function AdminSidebar({ sidebarOpen, setSidebarOpen }) {
       name: "Users",
       icon: <FaRegUserCircle size={24} />,
       path: "/admin/users",
-      allowedRoles: ["ADMIN"],
+      allowedRoles: ["ADMIN", "SUB_ADMIN"],
     },
-    {
-      name: "Staff",
-      icon: <SlPeople size={24} />,
-      path: "/admin/staff",
-      allowedRoles: ["SUB_ADMIN"],
-    },
+
+    // {
+    //   name: "Staff",
+    //   icon: <SlPeople size={24} />,
+    //   path: "/admin/staff",
+    //   allowedRoles: ["SUB_ADMIN"],
+    // },
     {
       name: "Reports",
       icon: <VscGraph size={24} />,
       path: "/admin/reports",
-      allowedRoles: ["ADMIN"],
+      allowedRoles: ["ADMIN", "SUB_ADMIN"],
     },
     {
       name: "Leads",
       icon: <AiOutlineFileAdd size={24} />,
       path: "/admin/leads",
-      allowedRoles: ["ADMIN", "SUB_ADMIN"],
+      allowedRoles: ["ADMIN", "SUB_ADMIN","STAFF"],
     },
     {
       name: "Customers",
       icon: <FiUsers size={24} />,
       path: "/admin/customers",
-      allowedRoles: ["ADMIN", "SUB_ADMIN"],
+      allowedRoles: ["ADMIN", "SUB_ADMIN","STAFF"],
     },
     {
       name: "Invoices",
@@ -310,6 +312,7 @@ export default function AdminSidebar({ sidebarOpen, setSidebarOpen }) {
       path: "/admin/invoices",
       allowedRoles: ["ADMIN", "SUB_ADMIN"],
     },
+    // -------- All Roles (ADMIN, SUB_ADMIN, STAFF) --------
     {
       name: "Proposals",
       icon: <HiOutlineDocumentText size={24} />,

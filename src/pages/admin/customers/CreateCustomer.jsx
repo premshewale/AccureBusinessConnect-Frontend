@@ -4,6 +4,7 @@ import CommonForm from "../../../components/common/CommonForm.jsx";
 import { useCustomers } from "../../../contexts/CustomerContext";
 import { useDispatch, useSelector } from "react-redux";
 import { adminCreateCustomer } from "../../../services/customers/adminCreateCustomerApi";
+import { showError, showSuccess } from "../../../utils/toast"; // ✅ ADDED
 
 export default function CreateCustomer() {
   const navigate = useNavigate();
@@ -12,7 +13,42 @@ export default function CreateCustomer() {
   const dispatch = useDispatch();
   const { loading } = useSelector((state) => state.adminCreateCustomer);
 
+  // ✅ VALIDATION ADDED (no existing logic touched)
+  const validateForm = (data) => {
+    if (!data.name || data.name.trim().length < 3) {
+      showError("Customer name must be at least 3 characters");
+      return false;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!data.email || !emailRegex.test(data.email)) {
+      showError("Please enter a valid email address");
+      return false;
+    }
+
+    const phoneRegex = /^[0-9]{10}$/;
+    if (!data.phone || !phoneRegex.test(data.phone)) {
+      showError("Phone number must be 10 digits");
+      return false;
+    }
+
+    if (!data.industry) {
+      showError("Please select an industry");
+      return false;
+    }
+
+    if (!data.address || data.address.trim().length < 5) {
+      showError("Address must be at least 5 characters");
+      return false;
+    }
+
+    return true;
+  };
+
+  // 🔹 ONLY UPDATED INTERNALLY
   const handleSubmit = async (data) => {
+    if (!validateForm(data)) return;
+
     try {
       const payload = {
         name: data.name,
@@ -26,40 +62,14 @@ export default function CreateCustomer() {
 
       await dispatch(adminCreateCustomer(payload)).unwrap();
 
-      alert("Customer created successfully!");
+      showSuccess("Customer created successfully!"); // ✅ replaced alert
       navigate("/admin/customers");
     } catch (err) {
-      alert("Failed to create customer");
+      showError("Failed to create customer"); // ✅ replaced alert
       console.error(err);
     }
   };
 
-  // const handleSubmit = async (data) => {
-  //   setFormLoading(true);
-
-  //   try {
-  //     const customerData = {
-  //       ...data,
-  //       totalValue: Number(data.totalValue) || 0,
-  //       status: data.status || "new",
-  //       source: data.source || "website",
-  //       lastContact: new Date().toISOString().split('T')[0],
-  //       createdAt: new Date().toISOString().split('T')[0],
-  //     };
-
-  //     await addCustomer(customerData);
-
-  //     alert("Customer created successfully!");
-  //     navigate("/admin/customers");
-  //   } catch (error) {
-  //     alert("Failed to create customer. Please try again.");
-  //     console.error("Create customer error:", error);
-  //   } finally {
-  //     setFormLoading(false);
-  //   }
-  // };
-
-  // Fields for customer creation - using CommonForm format
   const fields = [
     {
       type: "text",
@@ -89,21 +99,10 @@ export default function CreateCustomer() {
       placeholder: "Enter company name",
     },
     {
-      type: "select",
+      type: "text",
       label: "Industry",
       name: "industry",
-      options: [
-        { label: "Select Industry", value: "" },
-        { label: "Technology", value: "Technology" },
-        { label: "Healthcare", value: "Healthcare" },
-        { label: "Finance", value: "Finance" },
-        { label: "Retail", value: "Retail" },
-        { label: "Manufacturing", value: "Manufacturing" },
-        { label: "Education", value: "Education" },
-        { label: "Real Estate", value: "Real Estate" },
-        { label: "Hospitality", value: "Hospitality" },
-        { label: "Other", value: "Other" },
-      ],
+      placeholder: "Enter Industry name",
     },
     {
       type: "select",

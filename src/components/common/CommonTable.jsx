@@ -15,6 +15,9 @@ export default function CommonTable({
   onEdit,
   onDelete,
   onView,
+  onConvertToCustomer,
+  onStatusToggle,
+  onStatusChange,
   showExport = true,
   showActions = true,
   onRowClick,
@@ -28,9 +31,20 @@ export default function CommonTable({
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [sortColumn, setSortColumn] = useState("");
   const [sortDirection, setSortDirection] = useState("asc");
+  const LEAD_STATUSES = ["NEW", "CONTACTED", "QUALIFIED", "LOST", "WON"];
 
   // Define headers based on types
   const headersByType = {
+    customerReport: [
+      { header: "Customer Name", accessor: "customerName", sortable: true },
+      { header: "Total Leads", accessor: "totalLeads", sortable: true },
+    ],
+
+    leadsReport: [
+      { header: "Staff Name", accessor: "staffName", sortable: true },
+      { header: "Leads Created", accessor: "leadsCount", sortable: true },
+    ],
+
     departments: [
       { header: "ID", accessor: "id", sortable: true },
       { header: "Department Name", accessor: "name", sortable: true },
@@ -48,9 +62,11 @@ export default function CommonTable({
       { header: "Status", accessor: "status", sortable: true },
       { header: "Total Contacts", accessor: "totalContacts", sortable: true },
       { header: "Assigned To", accessor: "assignedUserName", sortable: true },
+      { header: "Active", accessor: "toggle", sortable: false },
       { header: "Department", accessor: "departmentName", sortable: true },
       { header: "Created", accessor: "createdAt", sortable: true },
       { header: "Actions", accessor: "actions", sortable: false },
+
     ],
     leads: [
       { header: "ID", accessor: "id", sortable: true },
@@ -63,6 +79,7 @@ export default function CommonTable({
       { header: "Department", accessor: "departmentName", sortable: true },
       { header: "Customer ID", accessor: "customerId", sortable: true },
       { header: "Status", accessor: "status", sortable: true },
+      { header: "Active", accessor: "toggle", sortable: false },
       { header: "Created", accessor: "createdAt", sortable: true },
       { header: "Actions", accessor: "actions", sortable: false },
     ],
@@ -82,12 +99,15 @@ export default function CommonTable({
       { header: "ID", accessor: "id", sortable: true },
       { header: "Name", accessor: "name", sortable: true },
       { header: "Email", accessor: "email", sortable: true },
-      { header: "Role", accessor: "roleKey", sortable: true },
+      { header: "Role", accessor: "roleName", sortable: true },
       { header: "Job Title", accessor: "jobTitle", sortable: true },
-      { header: "Department", accessor: "department", sortable: true },
+      { header: "Department", accessor: "departmentName", sortable: true },
+      { header: "Status", accessor: "status", sortable: false },
+      { header: "Toggle", accessor: "toggle", sortable: false },
       { header: "Created At", accessor: "createdAt", sortable: true },
       { header: "Actions", accessor: "actions", sortable: false },
     ],
+
     contacts: [
       { header: "ID", accessor: "id", sortable: true },
       { header: "Name", accessor: "name", sortable: true },
@@ -112,61 +132,62 @@ export default function CommonTable({
     ],
 
     expenses: [
-  { header: "ID", accessor: "id", sortable: true },
-  { header: "Title", accessor: "title", sortable: true },
-  { header: "Amount", accessor: "amount", sortable: true },
-  { header: "Category", accessor: "category", sortable: true },
-  { header: "Date", accessor: "date", sortable: true },
-  { header: "Vendor", accessor: "vendor", sortable: true },
-  { header: "Payment Method", accessor: "paymentMethod", sortable: true },
-  { header: "Status", accessor: "status", sortable: true },
-  { header: "Receipt No", accessor: "receiptNumber", sortable: true },
-  { header: "Created By", accessor: "createdBy", sortable: true },
-  { header: "Actions", accessor: "actions", sortable: false },
-],
+      { header: "ID", accessor: "id", sortable: true },
+      { header: "Title", accessor: "title", sortable: true },
+      { header: "Amount", accessor: "amount", sortable: true },
+      { header: "Category", accessor: "category", sortable: true },
+      { header: "Date", accessor: "date", sortable: true },
+      { header: "Vendor", accessor: "vendor", sortable: true },
+      { header: "Payment Method", accessor: "paymentMethod", sortable: true },
+      { header: "Status", accessor: "status", sortable: true },
+      { header: "Receipt No", accessor: "receiptNumber", sortable: true },
+      { header: "Created By", accessor: "createdBy", sortable: true },
+      { header: "Actions", accessor: "actions", sortable: false },
+    ],
 
-payments: [
-  { header: "ID", accessor: "id", sortable: true },
-  { header: "Amount", accessor: "amount", sortable: true },
-  { header: "Payment Date", accessor: "paymentDate", sortable: true },
-  { header: "Method", accessor: "method", sortable: true },
-  { header: "Invoice Status", accessor: "invoiceStatus", sortable: true },
-  { header: "Created At", accessor: "createdAt", sortable: true },
-  { header: "Invoice ID", accessor: "invoiceId", sortable: true },
-  { header: "Actions", accessor: "actions", sortable: false },
-],
+    payments: [
+      { header: "ID", accessor: "id", sortable: true },
+      { header: "Amount", accessor: "amount", sortable: true },
+      { header: "Payment Date", accessor: "paymentDate", sortable: true },
+      { header: "Method", accessor: "method", sortable: true },
+      { header: "Invoice Status", accessor: "invoiceStatus", sortable: true },
+      { header: "Created At", accessor: "createdAt", sortable: true },
+      { header: "Invoice ID", accessor: "invoiceId", sortable: true },
+      { header: "Actions", accessor: "actions", sortable: false },
+    ],
 
+    invoices: [
+      { header: "Invoice No", accessor: "invoiceNumber", sortable: true },
+      { header: "Customer", accessor: "customerName", sortable: true },
+      { header: "Issue Date", accessor: "issueDate", sortable: true },
+      { header: "Due Date", accessor: "dueDate", sortable: true },
+      { header: "Total Amount", accessor: "totalAmount", sortable: true },
+      { header: "Amount Paid", accessor: "amountPaid", sortable: true },
+      { header: "Due Amount", accessor: "dueAmount", sortable: true },
+      { header: "Status", accessor: "status", sortable: true },
+      { header: "Payment Method", accessor: "paymentMethod", sortable: true },
+      { header: "Actions", accessor: "actions", sortable: false },
+    ],
 
-invoices: [
-  { header: "Invoice No", accessor: "invoiceNumber", sortable: true },
-  { header: "Customer", accessor: "customerName", sortable: true },
-  { header: "Issue Date", accessor: "issueDate", sortable: true },
-  { header: "Due Date", accessor: "dueDate", sortable: true },
-  { header: "Total Amount", accessor: "totalAmount", sortable: true },
-  { header: "Amount Paid", accessor: "amountPaid", sortable: true },
-  { header: "Due Amount", accessor: "dueAmount", sortable: true },
-  { header: "Status", accessor: "status", sortable: true },
-  { header: "Payment Method", accessor: "paymentMethod", sortable: true },
-  { header: "Actions", accessor: "actions", sortable: false },
-],
-
-
-draft: { color: "bg-gray-100 text-gray-800", label: "Draft" },
-paid: { color: "bg-green-100 text-green-800", label: "Paid" },
-pending: { color: "bg-yellow-100 text-yellow-800", label: "Pending" },
-partial: { color: "bg-blue-100 text-blue-800", label: "Partial" },
-overdue: { color: "bg-red-100 text-red-800", label: "Overdue" },
+    draft: { color: "bg-gray-100 text-gray-800", label: "Draft" },
+    paid: { color: "bg-green-100 text-green-800", label: "Paid" },
+    pending: { color: "bg-yellow-100 text-yellow-800", label: "Pending" },
+    partial: { color: "bg-blue-100 text-blue-800", label: "Partial" },
+    overdue: { color: "bg-red-100 text-red-800", label: "Overdue" },
     proposals: [
-      { header: "ID", accessor: "id" },
-      { header: "Customer Id", accessor: "customer_id" },
-      { header: "Department Id", accessor: "departmentId" },
-      { header: "Description", accessor: "description" },
-      { header: "Budget", accessor: "budget" },
-      { header: "Status", accessor: "status" },
-      { header: "Deadline", accessor: "deadline" },
+      { header: "ID", accessor: "id", sortable: true },
+      { header: "Customer", accessor: "customerName", sortable: true },
+      { header: "Department", accessor: "departmentName", sortable: true },
+      { header: "Owner", accessor: "ownerName", sortable: true },
+      { header: "Description", accessor: "description", sortable: false },
+      { header: "Budget", accessor: "budget", sortable: true },
+      { header: "Status", accessor: "status", sortable: true },
+      { header: "Deadline", accessor: "deadline", sortable: true },
+      { header: "Created At", accessor: "createdAt", sortable: true },
+      { header: "Actions", accessor: "actions", sortable: false },
     ],
     tasks: [
-      { header: "ID", accessor: "id"},
+      { header: "ID", accessor: "id" },
       { header: "Customer ID", accessor: "customerId" },
       { header: "Title", accessor: "title" },
       { header: "Status", accessor: "status" },
@@ -182,8 +203,8 @@ overdue: { color: "bg-red-100 text-red-800", label: "Overdue" },
   const filteredData = searchTerm
     ? data.filter((item) =>
         Object.values(item).some((value) =>
-          String(value).toLowerCase().includes(searchTerm.toLowerCase())
-        )
+          String(value).toLowerCase().includes(searchTerm.toLowerCase()),
+        ),
       )
     : data;
 
@@ -247,10 +268,10 @@ overdue: { color: "bg-red-100 text-red-800", label: "Overdue" },
       medium: { color: "bg-yellow-100 text-yellow-800", label: "Medium" },
       low: { color: "bg-green-100 text-green-800", label: "Low" },
 
-    paid: { color: "bg-green-100 text-green-800", label: "Paid" },
-    pending: { color: "bg-yellow-100 text-yellow-800", label: "Pending" },
-    partial: { color: "bg-blue-100 text-blue-800", label: "Partial" },
-    overdue: { color: "bg-red-100 text-red-800", label: "Overdue" },
+      paid: { color: "bg-green-100 text-green-800", label: "Paid" },
+      pending: { color: "bg-yellow-100 text-yellow-800", label: "Pending" },
+      partial: { color: "bg-blue-100 text-blue-800", label: "Partial" },
+      overdue: { color: "bg-red-100 text-red-800", label: "Overdue" },
     };
 
     const config = statusConfig[status?.toLowerCase()] || {
@@ -427,7 +448,38 @@ overdue: { color: "bg-red-100 text-red-800", label: "Overdue" },
                       key={colIndex}
                       className="px-6 py-4 whitespace-nowrap text-sm text-gray-900"
                     >
-                      {col.accessor === "actions" && showActions ? (
+                      {col.accessor === "toggle" ? (
+                        <div className="flex items-center justify-center">
+                          <label className="relative inline-flex items-center cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={row.status === "ACTIVE"}
+                              onChange={(e) => {
+                                e.stopPropagation();
+                                onStatusToggle?.(
+                                  row.id,
+                                  e.target.checked ? "ACTIVE" : "INACTIVE",
+                                );
+                              }}
+                              className="sr-only"
+                            />
+
+                            <div
+                              className={`w-11 h-6 rounded-full transition-colors ${
+                                row.status === "ACTIVE"
+                                  ? "bg-green-500"
+                                  : "bg-gray-300"
+                              }`}
+                            >
+                              <div
+                                className={`absolute top-[2px] left-[2px] w-5 h-5 bg-white rounded-full shadow transition-transform ${
+                                  row.status === "ACTIVE" ? "translate-x-5" : ""
+                                }`}
+                              />
+                            </div>
+                          </label>
+                        </div>
+                      ) : col.accessor === "actions" && showActions ? (
                         <div className="flex gap-2">
                           {onView && (
                             <button
@@ -453,11 +505,24 @@ overdue: { color: "bg-red-100 text-red-800", label: "Overdue" },
                               <FiEdit />
                             </button>
                           )}
+                          {onConvertToCustomer && type === "leads" && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onConvertToCustomer(row);
+                              }}
+                              className="p-1 text-purple-600 hover:bg-purple-50 rounded"
+                              title="Convert to Customer"
+                            >
+                              🔁
+                            </button>
+                          )}
+
                           {onDelete && (
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
-                                onDelete(row);
+                                onDelete(row.id);
                               }}
                               className="p-1 text-red-600 hover:bg-red-50 rounded"
                               title="Delete"
@@ -472,6 +537,21 @@ overdue: { color: "bg-red-100 text-red-800", label: "Overdue" },
                             <FiMoreVertical />
                           </button>
                         </div>
+                      ) : col.accessor === "status" && type === "leads" ? (
+                        <select
+                          value={row.status}
+                          onChange={(e) => {
+                            e.stopPropagation();
+                            onStatusChange?.(row, e.target.value);
+                          }}
+                          className="border rounded-md px-2 py-1 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-cyan"
+                        >
+                          {LEAD_STATUSES.map((status) => (
+                            <option key={status} value={status}>
+                              {status}
+                            </option>
+                          ))}
+                        </select>
                       ) : col.accessor === "status" ? (
                         getStatusBadge(row[col.accessor])
                       ) : col.accessor === "priority" ? (
@@ -486,7 +566,7 @@ overdue: { color: "bg-red-100 text-red-800", label: "Overdue" },
                         <span className="text-gray-600">
                           {row[col.accessor]
                             ? new Date(row[col.accessor]).toLocaleDateString(
-                                "en-IN"
+                                "en-IN",
                               )
                             : "-"}
                         </span>
