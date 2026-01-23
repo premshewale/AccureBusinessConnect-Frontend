@@ -15,7 +15,7 @@ export default function UserDetails() {
 
   const { user, loading } = useSelector((state) => state.adminGetUserById);
   const { loading: updateLoading } = useSelector(
-    (state) => state.adminUpdateUser
+    (state) => state.adminUpdateUser,
   );
 
   const [editedData, setEditedData] = useState({});
@@ -40,11 +40,11 @@ export default function UserDetails() {
     dispatch(
       adminUpdateUser({
         id,
-        payload: editedData, // roleName included
-      })
+        payload: editedData,
+      }),
     ).then((res) => {
       if (res.meta.requestStatus === "fulfilled") {
-        navigate("/admin/users"); // ✅ Navigate after save
+        navigate("/admin/users");
       }
     });
   };
@@ -55,7 +55,7 @@ export default function UserDetails() {
   return (
     <CommonDetails
       title="User Details"
-      data={user}
+      data={editedData}
       fields={[
         { name: "id", label: "User ID", readOnly: true },
         { name: "name", label: "Name" },
@@ -65,18 +65,17 @@ export default function UserDetails() {
           name: "roleName",
           label: "Role",
           type: "select",
-          options: ["Admin", "Sub admin", "Staff"], // match your API roleName
+          options: ["Admin", "Sub admin", "Staff"],
         },
         {
           name: "status",
           label: "Status",
-          type: "select",
-          options: ["ACTIVE", "INACTIVE"],
+          readOnly: true,
         },
         { name: "departmentName", label: "Department", readOnly: true },
         { name: "phoneExtension", label: "Phone Ext." },
       ]}
-      isEditMode={true} // always editable
+      isEditMode={true}
       editedData={editedData}
       setEditedData={setEditedData}
       onSave={handleSave}

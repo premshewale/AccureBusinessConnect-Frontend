@@ -4,6 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import CommonForm from "../../../components/common/CommonForm.jsx";
 import { adminCreateContact } from "../../../services/contact/adminCreateContactApi";
 import { resetAdminCreateContact } from "../../../slices/contact/adminCreateContactSlice";
+import { showError, showSuccess } from "../../../utils/toast"; // ✅ added
 
 export default function CreateContact() {
   const dispatch = useDispatch();
@@ -53,8 +54,8 @@ export default function CreateContact() {
       type: "select",
       label: "Is Primary Contact",
       name: "isPrimary",
-      value: "false", // default = No
-      hidePlaceholder: true, // ✅ removes 3rd option
+      value: "false",
+      hidePlaceholder: true,
       options: [
         { label: "Yes", value: "true" },
         { label: "No", value: "false" },
@@ -62,7 +63,42 @@ export default function CreateContact() {
     },
   ];
 
+  // ✅ VALIDATION ADDED (no existing logic removed)
+  const validateForm = (data) => {
+    if (!data.firstName || data.firstName.trim().length < 2) {
+      showError("First name must be at least 2 characters");
+      return false;
+    }
+
+    if (!data.lastName || data.lastName.trim().length < 2) {
+      showError("Last name must be at least 2 characters");
+      return false;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!data.email || !emailRegex.test(data.email)) {
+      showError("Please enter a valid email address");
+      return false;
+    }
+
+    const phoneRegex = /^[0-9]{10}$/;
+    if (!data.phone || !phoneRegex.test(data.phone)) {
+      showError("Phone number must be 10 digits");
+      return false;
+    }
+
+    if (!data.role) {
+      showError("Please select a contact role");
+      return false;
+    }
+
+    return true;
+  };
+
+  // 🔹 ONLY UPDATED INTERNALLY
   const handleSubmit = (data) => {
+    if (!validateForm(data)) return;
+
     const payload = {
       ...data,
       isPrimary: data.isPrimary === "true",
@@ -78,11 +114,20 @@ export default function CreateContact() {
 
   useEffect(() => {
     if (success) {
-      alert("Contact created successfully");
+      showSuccess("Contact created successfully"); // ✅ replaced alert
       dispatch(resetAdminCreateContact());
       navigate(`/admin/customers/${customerId}/contacts`);
     }
   }, [success, dispatch, navigate, customerId]);
+
+  // ✅ optional toast for API error
+  useEffect(() => {
+    if (error) {
+      showError(
+        typeof error === "string" ? error : error.message || "Something went wrong"
+      );
+    }
+  }, [error]);
 
   return (
     <>

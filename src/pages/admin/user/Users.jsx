@@ -8,7 +8,16 @@ import CommonPagination from "../../../components/common/CommonPagination.jsx";
 import CommonExportButton from "../../../components/common/CommonExportButton.jsx";
 
 import { adminGetAllUsers } from "../../../services/user/adminGetAllUsersApi";
-import { adminDeleteUser } from "../../../services/user/adminDeleteUserApi";
+import {
+  adminActivateUser,
+  adminDeactivateUser,
+} from "../../../services/user/adminToggleUserStatusApi";
+
+import {
+  showSuccess,
+  showError,
+  showInfo,
+} from "../../../utils/toast";
 
 export default function Users() {
   const dispatch = useDispatch();
@@ -26,10 +35,26 @@ export default function Users() {
 
   const ITEMS_PER_PAGE = 10;
 
+  // ✅ Local toggle state (SOURCE OF TRUTH for UI)
+  const [userToggles, setUserToggles] = useState({});
+
   // Fetch users
   useEffect(() => {
     dispatch(adminGetAllUsers());
   }, [dispatch]);
+
+  // ✅ Initialize toggle state ONLY ONCE (CRITICAL FIX)
+  useEffect(() => {
+    setUserToggles((prev) => {
+      if (Object.keys(prev).length > 0) return prev;
+
+      const initial = {};
+      users.forEach((u) => {
+        initial[u.id] = u.status === "ACTIVE";
+      });
+      return initial;
+    });
+  }, [users]);
 
   // Reset page on filter/search
   useEffect(() => {
@@ -38,7 +63,7 @@ export default function Users() {
 
   const roles = ["All", "ADMIN", "SUB_ADMIN", "STAFF"];
 
-  // 🔍 Filtered users (memoized)
+  // 🔍 Filtered users
   const filteredUsers = useMemo(() => {
     return users
       .filter((user) => filter === "All" || user.roleKey === filter)
@@ -57,25 +82,58 @@ export default function Users() {
     currentPage * ITEMS_PER_PAGE
   );
 
-  // 🔹 Edit handler (FIX)
+  // ✅ Apply toggle state to table data
+  const mappedUsers = paginatedUsers.map((user) => ({
+    ...user,
+    status:
+      userToggles[user.id] === undefined
+        ? user.status
+        : userToggles[user.id]
+        ? "ACTIVE"
+        : "INACTIVE",
+  }));
+
+  // Edit handler
   const handleEdit = (id) => {
     navigate(`/admin/users/${id}`);
   };
 
-  // 🔹 Status toggle (future API)
-  const handleStatusToggle = (id, status) => {
-    console.log("User ID:", id, "New Status:", status);
-    // dispatch(updateUserStatus({ id, status }))
-  };
+  // ✅ FIXED Toggle handler
+  const handleStatusToggle = async (id, newStatus) => {
+    const isActivating = newStatus === "ACTIVE";
 
-  // 🔹 Delete handler
-  const handleDelete = (id) => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this user?"
-    );
+    // Optimistic UI update
+    setUserToggles((prev) => ({
+      ...prev,
+      [id]: isActivating,
+    }));
 
-    if (confirmDelete) {
-      dispatch(adminDeleteUser(id));
+    if (!isActivating) {
+      const confirmDeactivate = window.confirm(
+        "Are you sure you want to deactivate this user?"
+      );
+
+      if (!confirmDeactivate) {
+        setUserToggles((prev) => ({ ...prev, [id]: true }));
+        showInfo("User deactivation cancelled");
+        return;
+      }
+
+      try {
+        await dispatch(adminDeactivateUser(id)).unwrap();
+        showSuccess("User deactivated successfully");
+      } catch (err) {
+        showError(err || "Failed to deactivate user");
+        setUserToggles((prev) => ({ ...prev, [id]: true }));
+      }
+    } else {
+      try {
+        await dispatch(adminActivateUser(id)).unwrap();
+        showSuccess("User activated successfully");
+      } catch (err) {
+        showError(err || "Failed to activate user");
+        setUserToggles((prev) => ({ ...prev, [id]: false }));
+      }
     }
   };
 
@@ -141,10 +199,9 @@ export default function Users() {
       <div className="mt-6">
         <CommonTable
           type="users"
-          data={paginatedUsers}
+          data={mappedUsers}
           onEdit={handleEdit}
           onStatusToggle={handleStatusToggle}
-          onDelete={handleDelete}
         />
 
         <CommonPagination

@@ -9,12 +9,20 @@ import Kanban from "../../../components/common/Kanban.jsx";
 import CommonTable from "../../../components/common/CommonTable.jsx";
 import CommonExportButton from "../../../components/common/CommonExportButton.jsx";
 import CustomerFilter from "./CustomerFilter.jsx";
-// import { useCustomers } from "../../../contexts/CustomerContext";
 import { useDispatch, useSelector } from "react-redux";
 import { adminGetAllCustomers } from "../../../services/customers/adminGetAllCustomersApi";
+import {
+  adminActivateCustomer,
+  adminDeactivateCustomer,
+} from "../../../services/customers/adminToggleCustomerStatusApi";
+
+import { showSuccess, showError, showInfo } from "../../../utils/toast";
 
 // ✅ Import delete customer thunk and reset state
-import { deleteCustomer, resetDeleteCustomerState } from "../../../slices/customers/adminDeleteCustomerSlice";
+import {
+  deleteCustomer,
+  resetDeleteCustomerState,
+} from "../../../slices/customers/adminDeleteCustomerSlice";
 
 export default function Customers() {
   const [activeTab, setActiveTab] = useState("table");
@@ -27,12 +35,13 @@ export default function Customers() {
     dateRange: "All",
     industry: "All",
   });
+  const [customerToggles, setCustomerToggles] = useState({});
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const { customers = [], loading } = useSelector(
-    (state) => state.adminGetAllCustomers
+    (state) => state.adminGetAllCustomers,
   );
 
   useEffect(() => {
@@ -41,32 +50,37 @@ export default function Customers() {
         page: 0,
         size: 10,
         search: searchQuery,
-      })
+      }),
     );
   }, [dispatch, searchQuery]);
+  useEffect(() => {
+    setCustomerToggles((prev) => {
+      if (Object.keys(prev).length > 0) return prev;
 
-  const handleRefresh = () => {
-    window.location.reload();
-  };
-
-  const exportData = customers.map((customer) => ({
-    ID: customer.id,
-    Name: customer.name,
-    Email: customer.email,
-    Phone: customer.phone,
-    Company: customer.company,
-    Industry: customer.industry,
-    Status: customer.status,
-    Source: customer.source,
-    "Total Value": customer.totalValue,
-    "Last Contact": customer.lastContact,
-    Created: customer.createdAt,
+      const initial = {};
+      customers.forEach((c) => {
+        initial[c.id] = c.status === "ACTIVE";
+      });
+      return initial;
+    });
+  }, [customers]);
+  /* ===========================
+   MAP CUSTOMERS (TOGGLE STATE)
+=========================== */
+  const mappedCustomers = customers.map((customer) => ({
+    ...customer,
+    status:
+      customerToggles[customer.id] === undefined
+        ? customer.status
+        : customerToggles[customer.id]
+          ? "ACTIVE"
+          : "INACTIVE",
   }));
 
   /* ===========================
-     FILTER LOGIC (FIXED)
-  ============================ */
-  const filteredCustomers = customers.filter((customer) => {
+   FILTER LOGIC (FIXED)
+=========================== */
+  const filteredCustomers = mappedCustomers.filter((customer) => {
     if (
       searchQuery &&
       !customer.name?.toLowerCase().includes(searchQuery.toLowerCase()) &&
@@ -104,13 +118,69 @@ export default function Customers() {
     return true;
   });
 
+  const handleStatusToggle = async (id, newStatus) => {
+    const isActivating = newStatus === "ACTIVE";
+
+    // Optimistic UI
+    setCustomerToggles((prev) => ({
+      ...prev,
+      [id]: isActivating,
+    }));
+
+    if (!isActivating) {
+      const confirm = window.confirm(
+        "Are you sure you want to deactivate this customer?",
+      );
+
+      if (!confirm) {
+        setCustomerToggles((prev) => ({ ...prev, [id]: true }));
+        showInfo("Customer deactivation cancelled");
+        return;
+      }
+
+      try {
+        await dispatch(adminDeactivateCustomer(id)).unwrap();
+        showSuccess("Customer deactivated successfully");
+      } catch (err) {
+        showError(err || "Failed to deactivate customer");
+        setCustomerToggles((prev) => ({ ...prev, [id]: true }));
+      }
+    } else {
+      try {
+        await dispatch(adminActivateCustomer(id)).unwrap();
+        showSuccess("Customer activated successfully");
+      } catch (err) {
+        showError(err || "Failed to activate customer");
+        setCustomerToggles((prev) => ({ ...prev, [id]: false }));
+      }
+    }
+  };
+
+  const handleRefresh = () => {
+    window.location.reload();
+  };
+
+  const exportData = customers.map((customer) => ({
+    ID: customer.id,
+    Name: customer.name,
+    Email: customer.email,
+    Phone: customer.phone,
+    Company: customer.company,
+    Industry: customer.industry,
+    Status: customer.status,
+    Source: customer.source,
+    "Total Value": customer.totalValue,
+    "Last Contact": customer.lastContact,
+    Created: customer.createdAt,
+  }));
+
   /* ===========================
      KANBAN (FIXED)
   ============================ */
   const kanbanColumns = [
     {
       title: "Prospect",
-      cards: filteredCustomers
+      cards: mappedCustomers
         .filter((c) => c.status === "PROSPECT")
         .map((customer) => ({
           id: customer.id,
@@ -128,7 +198,7 @@ export default function Customers() {
     },
     {
       title: "Active",
-      cards: filteredCustomers
+      cards: mappedCustomers
         .filter((c) => c.status === "ACTIVE")
         .map((customer) => ({
           id: customer.id,
@@ -146,7 +216,7 @@ export default function Customers() {
     },
     {
       title: "Inactive",
-      cards: filteredCustomers
+      cards: mappedCustomers
         .filter((c) => c.status === "INACTIVE")
         .map((customer) => ({
           id: customer.id,
@@ -164,7 +234,7 @@ export default function Customers() {
     },
     {
       title: "Blocked",
-      cards: filteredCustomers
+      cards: mappedCustomers
         .filter((c) => c.status === "BLOCKED")
         .map((customer) => ({
           id: customer.id,
@@ -194,13 +264,16 @@ export default function Customers() {
 
   // ✅ ADD handleDelete function
   const handleDelete = async (customer) => {
-    if (!window.confirm(`Are you sure you want to delete ${customer.name}?`)) return;
+    if (!window.confirm(`Are you sure you want to delete ${customer.name}?`))
+      return;
 
     try {
       await dispatch(deleteCustomer(customer.id)).unwrap();
       alert("Customer deleted successfully!");
       // refresh table
-      dispatch(adminGetAllCustomers({ page: 0, size: 10, search: searchQuery }));
+      dispatch(
+        adminGetAllCustomers({ page: 0, size: 10, search: searchQuery }),
+      );
     } catch (err) {
       alert(err || "Failed to delete customer");
     } finally {
@@ -214,7 +287,9 @@ export default function Customers() {
       <div className="flex justify-between items-start mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-800">Customers</h1>
-          <p className="text-gray-600">Manage all your customers in one place</p>
+          <p className="text-gray-600">
+            Manage all your customers in one place
+          </p>
         </div>
         <button
           onClick={() => navigate("/admin/create-customer")}
@@ -254,7 +329,9 @@ export default function Customers() {
           <button
             onClick={() => setShowFilter(!showFilter)}
             className={`px-4 py-2 rounded-lg border flex items-center gap-2 ${
-              showFilter ? "bg-cyan text-white border-cyan" : "border-gray-300 text-gray-700 hover:bg-gray-50"
+              showFilter
+                ? "bg-cyan text-white border-cyan"
+                : "border-gray-300 text-gray-700 hover:bg-gray-50"
             }`}
           >
             <IoFilterSharp /> Filter
@@ -327,7 +404,9 @@ export default function Customers() {
           <div className="text-center p-8 text-gray-500">
             <div className="text-4xl mb-4">📁</div>
             <p className="text-lg mb-2">No customers found</p>
-            <p className="text-sm mb-4">Try adjusting your filters or search query</p>
+            <p className="text-sm mb-4">
+              Try adjusting your filters or search query
+            </p>
           </div>
         ) : (
           <>
@@ -335,11 +414,12 @@ export default function Customers() {
             {activeTab === "table" && (
               <CommonTable
                 type="customers"
-                data={filteredCustomers}
+                data={mappedCustomers}
                 onEdit={handleEdit}
                 onDelete={handleDelete} // ✅ added delete
                 onView={handleView}
                 onRowClick={handleView}
+                onStatusToggle={handleStatusToggle}
                 showExport={false}
                 showActions={true}
               />

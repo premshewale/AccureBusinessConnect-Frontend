@@ -56,34 +56,34 @@ export default function AdminSidebar({ sidebarOpen, setSidebarOpen }) {
       name: "Users",
       icon: <FaRegUserCircle size={24} />,
       path: "/admin/users",
-      allowedRoles: ["ADMIN"],
+      allowedRoles: ["ADMIN", "SUB_ADMIN"],
     },
 
-    {
-      name: "Staff",
-      icon: <SlPeople size={24} />,
-      path: "/admin/staff",
-      allowedRoles: ["SUB_ADMIN"],
-    },
+    // {
+    //   name: "Staff",
+    //   icon: <SlPeople size={24} />,
+    //   path: "/admin/staff",
+    //   allowedRoles: ["SUB_ADMIN"],
+    // },
     {
       name: "Reports",
       icon: <VscGraph size={24} />,
       path: "/admin/reports",
-      allowedRoles: ["ADMIN"],
+      allowedRoles: ["ADMIN", "SUB_ADMIN"],
     },
     // -------- Admin + SubAdmin --------
     {
       name: "Leads",
       icon: <AiOutlineFileAdd size={24} />,
       path: "/admin/leads",
-      allowedRoles: ["ADMIN", "SUB_ADMIN"],
+      allowedRoles: ["ADMIN", "SUB_ADMIN","STAFF"],
     },
 
     {
       name: "Customers",
       icon: <FiUsers size={24} />,
       path: "/admin/customers",
-      allowedRoles: ["ADMIN", "SUB_ADMIN"],
+      allowedRoles: ["ADMIN", "SUB_ADMIN","STAFF"],
     },
     {
       name: "Invoices",

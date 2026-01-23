@@ -6,6 +6,8 @@ import adminUpdateUserReducer from "../slices/user/adminUpdateUserSlice";
 import adminGetUserByIdReducer from "../slices/user/adminGetUserByIdSlice";
 import adminDeleteUserReducer from "../slices/user/adminDeleteUserSlice";
 import adminGetAllUsersReducer from "../slices/user/adminGetAllUsersSlice";
+import adminToggleUserStatusReducer from"../slices/user/adminToggleUserStatusSlice";
+
 
 import adminCreateStaffReducer from "../slices/staff/adminCreateStaffSlice";
 import adminCreateContactReducer from "../slices/contact/adminCreateContactSlice";
@@ -21,6 +23,10 @@ import adminGetLeadByIdReducer from "../slices/lead/adminGetLeadByIdSlice";
 import adminUpdateLeadReducer from "../slices/lead/adminUpdateLeadSlice";
 import adminDeleteLeadReducer from "../slices/lead/adminDeleteLeadSlice";
 import adminConvertLeadReducer from "../slices/lead/adminConvertLeadSlice";
+import adminUpdateLeadStatusReducer from "../slices/lead/adminUpdateLeadStatusSlice";
+import adminToggleLeadStatusReducer from "../slices/lead/adminToggleLeadStatusSlice";
+
+
 
 import adminGetAllCustomersReducer from "../slices/customers/adminGetAllCustomersSlice";
 import adminCreateCustomerReducer from "../slices/customers/adminCreateCustomerSlice";
@@ -60,6 +66,8 @@ export default configureStore({
     adminUpdateUser: adminUpdateUserReducer,
     adminGetUserById: adminGetUserByIdReducer,
     adminDeleteUser: adminDeleteUserReducer,
+    adminToggleUserStatus: adminToggleUserStatusReducer,
+
 
     // staff
     adminCreateStaff: adminCreateStaffReducer,
@@ -88,6 +96,9 @@ export default configureStore({
     adminUpdateLead: adminUpdateLeadReducer,
     adminDeleteLead: adminDeleteLeadReducer,
     adminConvertLead: adminConvertLeadReducer,
+    adminUpdateLeadStatus: adminUpdateLeadStatusReducer,
+    adminToggleLeadStatus: adminToggleLeadStatusReducer,
+
 
     // Ticket
     tickets: ticketReducer,
