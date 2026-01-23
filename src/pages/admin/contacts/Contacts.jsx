@@ -22,9 +22,11 @@ export default function Contacts() {
   const dispatch = useDispatch();
   const { customerId } = useParams();
 
-  const { contacts = [], loading, error } = useSelector(
-    (state) => state.adminGetContacts
-  );
+  const {
+    contacts = [],
+    loading,
+    error,
+  } = useSelector((state) => state.adminGetContacts);
 
   useEffect(() => {
     dispatch(adminGetContacts(customerId));
@@ -81,11 +83,7 @@ export default function Contacts() {
     }));
 
   // --- Action Handlers ---
-const handleEdit = (contact) => {
-  navigate(`/admin/contacts/${contact.id}`);
-};
-
-  const handleView = (contact) => {
+  const handleEdit = (contact) => {
     navigate(`/admin/contacts/${contact.id}`);
   };
 
@@ -185,7 +183,6 @@ const handleEdit = (contact) => {
             type="contacts"
             data={filteredTableData}
             onEdit={handleEdit}
-            onView={handleView}
             showActions={true}
           />
         )}

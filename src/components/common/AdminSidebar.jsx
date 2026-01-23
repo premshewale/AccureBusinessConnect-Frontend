@@ -10,10 +10,10 @@ import { MdOutlinePayments } from "react-icons/md";
 import { SlPeople } from "react-icons/sl";
 import { FiUsers, FiUserPlus } from "react-icons/fi";
 import { VscGraph } from "react-icons/vsc";
-import { MdAdd } from "react-icons/md"; // For generic add icons
+import { MdAdd } from "react-icons/md"; 
+import { HiOutlineDocumentText } from "react-icons/hi";
 
 export default function AdminSidebar({ sidebarOpen, setSidebarOpen }) {
-  // State for role (from localStorage)
   const [role, setRole] = useState(null);
 
 
@@ -56,34 +56,34 @@ export default function AdminSidebar({ sidebarOpen, setSidebarOpen }) {
       name: "Users",
       icon: <FaRegUserCircle size={24} />,
       path: "/admin/users",
-      allowedRoles: ["ADMIN"],
+      allowedRoles: ["ADMIN", "SUB_ADMIN"],
     },
 
-    {
-      name: "Staff",
-      icon: <SlPeople size={24} />,
-      path: "/admin/staff",
-      allowedRoles: ["SUB_ADMIN"],
-    },
+    // {
+    //   name: "Staff",
+    //   icon: <SlPeople size={24} />,
+    //   path: "/admin/staff",
+    //   allowedRoles: ["SUB_ADMIN"],
+    // },
     {
       name: "Reports",
       icon: <VscGraph size={24} />,
       path: "/admin/reports",
-      allowedRoles: ["ADMIN"],
+      allowedRoles: ["ADMIN", "SUB_ADMIN"],
     },
     // -------- Admin + SubAdmin --------
     {
       name: "Leads",
       icon: <AiOutlineFileAdd size={24} />,
       path: "/admin/leads",
-      allowedRoles: ["ADMIN", "SUB_ADMIN"],
+      allowedRoles: ["ADMIN", "SUB_ADMIN","STAFF"],
     },
 
     {
       name: "Customers",
       icon: <FiUsers size={24} />,
       path: "/admin/customers",
-      allowedRoles: ["ADMIN", "SUB_ADMIN"],
+      allowedRoles: ["ADMIN", "SUB_ADMIN","STAFF"],
     },
     {
       name: "Invoices",
@@ -92,18 +92,12 @@ export default function AdminSidebar({ sidebarOpen, setSidebarOpen }) {
       allowedRoles: ["ADMIN", "SUB_ADMIN"],
     },
     // -------- All Roles (ADMIN, SUB_ADMIN, STAFF) --------
-    // {
-    //   name: "Contacts",
-    //   icon: <RiContactsBook3Line size={24} />,
-    //   path: "/admin/contacts",
-    //   allowedRoles: ["ADMIN", "SUB_ADMIN", "STAFF"],
-    // },
-    // {
-    //   name: "Create Contact",
-    //   icon: <MdAdd size={24} />,
-    //   path: "/admin/create-contact",
-    //   allowedRoles: ["ADMIN", "SUB_ADMIN", "STAFF"],
-    // },
+    {
+      name: "Proposals",
+      icon: <HiOutlineDocumentText  size={24} />,
+      path: "/admin/proposals",
+      allowedRoles: ["ADMIN", "SUB_ADMIN", "STAFF"],
+    },
     {
       name: "Task",
       icon: <FaTasks size={24} />,

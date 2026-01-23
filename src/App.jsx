@@ -7,7 +7,12 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import CustomerProvider from "./contexts/CustomerContext.jsx";
 import TicketProvider from "./contexts/TicketContext.jsx";
+import ExpenseProvider from "./contexts/ExpenseContext.jsx";
+import PaymentProvider from "./contexts/PaymentContext";
+import InvoiceProvider from "./contexts/InvoiceContext.jsx";
 
+import ProposalProvider from "./contexts/ProposalContext.jsx";
+import TaskProvider from "./contexts/TaskContext.jsx";
 
 function App() {
   const dispatch = useDispatch();
@@ -24,30 +29,34 @@ function App() {
 
   return (
     <>
-    
-    <CustomerProvider>
-      <TicketProvider>
-        <RouterProvider router={router} />
-      </TicketProvider>
-    </CustomerProvider>
-   
-   
-     
+      <CustomerProvider>
+        <TicketProvider>
+          <ExpenseProvider>
+            <PaymentProvider>
+              <InvoiceProvider>
+                <ProposalProvider>
+                  <TaskProvider>
+                    <RouterProvider router={router} />
+                  </TaskProvider>
+                </ProposalProvider>
+              </InvoiceProvider>
+            </PaymentProvider>
+          </ExpenseProvider>
+        </TicketProvider>
+      </CustomerProvider>
+
       <ToastContainer />
-     
     </>
   );
 }
 
 export default App;
 
-
 // import { RouterProvider } from "react-router-dom";
 // import "./App.css";
 // import router from "./routes/router.jsx";
 // import { ToastContainer } from "react-toastify";
 // import "react-toastify/dist/ReactToastify.css";
-
 
 // function App() {
 //   return (

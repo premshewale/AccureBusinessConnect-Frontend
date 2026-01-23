@@ -6,7 +6,6 @@ import CommonDetails from "../../../components/common/CommonDetails.jsx";
 
 import {
   CUSTOMER_STATUS_OPTIONS,
-  CUSTOMER_INDUSTRY_OPTIONS,
 } from "../../../constants/customerEnums.js";
 
 import { adminGetCustomerById } from "../../../services/customers/adminGetCustomerByIdApi";
@@ -81,12 +80,7 @@ export default function CustomerDetails() {
     { name: "email", label: "Email" },
     { name: "phone", label: "Phone" },
     { name: "address", label: "Address" },
-    {
-      name: "industry",
-      label: "Industry",
-      type: "select",
-      options: CUSTOMER_INDUSTRY_OPTIONS,
-    },
+    {name: "industry",label: "Industry"},
     {
       name: "status",
       label: "Status",

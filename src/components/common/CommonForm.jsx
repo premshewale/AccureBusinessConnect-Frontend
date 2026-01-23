@@ -21,13 +21,13 @@ export default function CommonForm({
     { name: "password", label: "Password", type: "password" },
     { name: "phone", label: "Phone", type: "text" },
     { name: "mobile", label: "Mobile", type: "text" },
-    
+
     // Customer Specific Fields
     { name: "company", label: "Company", type: "text" },
     { name: "companyWebsite", label: "Company Website", type: "text" },
-    { 
-      name: "industry", 
-      label: "Industry", 
+    {
+      name: "industry",
+      label: "Industry",
       type: "select",
       options: [
         { label: "Technology", value: "Technology" },
@@ -39,7 +39,7 @@ export default function CommonForm({
         { label: "Real Estate", value: "Real Estate" },
         { label: "Hospitality", value: "Hospitality" },
         { label: "Other", value: "Other" },
-      ]
+      ],
     },
     {
       name: "customerType",
@@ -49,7 +49,7 @@ export default function CommonForm({
         { label: "Individual", value: "individual" },
         { label: "Business", value: "business" },
         { label: "Enterprise", value: "enterprise" },
-      ]
+      ],
     },
     {
       name: "status",
@@ -75,37 +75,37 @@ export default function CommonForm({
         { label: "Cold Call", value: "cold_call" },
         { label: "Event", value: "event" },
         { label: "Other", value: "other" },
-      ]
+      ],
     },
-    
+
     // Address Fields
     { name: "address", label: "Address", type: "textarea" },
     { name: "city", label: "City", type: "text" },
     { name: "state", label: "State", type: "text" },
     { name: "country", label: "Country", type: "text" },
     { name: "zipCode", label: "Zip Code", type: "text" },
-    
+
     // Contact Fields
     { name: "firstName", label: "First Name", type: "text" },
     { name: "lastName", label: "Last Name", type: "text" },
     { name: "jobTitle", label: "Job Title", type: "text" },
-    
+
     // Finance Fields
     { name: "budget", label: "Budget", type: "number" },
     { name: "creditLimit", label: "Credit Limit", type: "number" },
     { name: "paymentTerms", label: "Payment Terms", type: "text" },
-    
+
     // Role and Relationships
     { name: "role", label: "Role", type: "text" },
     { name: "website", label: "Website", type: "text" },
     { name: "ownerId", label: "Owner Id", type: "text" },
     { name: "departmentId", label: "Department Id", type: "text" },
     { name: "customerId", label: "Customer Id", type: "text" },
-    
+
     // Description and Notes
     { name: "description", label: "Description", type: "textarea" },
     { name: "notes", label: "Notes", type: "textarea" },
-    
+
     // Task/Ticket Fields
     { name: "title", label: "Title", type: "text" },
     { name: "assigneeId", label: "Assignee Id", type: "text" },
@@ -122,7 +122,7 @@ export default function CommonForm({
         { label: "Low", value: "low" },
       ],
     },
-    
+
     // Invoice/Expense Fields
     { name: "issueDate", label: "Issue Date", type: "date" },
     { name: "totalAmount", label: "Total Amount", type: "number" },
@@ -135,7 +135,7 @@ export default function CommonForm({
     { name: "category", label: "Category", type: "text" },
     { name: "date", label: "Date", type: "date" },
     { name: "relatedCustomerId", label: "Related Customer Id", type: "text" },
-    
+
     // Custom fields for Customer Module
     { name: "taxId", label: "Tax ID", type: "text" },
     { name: "annualRevenue", label: "Annual Revenue", type: "number" },
@@ -149,26 +149,26 @@ export default function CommonForm({
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData({ 
-      ...formData, 
-      [name]: type === 'checkbox' ? checked : value 
+    setFormData({
+      ...formData,
+      [name]: type === "checkbox" ? checked : value,
     });
   };
 
   const handleFileChange = (e) => {
     const { name, files } = e.target;
     const file = files[0];
-    
+
     if (file) {
       setFormData({ ...formData, [name]: file });
-      
+
       // Create preview for images
-      if (file.type.startsWith('image/')) {
+      if (file.type.startsWith("image/")) {
         const reader = new FileReader();
         reader.onloadend = () => {
-          setFilePreviews(prev => ({
+          setFilePreviews((prev) => ({
             ...prev,
-            [name]: reader.result
+            [name]: reader.result,
           }));
         };
         reader.readAsDataURL(file);
@@ -203,7 +203,9 @@ export default function CommonForm({
             <input
               type={field.type}
               name={field.name}
-              placeholder={field.placeholder || `Enter ${field.label.toLowerCase()}`}
+              placeholder={
+                field.placeholder || `Enter ${field.label.toLowerCase()}`
+              }
               value={formData[field.name] || ""}
               onChange={handleChange}
               required={field.required}
@@ -225,7 +227,9 @@ export default function CommonForm({
             <input
               type={showPasswordFields[field.name] ? "text" : "password"}
               name={field.name}
-              placeholder={field.placeholder || `Enter ${field.label.toLowerCase()}`}
+              placeholder={
+                field.placeholder || `Enter ${field.label.toLowerCase()}`
+              }
               value={formData[field.name] || ""}
               onChange={handleChange}
               required={field.required}
@@ -249,7 +253,9 @@ export default function CommonForm({
             </label>
             <textarea
               name={field.name}
-              placeholder={field.placeholder || `Enter ${field.label.toLowerCase()}`}
+              placeholder={
+                field.placeholder || `Enter ${field.label.toLowerCase()}`
+              }
               value={formData[field.name] || ""}
               onChange={handleChange}
               rows={field.rows || 4}
@@ -336,16 +342,19 @@ export default function CommonForm({
             />
             {filePreviews[field.name] && (
               <div className="mt-2">
-                <img 
-                  src={filePreviews[field.name]} 
-                  alt="Preview" 
+                <img
+                  src={filePreviews[field.name]}
+                  alt="Preview"
                   className="h-20 w-20 object-cover rounded border"
                 />
               </div>
             )}
-            {formData[field.name] && typeof formData[field.name] === 'string' && (
-              <p className="text-xs text-gray-500 mt-1">Current file: {formData[field.name]}</p>
-            )}
+            {formData[field.name] &&
+              typeof formData[field.name] === "string" && (
+                <p className="text-xs text-gray-500 mt-1">
+                  Current file: {formData[field.name]}
+                </p>
+              )}
           </div>
         );
 
@@ -389,7 +398,7 @@ export default function CommonForm({
         <p className="text-gray-600 mb-6">{subtitle}</p>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} noValidate className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {fieldsToRender.map((field, idx) => renderField(field, idx))}
         </div>
