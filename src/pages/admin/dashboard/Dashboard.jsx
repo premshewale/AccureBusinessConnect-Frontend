@@ -31,26 +31,31 @@ export default function Dashboard() {
     <div className="p-6">
       <CountDash />
 
-      <div className="flex flex-row gap-6 mt-6">
-        <div className="w-[676px] h-[417px] bg-white rounded-[8px] p-6 shadow-customShadow">
-          <BarChart />
-        </div>
+      {/* Row 1 */}
+    {/* Row 1 */}
+<div className="grid grid-cols-1 lg:grid-cols-[676px_380px] gap-6 mt-6">
+  {/* BarChart Card (same as before) */}
+  <div className="w-full lg:w-[676px] h-[417px] bg-white rounded-[8px] p-6 shadow-customShadow">
+    <BarChart />
+  </div>
 
-        <div className="w-[380px] h-[417px] rounded-[8px] shadow-customShadow bg-white">
-          <Activity />
-        </div>
-      </div>
+  {/* Activity Card (dimension only here) */}
+  <div className="w-full lg:w-[380px] lg:h-[417px] rounded-[8px] shadow-customShadow bg-white">
+    <Activity />
+  </div>
+</div>
 
-      <div className="flex flex-row gap-6 mt-6">
-        <div className="w-[676px] h-[301px] rounded-[8px] shadow-customShadow bg-white p-4">
-          <DashboardMyInfo />
-        </div>
 
-        <div className="w-[380px] h-[301px] bg-white rounded-[8px] shadow-customShadow p-4">
-          <MyPieChart />
-        </div>
-      </div>
-    </div>
+<div className="grid grid-cols-1 lg:grid-cols-[676px_380px] gap-4 lg:gap-6 mt-6">
+  <div className="w-full lg:w-[676px] h-[301px] rounded-[8px] shadow-customShadow bg-white p-3 lg:p-4">
+    <DashboardMyInfo />
+  </div>
+
+  <div className="w-full lg:w-[380px] h-[301px] bg-white rounded-[8px] shadow-customShadow p-3 lg:p-4">
+    <MyPieChart />
+  </div>
+</div>
+
   );
 }
 
