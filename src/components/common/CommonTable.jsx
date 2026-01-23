@@ -15,6 +15,9 @@ export default function CommonTable({
   onEdit,
   onDelete,
   onView,
+  onConvertToCustomer,
+  onStatusToggle,
+  onStatusChange,
   showExport = true,
   showActions = true,
   onRowClick,
@@ -28,9 +31,20 @@ export default function CommonTable({
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [sortColumn, setSortColumn] = useState("");
   const [sortDirection, setSortDirection] = useState("asc");
+  const LEAD_STATUSES = ["NEW", "CONTACTED", "QUALIFIED", "LOST", "WON"];
 
   // Define headers based on types
   const headersByType = {
+    customerReport: [
+      { header: "Customer Name", accessor: "customerName", sortable: true },
+      { header: "Total Leads", accessor: "totalLeads", sortable: true },
+    ],
+
+    leadsReport: [
+      { header: "Staff Name", accessor: "staffName", sortable: true },
+      { header: "Leads Created", accessor: "leadsCount", sortable: true },
+    ],
+
     departments: [
       { header: "ID", accessor: "id", sortable: true },
       { header: "Department Name", accessor: "name", sortable: true },
@@ -48,9 +62,11 @@ export default function CommonTable({
       { header: "Status", accessor: "status", sortable: true },
       { header: "Total Contacts", accessor: "totalContacts", sortable: true },
       { header: "Assigned To", accessor: "assignedUserName", sortable: true },
+      { header: "Active", accessor: "toggle", sortable: false },
       { header: "Department", accessor: "departmentName", sortable: true },
       { header: "Created", accessor: "createdAt", sortable: true },
       { header: "Actions", accessor: "actions", sortable: false },
+
     ],
     leads: [
       { header: "ID", accessor: "id", sortable: true },
@@ -63,6 +79,7 @@ export default function CommonTable({
       { header: "Department", accessor: "departmentName", sortable: true },
       { header: "Customer ID", accessor: "customerId", sortable: true },
       { header: "Status", accessor: "status", sortable: true },
+      { header: "Active", accessor: "toggle", sortable: false },
       { header: "Created", accessor: "createdAt", sortable: true },
       { header: "Actions", accessor: "actions", sortable: false },
     ],
@@ -82,12 +99,15 @@ export default function CommonTable({
       { header: "ID", accessor: "id", sortable: true },
       { header: "Name", accessor: "name", sortable: true },
       { header: "Email", accessor: "email", sortable: true },
-      { header: "Role", accessor: "roleKey", sortable: true },
+      { header: "Role", accessor: "roleName", sortable: true },
       { header: "Job Title", accessor: "jobTitle", sortable: true },
-      { header: "Department", accessor: "department", sortable: true },
+      { header: "Department", accessor: "departmentName", sortable: true },
+      { header: "Status", accessor: "status", sortable: false },
+      { header: "Toggle", accessor: "toggle", sortable: false },
       { header: "Created At", accessor: "createdAt", sortable: true },
       { header: "Actions", accessor: "actions", sortable: false },
     ],
+
     contacts: [
       { header: "ID", accessor: "id", sortable: true },
       { header: "Name", accessor: "name", sortable: true },
@@ -183,8 +203,8 @@ export default function CommonTable({
   const filteredData = searchTerm
     ? data.filter((item) =>
         Object.values(item).some((value) =>
-          String(value).toLowerCase().includes(searchTerm.toLowerCase())
-        )
+          String(value).toLowerCase().includes(searchTerm.toLowerCase()),
+        ),
       )
     : data;
 
@@ -428,7 +448,38 @@ export default function CommonTable({
                       key={colIndex}
                       className="px-6 py-4 whitespace-nowrap text-sm text-gray-900"
                     >
-                      {col.accessor === "actions" && showActions ? (
+                      {col.accessor === "toggle" ? (
+                        <div className="flex items-center justify-center">
+                          <label className="relative inline-flex items-center cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={row.status === "ACTIVE"}
+                              onChange={(e) => {
+                                e.stopPropagation();
+                                onStatusToggle?.(
+                                  row.id,
+                                  e.target.checked ? "ACTIVE" : "INACTIVE",
+                                );
+                              }}
+                              className="sr-only"
+                            />
+
+                            <div
+                              className={`w-11 h-6 rounded-full transition-colors ${
+                                row.status === "ACTIVE"
+                                  ? "bg-green-500"
+                                  : "bg-gray-300"
+                              }`}
+                            >
+                              <div
+                                className={`absolute top-[2px] left-[2px] w-5 h-5 bg-white rounded-full shadow transition-transform ${
+                                  row.status === "ACTIVE" ? "translate-x-5" : ""
+                                }`}
+                              />
+                            </div>
+                          </label>
+                        </div>
+                      ) : col.accessor === "actions" && showActions ? (
                         <div className="flex gap-2">
                           {onView && (
                             <button
@@ -454,11 +505,24 @@ export default function CommonTable({
                               <FiEdit />
                             </button>
                           )}
+                          {onConvertToCustomer && type === "leads" && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onConvertToCustomer(row);
+                              }}
+                              className="p-1 text-purple-600 hover:bg-purple-50 rounded"
+                              title="Convert to Customer"
+                            >
+                              🔁
+                            </button>
+                          )}
+
                           {onDelete && (
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
-                                onDelete(row);
+                                onDelete(row.id);
                               }}
                               className="p-1 text-red-600 hover:bg-red-50 rounded"
                               title="Delete"
@@ -473,6 +537,21 @@ export default function CommonTable({
                             <FiMoreVertical />
                           </button>
                         </div>
+                      ) : col.accessor === "status" && type === "leads" ? (
+                        <select
+                          value={row.status}
+                          onChange={(e) => {
+                            e.stopPropagation();
+                            onStatusChange?.(row, e.target.value);
+                          }}
+                          className="border rounded-md px-2 py-1 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-cyan"
+                        >
+                          {LEAD_STATUSES.map((status) => (
+                            <option key={status} value={status}>
+                              {status}
+                            </option>
+                          ))}
+                        </select>
                       ) : col.accessor === "status" ? (
                         getStatusBadge(row[col.accessor])
                       ) : col.accessor === "priority" ? (
@@ -487,7 +566,7 @@ export default function CommonTable({
                         <span className="text-gray-600">
                           {row[col.accessor]
                             ? new Date(row[col.accessor]).toLocaleDateString(
-                                "en-IN"
+                                "en-IN",
                               )
                             : "-"}
                         </span>
