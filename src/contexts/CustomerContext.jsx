@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 
 const CustomerContext = createContext();
+const initialCustomers = [];
 
 // Custom hook
 const useCustomers = () => {
