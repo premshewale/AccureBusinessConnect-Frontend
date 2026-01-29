@@ -211,9 +211,15 @@ const handleRefresh = () => {
   // Status options for filter buttons
   const statuses = ["All", "Open", "In Progress", "Resolved", "Closed"];
 
-  const handleEdit = (ticket) => {
-    navigate(`/admin/edit-ticket/${ticket.id}`);
-  };
+const handleEdit = (ticket) => {
+  const id = ticket?.id ?? ticket; // ticket could be object or just id
+  navigate(`/admin/edit-ticket/${id}`);
+};
+
+const handleView = (ticket) => {
+  const id = ticket?.id ?? ticket;
+  navigate(`/admin/edit-ticket/${id}`); // or a separate view route if needed
+};
 
   
 
@@ -222,9 +228,6 @@ const handleDelete = (ticket) => {
 };
 
 
-  const handleView = (ticket) => {
-    navigate(`/admin/tickets/${ticket.id}`);
-  };
 
 
   const ticketStats = {

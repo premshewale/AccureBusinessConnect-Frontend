@@ -94,9 +94,11 @@ export default function Users() {
   }));
 
   // Edit handler
-  const handleEdit = (id) => {
-    navigate(`/admin/users/${id}`);
-  };
+const handleEdit = (id) => {
+  console.log("Editing user id:", id);
+  navigate(`/admin/users/${id}`);
+};
+
 
   // ✅ FIXED Toggle handler
   const handleStatusToggle = async (id, newStatus) => {

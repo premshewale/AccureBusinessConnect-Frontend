@@ -288,9 +288,10 @@ const kanbanColumns = [
   // Payment method options
   const paymentMethods = ["All", "Bank Transfer", "Credit Card", "UPI", "Cash", "Cheque", "Other"];
 
-  const handleEdit = (payment) => {
-    navigate(`/admin/edit-payment/${payment.id}`);
-  };
+const handleEdit = (id) => {
+  navigate(`/admin/payments/${id}`);
+};
+
 
 const handleDelete = () => {
   alert("Delete API not wired yet");

@@ -1,16 +1,20 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import CommonForm from "../../../components/common/CommonForm.jsx";
-import { useExpenses } from "../../../contexts/ExpenseContext.jsx";
+// import { useExpenses } from "../../../contexts/ExpenseContext.jsx";
+import { useDispatch } from "react-redux";
+import { adminCreateExpense } from "../../../services/expenses/adminCreateExpenseApi";
 
 export default function CreateExpense() {
   const navigate = useNavigate();
-  const { addExpense } = useExpenses();
+  // const { addExpense } = useExpenses();
+  const dispatch = useDispatch();
+
   const [formLoading, setFormLoading] = useState(false);
-  
+
   const handleSubmit = async (data) => {
     setFormLoading(true);
-    
+
     try {
       const expenseData = {
         ...data,
@@ -20,11 +24,12 @@ export default function CreateExpense() {
         paymentMethod: data.paymentMethod || "Cash",
         vendor: data.vendor || "Unknown",
       };
-      
-      await addExpense(expenseData);
-      
+
+      // await addExpense(expenseData);
+      await dispatch(adminCreateExpense(expenseData)).unwrap();
+
       alert("Expense created successfully!");
-      navigate("/admin/expences");
+      navigate("/admin/expenses");
     } catch (error) {
       alert("Failed to create expense. Please try again.");
       console.error("Create expense error:", error);
@@ -32,29 +37,29 @@ export default function CreateExpense() {
       setFormLoading(false);
     }
   };
-  
+
   const fields = [
-    { 
-      type: "text", 
-      label: "Title", 
-      name: "title", 
+    {
+      type: "text",
+      label: "Title",
+      name: "title",
       placeholder: "Enter expense title",
-      required: true
+      required: true,
     },
-    { 
-      type: "textarea", 
-      label: "Description", 
-      name: "description", 
+    {
+      type: "textarea",
+      label: "Description",
+      name: "description",
       placeholder: "Describe the expense",
-      rows: 3
+      rows: 3,
     },
-    { 
-      type: "number", 
-      label: "Amount (₹)", 
-      name: "amount", 
+    {
+      type: "number",
+      label: "Amount (₹)",
+      name: "amount",
       placeholder: "Enter amount",
       required: true,
-      min: 0
+      min: 0,
     },
     {
       type: "select",
@@ -73,20 +78,20 @@ export default function CreateExpense() {
         { label: "Maintenance", value: "Maintenance" },
         { label: "Equipment", value: "Equipment" },
         { label: "Other", value: "Other" },
-      ]
+      ],
     },
-    { 
-      type: "date", 
-      label: "Date", 
-      name: "date", 
+    {
+      type: "date",
+      label: "Date",
+      name: "date",
       required: true,
-      defaultValue: new Date().toISOString().split('T')[0]
+      defaultValue: new Date().toISOString().split("T")[0],
     },
-    { 
-      type: "text", 
-      label: "Vendor", 
-      name: "vendor", 
-      placeholder: "Enter vendor name" 
+    {
+      type: "text",
+      label: "Vendor",
+      name: "vendor",
+      placeholder: "Enter vendor name",
     },
     {
       type: "select",
@@ -101,13 +106,13 @@ export default function CreateExpense() {
         { label: "Cheque", value: "Cheque" },
         { label: "UPI", value: "UPI" },
         { label: "Other", value: "Other" },
-      ]
+      ],
     },
-    { 
-      type: "text", 
-      label: "Receipt Number", 
-      name: "receiptNumber", 
-      placeholder: "Enter receipt number" 
+    {
+      type: "text",
+      label: "Receipt Number",
+      name: "receiptNumber",
+      placeholder: "Enter receipt number",
     },
     {
       type: "select",
@@ -118,13 +123,13 @@ export default function CreateExpense() {
         { label: "Pending", value: "pending" },
         { label: "Approved", value: "approved" },
         { label: "Rejected", value: "rejected" },
-      ]
+      ],
     },
-    { 
-      type: "file", 
-      label: "Receipt/Invoice", 
-      name: "receiptFile", 
-      accept: "image/*,.pdf,.doc,.docx"
+    {
+      type: "file",
+      label: "Receipt/Invoice",
+      name: "receiptFile",
+      accept: "image/*,.pdf,.doc,.docx",
     },
   ];
 
@@ -134,7 +139,7 @@ export default function CreateExpense() {
         <h1 className="text-2xl font-bold text-gray-800">Create New Expense</h1>
         <p className="text-gray-600">Add a new expense record</p>
       </div>
-      
+
       <CommonForm
         title="Expense Information"
         subtitle="Fill in the details below to create a new expense"

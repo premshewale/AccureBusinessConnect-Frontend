@@ -76,9 +76,10 @@ export default function Leads() {
       cards: filteredLeads.filter((lead) => lead.status === status),
     }));
 
-  const handleEdit = (lead) => {
-    navigate(`/admin/lead-details/${lead.id}`);
-  };
+const handleEdit = (id) => {
+  navigate(`/admin/lead-details/${id}`);
+};
+
 
   // 🔹 Delete lead handler
   const handleDelete = async (lead) => {

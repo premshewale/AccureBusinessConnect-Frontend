@@ -22,7 +22,7 @@ export default function Proposals() {
   const dispatch = useDispatch();
 
   const { proposals = [], loading } = useSelector(
-    (state) => state.adminGetAllProposals
+    (state) => state.adminGetAllProposals,
   );
   useEffect(() => {
     dispatch(adminGetAllProposals());
@@ -100,19 +100,19 @@ export default function Proposals() {
     const total = proposals.length;
 
     const pending = proposals.filter(
-      (p) => p.status?.toUpperCase() === "PENDING"
+      (p) => p.status?.toUpperCase() === "PENDING",
     ).length;
 
     const sent = proposals.filter(
-      (p) => p.status?.toUpperCase() === "SENT"
+      (p) => p.status?.toUpperCase() === "SENT",
     ).length;
 
     const accepted = proposals.filter(
-      (p) => p.status?.toUpperCase() === "ACCEPTED"
+      (p) => p.status?.toUpperCase() === "ACCEPTED",
     ).length;
 
     const rejected = proposals.filter(
-      (p) => p.status?.toUpperCase() === "REJECTED"
+      (p) => p.status?.toUpperCase() === "REJECTED",
     ).length;
 
     return [
@@ -175,12 +175,15 @@ export default function Proposals() {
 
   const statuses = ["All", "PENDING", "SENT", "ACCEPTED", "REJECTED"];
   const handleEdit = (proposal) => {
-    navigate(`/admin/proposals/${proposal.id}`);
+    const id = proposal?.id ?? proposal;
+    navigate(`/admin/proposals/${id}`);
   };
 
   const handleDelete = async (proposal) => {
-    if (window.confirm(`Delete Proposal #${proposal.id}?`)) {
-      dispatch(adminDeleteProposalApi(proposal.id));
+    const id = proposal?.id ?? proposal;
+
+    if (window.confirm(`Delete Proposal #${id}?`)) {
+      dispatch(adminDeleteProposalApi(id));
     }
   };
 

@@ -20,12 +20,25 @@ export default function PaymentDetails() {
      FETCH PAYMENT
   ======================= */
   useEffect(() => {
-    dispatch(adminGetPaymentById(id));
+    if (id) {
+      dispatch(adminGetPaymentById(id));
+    }
 
     return () => {
       dispatch(resetPaymentDetails());
     };
   }, [dispatch, id]);
+
+  /* =======================
+     SAFETY: NO ID
+  ======================= */
+  if (!id) {
+    return (
+      <p className="mt-6 text-red-500 text-center">
+        Invalid payment ID
+      </p>
+    );
+  }
 
   if (loading) {
     return (
@@ -53,12 +66,14 @@ export default function PaymentDetails() {
     {
       name: "amount",
       label: "Amount",
-      format: (val) => (val != null ? `₹${Number(val).toLocaleString("en-IN")}` : "N/A"),
+      format: (val) =>
+        val != null ? `₹${Number(val).toLocaleString("en-IN")}` : "N/A",
     },
     {
       name: "paymentDate",
       label: "Payment Date",
-      format: (val) => (val ? new Date(val).toLocaleDateString("en-IN") : "N/A"),
+      format: (val) =>
+        val ? new Date(val).toLocaleDateString("en-IN") : "N/A",
     },
     { name: "method", label: "Payment Method" },
     { name: "invoiceStatus", label: "Invoice Status" },
@@ -66,18 +81,21 @@ export default function PaymentDetails() {
     {
       name: "createdAt",
       label: "Created At",
-      format: (val) => (val ? new Date(val).toLocaleString("en-IN") : "N/A"),
+      format: (val) =>
+        val ? new Date(val).toLocaleString("en-IN") : "N/A",
     },
   ];
 
   /* =======================
      FORMAT DISPLAY DATA
   ======================= */
-  const formattedPayment = payment ? { ...payment } : {};
+  const formattedPayment = { ...payment };
 
   paymentFields.forEach((field) => {
     if (field.format && formattedPayment[field.name] != null) {
-      formattedPayment[field.name] = field.format(formattedPayment[field.name]);
+      formattedPayment[field.name] = field.format(
+        formattedPayment[field.name]
+      );
     }
   });
 
@@ -98,8 +116,8 @@ export default function PaymentDetails() {
         data={formattedPayment}
         fields={paymentFields}
         isEditMode={false}
-        editedData={formattedPayment} // safe default for editing
-        setEditedData={() => {}} // noop, since isEditMode is false
+        editedData={formattedPayment}
+        setEditedData={() => {}}
       />
     </div>
   );

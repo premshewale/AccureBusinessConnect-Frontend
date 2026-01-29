@@ -10,10 +10,11 @@ export const adminGetPaymentById = createAsyncThunk(
   async (id, { rejectWithValue }) => {
     try {
       const res = await adminApi.get(`/payments/${id}`);
+      // return res.data.payment if your backend wraps it
       return res.data;
     } catch (err) {
       return rejectWithValue(
-        err.response?.data || "Failed to fetch payment"
+        err.response?.data?.message || "Failed to fetch payment details"
       );
     }
   }

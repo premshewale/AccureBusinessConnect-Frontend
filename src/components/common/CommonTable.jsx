@@ -36,13 +36,30 @@ export default function CommonTable({
   // Define headers based on types
   const headersByType = {
     customerReport: [
-      { header: "Customer Name", accessor: "customerName", sortable: true },
-      { header: "Total Leads", accessor: "totalLeads", sortable: true },
+      { header: "ID", accessor: "id", sortable: true },
+      { header: "Customer Name", accessor: "name", sortable: true },
+      { header: "Email", accessor: "email", sortable: true },
+      { header: "Phone", accessor: "phone", sortable: true },
+      { header: "Address", accessor: "address" },
+      { header: "Industry", accessor: "industry", sortable: true },
+      { header: "Type", accessor: "type", sortable: true },
+      { header: "Status", accessor: "status", sortable: true },
+      { header: "Website", accessor: "website" },
+      { header: "Contact Persons", accessor: "contactPersonCount" },
+      { header: "Tags", accessor: "tags" },
+      { header: "Assigned User", accessor: "assignedUser.name" },
+      { header: "Assigned User Email", accessor: "assignedUser.email" },
+      { header: "Created At", accessor: "createdAt", sortable: true },
+      { header: "Updated At", accessor: "updatedAt", sortable: true },
     ],
-
     leadsReport: [
-      { header: "Staff Name", accessor: "staffName", sortable: true },
-      { header: "Leads Created", accessor: "leadsCount", sortable: true },
+      { header: "ID", accessor: "id", sortable: true },
+      { header: "Name", accessor: "name", sortable: true },
+      { header: "Email", accessor: "email", sortable: true },
+      { header: "Phone", accessor: "phone", sortable: false },
+      { header: "Source", accessor: "source", sortable: true },
+      { header: "Status", accessor: "status", sortable: true },
+      { header: "Created", accessor: "createdAt", sortable: true },
     ],
 
     departments: [
@@ -62,11 +79,10 @@ export default function CommonTable({
       { header: "Status", accessor: "status", sortable: true },
       { header: "Total Contacts", accessor: "totalContacts", sortable: true },
       { header: "Assigned To", accessor: "assignedUserName", sortable: true },
-      { header: "Active", accessor: "toggle", sortable: false },
+      { header: "Toggle", accessor: "toggle", sortable: false },
       { header: "Department", accessor: "departmentName", sortable: true },
       { header: "Created", accessor: "createdAt", sortable: true },
       { header: "Actions", accessor: "actions", sortable: false },
-
     ],
     leads: [
       { header: "ID", accessor: "id", sortable: true },
@@ -79,7 +95,7 @@ export default function CommonTable({
       { header: "Department", accessor: "departmentName", sortable: true },
       { header: "Customer ID", accessor: "customerId", sortable: true },
       { header: "Status", accessor: "status", sortable: true },
-      { header: "Active", accessor: "toggle", sortable: false },
+      { header: "Toggle", accessor: "toggle", sortable: false },
       { header: "Created", accessor: "createdAt", sortable: true },
       { header: "Actions", accessor: "actions", sortable: false },
     ],
@@ -92,6 +108,7 @@ export default function CommonTable({
       { header: "Phone", accessor: "phone", sortable: false },
       { header: "Status", accessor: "status", sortable: true },
       { header: "Role", accessor: "role", sortable: true },
+      { header: "Toggle", accessor: "toggle", sortable: false },
       { header: "Primary", accessor: "is_primary", sortable: true },
       { header: "Actions", accessor: "actions", sortable: false },
     ],
@@ -188,12 +205,13 @@ export default function CommonTable({
     ],
     tasks: [
       { header: "ID", accessor: "id" },
-      { header: "Customer ID", accessor: "customerId" },
       { header: "Title", accessor: "title" },
       { header: "Status", accessor: "status" },
-      { header: "Assigned ID", accessor: "assignee_id" },
-      { header: "Department Id", accessor: "departmentId" },
+      { header: "Assignee", accessor: "assigneeName" },
+      { header: "Department", accessor: "departmentName" },
       { header: "Due Date", accessor: "dueDate" },
+        { header: "Actions", accessor: "actions", sortable: false }, 
+
     ],
   };
 
@@ -485,7 +503,7 @@ export default function CommonTable({
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
-                                onView(row);
+                                onView(row.id); // ✅ MUST be id
                               }}
                               className="p-1 text-blue-600 hover:bg-blue-50 rounded"
                               title="View"
@@ -497,7 +515,7 @@ export default function CommonTable({
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
-                                onEdit(row);
+                                onEdit(row.id); // ✅ FIX
                               }}
                               className="p-1 text-green-600 hover:bg-green-50 rounded"
                               title="Edit"
@@ -505,6 +523,7 @@ export default function CommonTable({
                               <FiEdit />
                             </button>
                           )}
+
                           {onConvertToCustomer && type === "leads" && (
                             <button
                               onClick={(e) => {
