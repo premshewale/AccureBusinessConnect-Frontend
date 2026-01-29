@@ -2,45 +2,62 @@ import { createSlice } from "@reduxjs/toolkit";
 import { login } from "../../services/auth/loginAPI";
 import { logoutUser } from "../../services/auth/logoutAPI";
 
+const isTokenExpired = (token) => {
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    return payload.exp * 1000 < Date.now();
+  } catch {
+    return true; 
+  }
+};
 
 const initialState = {
   user: null,
   role: null,
   isAuthenticated: false,
   isLoading: false,
-  isInitialized: false, // ✅ ADD THIS
+  isInitialized: false, 
   error: null,
 };
 
-
 const authSlice = createSlice({
-  name: 'auth',
+  name: "auth",
   initialState,
   reducers: {
     clearError: (state) => {
       state.error = null;
     },
-initializeAuth: (state) => {
-  const possibleRoles = ['ADMIN', 'SUB_ADMIN', 'STAFF']; // ✅ FIXED
+    initializeAuth: (state) => {
+      const possibleRoles = ["ADMIN", "SUB_ADMIN", "STAFF"];
 
-  for (const role of possibleRoles) {
-    const accessTokenKey = `${role}AccessToken`;
-    const userKey = `${role}User`;
+      for (const role of possibleRoles) {
+        const accessTokenKey = `${role}AccessToken`;
+        const userKey = `${role}User`;
 
-    const token = localStorage.getItem(accessTokenKey);
-    const userStr = localStorage.getItem(userKey);
+        const token = localStorage.getItem(accessTokenKey);
+        const userStr = localStorage.getItem(userKey);
 
-    if (token && userStr) {
-      state.user = JSON.parse(userStr);
-      state.role = role;
-      state.isAuthenticated = true;
+        // ❌ token missing
+        if (!token || !userStr) continue;
+
+        // ❌ token expired
+        if (isTokenExpired(token)) {
+          localStorage.removeItem(accessTokenKey);
+          localStorage.removeItem(userKey);
+          continue;
+        }
+
+        // ✅ valid session
+        state.user = JSON.parse(userStr);
+        state.role = role;
+        state.isAuthenticated = true;
+        state.isInitialized = true;
+        return;
+      }
+
+      // ❌ no valid role found
       state.isInitialized = true;
-      return;
-    }
-  }
-
-  state.isInitialized = true;
-},
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -64,16 +81,15 @@ initializeAuth: (state) => {
         state.isAuthenticated = false;
       })
       // Logout
-.addCase(logoutUser.fulfilled, (state) => {
-  state.user = null;
-  state.role = null;
-  state.isAuthenticated = false;
-  state.error = null;
-})
-.addCase(logoutUser.rejected, (state, action) => {
-  state.error = action.payload;
-});
-
+      .addCase(logoutUser.fulfilled, (state) => {
+        state.user = null;
+        state.role = null;
+        state.isAuthenticated = false;
+        state.error = null;
+      })
+      .addCase(logoutUser.rejected, (state, action) => {
+        state.error = action.payload;
+      });
   },
 });
 

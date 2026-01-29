@@ -1,24 +1,42 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import CommonTable from "../../../components/common/CommonTable";
+import { adminGetLeadsReport } from "../../../services/reports/adminGetLeadsReportApi";
 
 export default function LeadsReports() {
-  // Dummy API response (replace later)
-  const leadsByStaff = [
-    { id: 1, staffName: "Rahul Sharma", leadsCount: 25 },
-    { id: 2, staffName: "Anita Verma", leadsCount: 18 },
-    { id: 3, staffName: "Karan Singh", leadsCount: 32 },
-    { id: 4, staffName: "Neha Patel", leadsCount: 15 },
-  ];
+  const dispatch = useDispatch();
+
+  const { leads, loading, error } = useSelector(
+    (state) => state.adminLeadsReport
+  );
+
+  useEffect(() => {
+    dispatch(adminGetLeadsReport());
+  }, [dispatch]);
+
+  // Map API response → table format (if needed)
+  const tableData = leads.map((lead) => ({
+    id: lead.id,
+    name: lead.name,
+    email: lead.email,
+    phone: lead.phone,
+    source: lead.source,
+    status: lead.status,
+    createdAt: new Date(lead.createdAt).toLocaleDateString("en-IN"),
+  }));
 
   return (
     <div className="p-4">
       <h2 className="text-xl font-semibold mb-4">
-        Leads Created by Staff
+        Leads Created Report
       </h2>
+
+      {loading && <p>Loading leads...</p>}
+      {error && <p className="text-red-500">{error}</p>}
 
       <CommonTable
         type="leadsReport"
-        data={leadsByStaff}
+        data={tableData}
         searchable={true}
         showExport={true}
         showActions={false}

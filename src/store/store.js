@@ -1,5 +1,9 @@
 import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "../slices/auth/loginSlice";
+
+import dashboardCountsReducer from "../slices/dashboard/dashboardCountsSlice";
+
+
 import departmentReducer from "../slices/department/departmentSlice";
 import adminCreateUserReducer from "../slices/user/adminCreateUserSlice";
 import adminUpdateUserReducer from "../slices/user/adminUpdateUserSlice";
@@ -14,8 +18,16 @@ import adminCreateContactReducer from "../slices/contact/adminCreateContactSlice
 import adminGetContactsReducer from "../slices/contact/adminGetContactsSlice";
 import adminGetContactByIdReducer from "../slices/contact/adminGetContactByIdSlice";
 import adminUpdateContactReducer from "../slices/contact/adminUpdateContactSlice";
+import adminAddContactToggleReducer from "../slices/contact/adminAddContactToggleSlice";
+
 
 import profileReducer from "../slices/profile/profileSlice";
+
+import adminLeadsReportReducer from "../slices/reports/adminLeadsReportSlice";
+import adminCustomersReportReducer from "../slices/reports/adminCustomersReportSlice";
+
+import getAllInvoicesReducer from "../slices/invoices/invoiceSlice";
+
 
 import adminCreateLeadReducer from "../slices/lead/adminCreateLeadSlice";
 import adminGetAllLeadsReducer from "../slices/lead/adminGetAllLeadsSlice";
@@ -37,7 +49,10 @@ import adminDeleteCustomerReducer from "../slices/customers/adminDeleteCustomerS
 
 
 import ticketReducer from "../slices/ticket/ticketSlice";
-import createTicketReducer from "../slices/ticket/createTicketSlice"
+import createTicketReducer from "../slices/ticket/createTicketSlice";
+import getTicketByIdReducer from "../slices/ticket/getTicketByIdSlice";
+import updateTicketReducer from "../slices/ticket/updateTicketSlice";
+
 
 import adminGetAllPaymentsReducer from "../slices/payment/adminGetAllPaymentsSlice";
 import adminCreatePaymentReducer from "../slices/payment/adminCreatePaymentSlice";
@@ -50,6 +65,12 @@ import adminGetProposalByIdReducer from "../slices/proposal/adminGetProposalById
 import adminUpdateProposalReducer from "../slices/proposal/adminUpdateProposalSlice";
 
 
+import adminGetAllExpensesReducer from "../slices/expenses/adminGetAllExpensesSlice";
+import adminGetExpenseByIdReducer from "../slices/expenses/adminGetExpenseByIdSlice";
+import adminUpdateExpenseReducer from "../slices/expenses/adminUpdateExpenseSlice";
+
+
+import tasksReducer from "../slices/tasks/tasksSlice";
 
 
 
@@ -60,6 +81,10 @@ export default configureStore({
     auth: authReducer,
     profile: profileReducer,
     department: departmentReducer,
+
+    // dashboard
+    dashboardCounts: dashboardCountsReducer,
+
     // User
     adminCreateUser: adminCreateUserReducer,
     adminGetAllUsers: adminGetAllUsersReducer,
@@ -72,6 +97,12 @@ export default configureStore({
     // staff
     adminCreateStaff: adminCreateStaffReducer,
 
+    //reports
+    adminLeadsReport: adminLeadsReportReducer,
+    adminCustomersReport: adminCustomersReportReducer,
+
+
+
     // Customers
     adminGetAllCustomers: adminGetAllCustomersReducer,
     adminCreateCustomer: adminCreateCustomerReducer,
@@ -79,6 +110,8 @@ export default configureStore({
     adminUpdateCustomer: adminUpdateCustomerReducer,
     adminDeleteCustomer: adminDeleteCustomerReducer,
 
+    //Invoices
+    invoices: getAllInvoicesReducer,
 
 
 
@@ -88,6 +121,8 @@ export default configureStore({
     adminGetContacts: adminGetContactsReducer,
     adminGetContactById: adminGetContactByIdReducer,
     adminUpdateContact: adminUpdateContactReducer,
+    adminAddContactToggle: adminAddContactToggleReducer,
+
 
     // Lead
     adminCreateLead: adminCreateLeadReducer,
@@ -103,6 +138,8 @@ export default configureStore({
     // Ticket
     tickets: ticketReducer,
     createTicket: createTicketReducer,
+    getTicketById: getTicketByIdReducer,
+    updateTicket: updateTicketReducer,
 
     // Proposals
    adminGetAllProposals: adminGetAllProposalsReducer,
@@ -119,7 +156,13 @@ export default configureStore({
     adminCreatePayment: adminCreatePaymentReducer,
     adminGetPaymentById: adminGetPaymentByIdReducer,
 
+    //expenses
+    adminGetAllExpenses: adminGetAllExpensesReducer,
+    adminGetExpenseById: adminGetExpenseByIdReducer,
+    adminUpdateExpense: adminUpdateExpenseReducer,
 
+  //tasks
+    tasks: tasksReducer,
 
 
   },

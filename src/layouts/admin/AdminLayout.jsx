@@ -9,7 +9,7 @@
 
 //   return (
 //     <div className="flex h-screen overflow-hidden">
-      
+
 //       {/* Sidebar (fixed, no scroll) */}
 //       <AdminSidebar
 //         sidebarOpen={sidebarOpen}
@@ -18,7 +18,7 @@
 
 //       {/* Right Section */}
 //       <div className="flex-1 flex flex-col overflow-hidden">
-        
+
 //         {/* Header (fixed, no scroll) */}
 //         <AdminHeader
 //           sidebarOpen={sidebarOpen}
@@ -50,9 +50,8 @@ const AdminLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="w-full min-h-screen bg-gray-50 flex justify-center">
-      {/* ✅ FIXED FIGMA WIDTH = 1440px */}
-      <div className="flex w-[1440px] h-screen overflow-hidden bg-gray-50">
+    <div className="w-full min-h-screen bg-gray-50">
+      <div className="flex w-full h-screen overflow-hidden bg-gray-50">
         {/* Sidebar */}
         <AdminSidebar
           sidebarOpen={sidebarOpen}

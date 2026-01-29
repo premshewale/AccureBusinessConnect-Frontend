@@ -12,6 +12,8 @@ import ErrorPage from "../components/common/ErrorPage.jsx";
 
 import CreateUser from "../pages/admin/user/CreateUser.jsx";
 import Users from "../pages/admin/user/Users.jsx";
+import UserDetails from "../pages/admin/user/UserDetails.jsx";
+
 import Leads from "../pages/admin/leads/Leads.jsx";
 import LeadDetailsPage from "../pages/admin/leads/LeadDetailsPage.jsx";
 import CreateLead from "../pages/admin/leads/CreateLead.jsx";
@@ -22,40 +24,45 @@ import CustomerReports from "../pages/admin/reports/CustomerReports.jsx";
 
 import Customers from "../pages/admin/customers/Customers.jsx";
 import CustomerDetails from "../pages/admin/customers/CustomerDetails.jsx";
-
 import CreateCustomer from "../pages/admin/customers/CreateCustomer.jsx";
+
 import Contacts from "../pages/admin/contacts/Contacts.jsx";
 import ContactDetails from "../pages/admin/contacts/ContactDetails.jsx";
+import CreateContact from "../pages/admin/contacts/CreateContact.jsx";
 
 import Task from "../pages/admin/task/Task.jsx";
 import CreateTask from "../pages/admin/task/CreateTask.jsx";
+import TaskDetails from "../pages/admin/task/TaskDetails.jsx";
+
 import Tickets from "../pages/admin/ticket/Ticket.jsx";
 import CreateTicket from "../pages/admin/ticket/CreateTicket.jsx";
-import Expences from "../pages/admin/expences/Expences.jsx";
-import Invoices from "../pages/admin/invoices/Invoices.jsx";
-import Payment from "../pages/admin/payment/Payment.jsx";
+import TicketDetails from "../pages/admin/ticket/TicketDetails.jsx";
+
 import Staff from "../pages/subadmin/staff/Staff.jsx";
 import CreateStaff from "../pages/subadmin/staff/CreateStaff.jsx";
-import CreateContact from "../pages/admin/contacts/CreateContact.jsx";
 
 import RoleInterceptor from "../security/RoleInterceptor.jsx";
 import Proposals from "../pages/admin/proposals/Proposals.jsx";
 import CreateProposal from "../pages/admin/proposals/CreateProposal.jsx";
 import ProposalDetails from "../pages/admin/proposals/ProposalDetails.jsx";
 
+import UpdateDepartment from "../pages/admin/department/UpdateDepartment.jsx";
 import Department from "../pages/admin/department/Department.jsx";
 import Profile from "../pages/common/Profile.jsx";
+
+import Expenses from "../pages/admin/expences/Expences.jsx";
 import CreateExpense from "../pages/admin/expences/CreateExpense.jsx";
+import ExpenseDetails from "../pages/admin/expences/ExpenseDetails.jsx";
+
+import Payment from "../pages/admin/payment/Payment.jsx";
 import CreatePayment from "../pages/admin/payment/CreatePayment.jsx";
 import PaymentDetails from "../pages/admin/payment/PaymentDetails.jsx";
 
+import Invoices from "../pages/admin/invoices/Invoices.jsx";
+import InvoiceDetails from "../pages/admin/invoices/InvoiceDetails.jsx";
 import CreateInvoice from "../pages/admin/invoices/CreateInvoice.jsx";
 
-import UpdateDepartment from "../pages/admin/department/UpdateDepartment.jsx";
-import UserDetails from "../pages/admin/user/UserDetails.jsx";
-
 const router = createBrowserRouter([
-  // Public Routes
   {
     path: "/",
     element: <Navigate to="/admin/login" replace />,
@@ -123,21 +130,21 @@ const router = createBrowserRouter([
         ),
       },
       {
-  path: "reports/leads",
-  element: (
-    <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN"]}>
-      <LeadsReports />
-    </RoleInterceptor>
-  ),
-},
-{
-  path: "reports/customers",
-  element: (
-    <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN"]}>
-      <CustomerReports />
-    </RoleInterceptor>
-  ),
-},
+        path: "reports/leads",
+        element: (
+          <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN"]}>
+            <LeadsReports />
+          </RoleInterceptor>
+        ),
+      },
+      {
+        path: "reports/customers",
+        element: (
+          <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN"]}>
+            <CustomerReports />
+          </RoleInterceptor>
+        ),
+      },
 
       {
         path: "department",
@@ -192,14 +199,6 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: "customers/:customerId/contacts",
-        element: (
-          <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
-            <Contacts />
-          </RoleInterceptor>
-        ),
-      },
-      {
         path: "customers/:id",
         element: (
           <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
@@ -229,6 +228,14 @@ const router = createBrowserRouter([
         element: (
           <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN"]}>
             <Invoices />
+          </RoleInterceptor>
+        ),
+      },
+      {
+        path: "invoices/:id",
+        element: (
+          <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN"]}>
+            <InvoiceDetails />
           </RoleInterceptor>
         ),
       },
@@ -285,6 +292,16 @@ const router = createBrowserRouter([
           </RoleInterceptor>
         ),
       },
+      // -------- Tasks --------
+      {
+        path: "task/:id", // dynamic route for task details
+        element: (
+          <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
+            <TaskDetails />
+          </RoleInterceptor>
+        ),
+      },
+
       {
         path: "proposals",
         element: (
@@ -327,13 +344,14 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: "expences",
+        path: "edit-ticket/:id", // <-- new route
         element: (
           <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
-            <Expences />
+            <TicketDetails />
           </RoleInterceptor>
         ),
       },
+
       {
         path: "profile",
         element: (
@@ -344,10 +362,28 @@ const router = createBrowserRouter([
       },
 
       {
+        path: "expenses",
+        element: (
+          <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
+            <Expenses />
+          </RoleInterceptor>
+        ),
+      },
+
+      {
         path: "create-expense",
         element: (
           <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
             <CreateExpense />
+          </RoleInterceptor>
+        ),
+      },
+
+      {
+        path: "expenses/:id",
+        element: (
+          <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
+            <ExpenseDetails />
           </RoleInterceptor>
         ),
       },
