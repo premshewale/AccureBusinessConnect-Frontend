@@ -1,18 +1,18 @@
 import React from "react";
-import { 
-  FiDollarSign, 
-  FiCheckCircle, 
-  FiClock, 
+import {
+  FiDollarSign,
+  FiCheckCircle,
+  FiClock,
   FiXCircle,
   FiTrendingUp,
-  FiCalendar 
+  FiCalendar,
 } from "react-icons/fi";
 
 export default function ExpensesStats({ stats }) {
   const cards = [
     {
       title: "Total Expenses",
-      value: `₹${stats.totalAmount.toLocaleString('en-IN')}`,
+      value: `₹${stats.totalAmount.toLocaleString("en-IN")}`,
       icon: <FiDollarSign size={24} className="text-white" />,
       color: "bg-blue-500",
       trend: "+15%",
@@ -44,7 +44,7 @@ export default function ExpensesStats({ stats }) {
     },
     {
       title: "Average Expense",
-      value: `₹${stats.avgAmount.toLocaleString('en-IN')}`,
+      value: `₹${stats.avgAmount.toLocaleString("en-IN")}`,
       icon: <FiTrendingUp size={24} className="text-white" />,
       color: "bg-purple-500",
       trend: "+5%",
@@ -72,25 +72,32 @@ export default function ExpensesStats({ stats }) {
               <p className="text-sm text-gray-500 mb-1">{card.title}</p>
               <p className="text-2xl font-bold text-gray-800">{card.value}</p>
               <p className="text-xs text-gray-500 mt-1">
-                <span className={`font-medium ${
-                  card.trend.startsWith('+') ? 'text-green-600' : 'text-red-600'
-                }`}>
+                <span
+                  className={`font-medium ${
+                    card.trend.startsWith("+")
+                      ? "text-green-600"
+                      : "text-red-600"
+                  }`}
+                >
                   {card.trend}
-                </span> {card.description}
+                </span>{" "}
+                {card.description}
               </p>
             </div>
-            <div className={`p-3 rounded-lg ${card.color}`}>
-              {card.icon}
-            </div>
+            <div className={`p-3 rounded-lg ${card.color}`}>{card.icon}</div>
           </div>
-          
+
           {/* Progress bar */}
           <div className="mt-4">
             <div className="w-full bg-gray-200 rounded-full h-2">
-              <div 
+              <div
                 className={`h-2 rounded-full ${card.color}`}
-                style={{ 
-                  width: `${Math.min((card.value / (stats.total || 1)) * 100, 100)}%` 
+                style={{
+                  width: `${
+                    typeof card.value === "number"
+                      ? Math.min((card.value / (stats.total || 1)) * 100, 100)
+                      : 100
+                  }%`,
                 }}
               ></div>
             </div>

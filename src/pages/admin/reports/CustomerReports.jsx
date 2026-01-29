@@ -1,28 +1,43 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import CommonTable from "../../../components/common/CommonTable";
+import { adminGetCustomersReport } from "../../../services/reports/adminGetCustomersReportApi";
 
 export default function CustomerReports() {
-  // Dummy data (replace with API later)
-  const customerLeads = [
-    { id: 1, customerName: "Tata Motors", totalLeads: 32 },
-    { id: 2, customerName: "Reliance", totalLeads: 18 },
-    { id: 3, customerName: "Infosys", totalLeads: 25 },
-    { id: 4, customerName: "Mahindra", totalLeads: 10 },
-  ];
+  const dispatch = useDispatch();
+
+  const { customers, loading } = useSelector(
+    (state) => state.adminCustomersReport
+  );
+
+  useEffect(() => {
+    dispatch(adminGetCustomersReport());
+  }, [dispatch]);
+
+  // 🔁 normalize for CommonTable
+  const tableData = customers.map((c) => ({
+    ...c,
+    totalContacts: c.contactPersonCount ?? 0,
+    assignedUserName: c.assignedUser?.name || "-",
+  }));
 
   return (
     <div className="p-4">
       <h2 className="text-xl font-semibold mb-4">
-        Leads by Customer
+        Customers Report
       </h2>
 
       <CommonTable
-        type="customerReport"
-        data={customerLeads}
+        type="customers"   // 🔥 reuse existing table type
+        data={tableData}
         searchable={true}
         showExport={true}
         showActions={false}
       />
+
+      {loading && (
+        <p className="mt-4 text-sm text-gray-500">Loading...</p>
+      )}
     </div>
   );
 }

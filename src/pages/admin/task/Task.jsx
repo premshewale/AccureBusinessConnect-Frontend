@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { RxDashboard, RxTable } from "react-icons/rx";
 import { IoSearchSharp, IoFilterSharp } from "react-icons/io5";
@@ -10,18 +11,22 @@ import CommonExportButton from "../../../components/common/CommonExportButton";
 
 import TaskStats from "./TaskStats";
 import TaskFilter from "./TaskFilter";
-import { useTasks } from "../../../contexts/TaskContext";
+
+import {
+  fetchAllTasks,
+  deleteTask as deleteTaskThunk,
+} from "../../../slices/tasks/tasksSlice";
 
 export default function Task() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-  const { tasks = [], loading, deleteTask, getTaskStats } = useTasks();
+  const { tasks, loading } = useSelector((state) => state.tasks);
 
   const [activeTab, setActiveTab] = useState("table");
   const [searchQuery, setSearchQuery] = useState("");
   const [showFilter, setShowFilter] = useState(false);
   const [filter, setFilter] = useState("All");
-
   const [filterOptions, setFilterOptions] = useState({
     status: "All",
     departmentId: "All",
@@ -29,9 +34,19 @@ export default function Task() {
     dueDate: "All",
   });
 
-  const stats = getTaskStats();
+  useEffect(() => {
+    dispatch(fetchAllTasks());
+  }, [dispatch]);
 
-  const handleRefresh = () => window.location.reload();
+  const stats = {
+    TODO: tasks.filter((t) => t.status === "TODO").length,
+    IN_PROGRESS: tasks.filter((t) => t.status === "IN_PROGRESS").length,
+    DONE: tasks.filter((t) => t.status === "DONE").length,
+    BLOCKED: tasks.filter((t) => t.status === "BLOCKED").length,
+    total: tasks.length,
+  };
+
+  const handleRefresh = () => dispatch(fetchAllTasks());
 
   const exportData = tasks.map((t) => ({
     ID: t.id,
@@ -47,101 +62,57 @@ export default function Task() {
     if (
       searchQuery &&
       !t.title?.toLowerCase().includes(searchQuery.toLowerCase())
-    ) {
+    )
       return false;
-    }
-
-    if (filter !== "All" && t.status !== filter) {
+    if (filter !== "All" && t.status !== filter) return false;
+    if (filterOptions.status !== "All" && t.status !== filterOptions.status)
       return false;
-    }
-
-    if (
-      filterOptions.status !== "All" &&
-      t.status !== filterOptions.status
-    ) {
-      return false;
-    }
-
     if (
       filterOptions.departmentId !== "All" &&
       String(t.department_id) !== filterOptions.departmentId
-    ) {
+    )
       return false;
-    }
-
     if (
       filterOptions.assigneeId !== "All" &&
       String(t.assignee_id) !== filterOptions.assigneeId
-    ) {
+    )
       return false;
-    }
-
     return true;
   });
 
-  const kanbanColumns = [
-    {
-      title: "To Do",
+  const kanbanColumns = ["TODO", "IN_PROGRESS", "DONE", "BLOCKED"].map(
+    (status) => ({
+      title: status.replace("_", " "),
       cards: filteredTasks
-        .filter((t) => t.status === "TODO")
+        .filter((t) => t.status === status)
         .map((t) => ({
           id: t.id,
           name: t.title,
           service: `Assignee ${t.assignee_id}`,
-          status: "TODO",
+          status,
         })),
-    },
-    {
-      title: "In Progress",
-      cards: filteredTasks
-        .filter((t) => t.status === "IN_PROGRESS")
-        .map((t) => ({
-          id: t.id,
-          name: t.title,
-          service: `Assignee ${t.assignee_id}`,
-          status: "IN_PROGRESS",
-        })),
-    },
-    {
-      title: "Done",
-      cards: filteredTasks
-        .filter((t) => t.status === "DONE")
-        .map((t) => ({
-          id: t.id,
-          name: t.title,
-          service: `Assignee ${t.assignee_id}`,
-          status: "DONE",
-        })),
-    },
-    {
-      title: "Blocked",
-      cards: filteredTasks
-        .filter((t) => t.status === "BLOCKED")
-        .map((t) => ({
-          id: t.id,
-          name: t.title,
-          service: `Assignee ${t.assignee_id}`,
-          status: "BLOCKED",
-        })),
-    },
-  ];
+    }),
+  );
 
   const statuses = ["All", "TODO", "IN_PROGRESS", "DONE", "BLOCKED"];
 
-  const handleDelete = async (task) => {
+  const handleDelete = (task) => {
     if (window.confirm(`Delete task "${task.title}"?`)) {
-      await deleteTask(task.id);
+      dispatch(deleteTaskThunk(task.id));
     }
   };
+
+const handleEdit = (task) => {
+  const id = task?.id ?? task;
+  navigate(`/admin/task/${id}`);
+};
 
   return (
     <div className="p-4">
       <div className="flex justify-between items-start mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-800">Tasks</h1>
-          <p className="text-gray-600">
-            Manage and track staff tasks
-          </p>
+          <p className="text-gray-600">Manage and track staff tasks</p>
         </div>
         <button
           onClick={() => navigate("/admin/create-task")}
@@ -176,9 +147,7 @@ export default function Task() {
           <button
             onClick={() => setShowFilter(!showFilter)}
             className={`px-4 py-2 rounded-lg border flex gap-2 ${
-              showFilter
-                ? "bg-cyan text-white border-cyan"
-                : "border-gray-300"
+              showFilter ? "bg-cyan text-white border-cyan" : "border-gray-300"
             }`}
           >
             <IoFilterSharp /> Filter
@@ -246,9 +215,7 @@ export default function Task() {
             <div className="animate-spin h-10 w-10 border-2 border-cyan border-t-transparent rounded-full"></div>
           </div>
         ) : filteredTasks.length === 0 ? (
-          <div className="text-center text-gray-500 p-8">
-            No tasks found
-          </div>
+          <div className="text-center text-gray-500 p-8">No tasks found</div>
         ) : (
           <>
             {activeTab === "kanban" && <Kanban columns={kanbanColumns} />}
@@ -257,6 +224,7 @@ export default function Task() {
                 type="tasks"
                 data={filteredTasks}
                 onDelete={handleDelete}
+                onEdit={handleEdit} 
                 showActions
               />
             )}
@@ -266,4 +234,3 @@ export default function Task() {
     </div>
   );
 }
-

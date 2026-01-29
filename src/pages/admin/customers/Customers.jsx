@@ -254,32 +254,33 @@ export default function Customers() {
 
   const statuses = ["All", "Active", "Inactive", "Prospect", "Blocked"];
 
-  const handleEdit = (customer) => {
-    navigate(`/admin/customers/${customer.id}`);
-  };
+const handleEdit = (id) => {
+  navigate(`/admin/customers/${id}`);
+};
 
-  const handleView = (customer) => {
-    navigate(`/admin/customers/${customer.id}/contacts`);
-  };
+const handleView = (customer) => {
+  const id = customer.id ?? customer; 
+  navigate(`/admin/customers/${id}/contacts`);
+};
 
-  // ✅ ADD handleDelete function
-  const handleDelete = async (customer) => {
-    if (!window.confirm(`Are you sure you want to delete ${customer.name}?`))
-      return;
 
-    try {
-      await dispatch(deleteCustomer(customer.id)).unwrap();
-      alert("Customer deleted successfully!");
-      // refresh table
-      dispatch(
-        adminGetAllCustomers({ page: 0, size: 10, search: searchQuery }),
-      );
-    } catch (err) {
-      alert(err || "Failed to delete customer");
-    } finally {
-      dispatch(resetDeleteCustomerState());
-    }
-  };
+const handleDelete = async (id) => {
+  if (!window.confirm("Are you sure you want to delete this customer?")) return;
+
+  try {
+    await dispatch(deleteCustomer(id)).unwrap();
+    showSuccess("Customer deleted successfully");
+
+    dispatch(
+      adminGetAllCustomers({ page: 0, size: 10, search: searchQuery })
+    );
+  } catch (err) {
+    showError(err || "Failed to delete customer");
+  } finally {
+    dispatch(resetDeleteCustomerState());
+  }
+};
+
 
   return (
     <div className="p-4">
