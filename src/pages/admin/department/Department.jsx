@@ -1,11 +1,10 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 import CommonForm from "../../../components/common/CommonForm";
 import CommonTable from "../../../components/common/CommonTable";
 import { deleteDepartment } from "../../../services/department/deleteDepartmentAPI";
-
 
 import {
   createDepartment,
@@ -19,6 +18,17 @@ export default function Department() {
   const { departments, isLoading, error } = useSelector(
     (state) => state.department
   );
+
+  // 👉 get logged in role from auth slice
+  const role = useSelector((state) => state.auth.role);
+
+  // 👉 convert role to url part: ADMIN -> admin, SUB_ADMIN -> sub-admin
+  const rolePath = role
+    ? role.toLowerCase().replace("_", "-")
+    : "admin"; // fallback
+
+  // 👉 used to reset the form after successful add
+  const [formKey, setFormKey] = useState(0);
 
   const departmentFields = [
     {
@@ -39,28 +49,30 @@ export default function Department() {
       .unwrap()
       .then(() => {
         dispatch(getAllDepartments()); // refresh list after create
+        setFormKey((prev) => prev + 1); // 👉 reset/clear the form
       });
   };
 
-  // Edit button handler
+  // 👉 Edit button handler with dynamic role in URL
   const handleEdit = (id) => {
-    navigate(`/admin/departments/${id}/edit`);
+    navigate(`/${rolePath}/departments/${id}/edit`);
   };
 
-// Delete button handler
-const handleDelete = (id) => {
-  if (window.confirm("Are you sure you want to delete this department?")) {
-    dispatch(deleteDepartment(id))
-      .unwrap()
-      .then(() => dispatch(getAllDepartments()))
-      .catch((err) => console.error(err));
-  }
-};
+  // 👉 Delete button handler
+  const handleDelete = (id) => {
+    if (window.confirm("Are you sure you want to delete this department?")) {
+      dispatch(deleteDepartment(id))
+        .unwrap()
+        .then(() => dispatch(getAllDepartments()))
+        .catch((err) => console.error(err));
+    }
+  };
 
   return (
     <div className="p-6 space-y-8">
       {/* Create Department Form */}
       <CommonForm
+        key={formKey}   // 👉 this makes inputs blank after successful add
         title="Create Department"
         fields={departmentFields}
         submitText="Add Department"
@@ -82,8 +94,8 @@ const handleDelete = (id) => {
         <CommonTable
           type="departments"
           data={departments || []}
-          onEdit={handleEdit}      // ✅ Add Edit button
-          onDelete={handleDelete}  // ✅ Add Delete button
+          onEdit={handleEdit}
+          onDelete={handleDelete}
         />
       </div>
     </div>

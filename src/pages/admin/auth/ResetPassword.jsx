@@ -19,7 +19,7 @@ export default function ResetPassword() {
     // Call API with token and new password
     console.log("Reset password with token:", token, password);
     alert("Password reset successful!");
-    navigate("/admin/login");
+    navigate("/login");
   };
 
   return (

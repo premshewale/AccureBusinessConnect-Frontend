@@ -2,7 +2,10 @@ import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import CommonForm from "../../../components/common/CommonForm";
-import { createNewTask, resetTaskState } from "../../../slices/tasks/tasksSlice";
+import {
+  createNewTask,
+  resetTaskState,
+} from "../../../slices/tasks/tasksSlice";
 import { showError, showSuccess } from "../../../utils/toast";
 
 export default function CreateTask() {
@@ -10,11 +13,23 @@ export default function CreateTask() {
   const navigate = useNavigate();
 
   const { loading, success, error } = useSelector((state) => state.tasks);
+  const { role } = useSelector((state) => state.auth.user);
+  const rolePath = role?.toLowerCase() || "admin"; // fallback to "admin"
 
   const fields = [
-    { name: "customerId", label: "Customer ID", type: "number", required: true },
+    {
+      name: "customerId",
+      label: "Customer ID",
+      type: "number",
+      required: true,
+    },
     { name: "title", label: "Task Title", type: "text", required: true },
-    { name: "assigneeId", label: "Assignee ID", type: "number", required: true },
+    {
+      name: "assigneeId",
+      label: "Assignee ID",
+      type: "number",
+      required: true,
+    },
     { name: "departmentId", label: "Department ID", type: "number" },
     { name: "dueDate", label: "Due Date", type: "date" },
   ];
@@ -45,7 +60,7 @@ export default function CreateTask() {
         assignee_id: Number(data.assigneeId),
         department_id: Number(data.departmentId) || null,
         due_date: data.dueDate ? new Date(data.dueDate).toISOString() : null,
-      })
+      }),
     );
   };
 
@@ -53,7 +68,7 @@ export default function CreateTask() {
     if (success) {
       showSuccess("Task created successfully!");
       dispatch(resetTaskState());
-      navigate("/admin/task");
+      navigate(`/${rolePath}/task`);
     }
   }, [success, dispatch, navigate]);
 

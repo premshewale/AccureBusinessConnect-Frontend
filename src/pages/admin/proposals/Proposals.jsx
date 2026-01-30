@@ -24,6 +24,9 @@ export default function Proposals() {
   const { proposals = [], loading } = useSelector(
     (state) => state.adminGetAllProposals,
   );
+  const { role } = useSelector((state) => state.auth.user);
+  const rolePath = role?.toLowerCase() || "admin"; // fallback to admin
+
   useEffect(() => {
     dispatch(adminGetAllProposals());
   }, [dispatch]);
@@ -174,9 +177,10 @@ export default function Proposals() {
   ];
 
   const statuses = ["All", "PENDING", "SENT", "ACCEPTED", "REJECTED"];
+  // Edit proposal
   const handleEdit = (proposal) => {
     const id = proposal?.id ?? proposal;
-    navigate(`/admin/proposals/${id}`);
+    navigate(`/${rolePath}/proposals/${id}`); // ✅ dynamic
   };
 
   const handleDelete = async (proposal) => {
@@ -196,8 +200,9 @@ export default function Proposals() {
             Manage all customer proposals in one place
           </p>
         </div>
+        // Create proposal
         <button
-          onClick={() => navigate("/admin/create-proposal")}
+          onClick={() => navigate(`/${rolePath}/create-proposal`)} // ✅ dynamic
           className="px-4 py-2 bg-cyan text-white rounded-lg shadow"
         >
           + Create Proposal

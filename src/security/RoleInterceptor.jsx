@@ -14,7 +14,7 @@ const RoleInterceptor = ({ allowedRoles, children }) => {
 
   // ❌ Not logged in
   if (!isAuthenticated || !user) {
-    return <Navigate to="/admin/login" replace />;
+    return <Navigate to="/login" replace />;
   }
 
   // ❌ Role not allowed

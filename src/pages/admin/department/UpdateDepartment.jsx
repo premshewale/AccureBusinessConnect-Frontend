@@ -17,10 +17,20 @@ export default function UpdateDepartment() {
     (state) => state.department
   );
 
+  // 👉 get current logged in role
+  const role = useSelector((state) => state.auth.role);
+
+  // 👉 make url-friendly role part
+  const rolePath = role
+    ? role.toLowerCase().replace("_", "-")
+    : "admin"; // fallback
+
   const [editedData, setEditedData] = useState({ name: "" });
 
   // Find department by ID
-  const department = departments.find((dept) => String(dept.id) === String(id));
+  const department = departments.find(
+    (dept) => String(dept.id) === String(id)
+  );
 
   // Fetch all departments if not loaded
   useEffect(() => {
@@ -52,21 +62,22 @@ export default function UpdateDepartment() {
   ];
 
   const handleSave = () => {
-    // Log payload for debugging
     console.log("Updating department:", id, editedData);
 
     dispatch(updateDepartment({ id, payload: editedData }))
       .unwrap()
       .then(() => {
         dispatch(clearDepartmentState());
-        navigate("/admin/department");
+        // 👉 dynamic role-based redirect
+        navigate(`/${rolePath}/department`);
       })
       .catch((err) => {
         console.error("Update failed:", err);
       });
   };
 
-  const handleBack = () => navigate("/admin/department");
+  // 👉 dynamic back navigation
+  const handleBack = () => navigate(`/${rolePath}/department`);
 
   if (!department && isLoading) {
     return <p className="p-6 text-gray-500">Loading department...</p>;

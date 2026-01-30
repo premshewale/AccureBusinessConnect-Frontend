@@ -62,360 +62,371 @@ import Invoices from "../pages/admin/invoices/Invoices.jsx";
 import InvoiceDetails from "../pages/admin/invoices/InvoiceDetails.jsx";
 import CreateInvoice from "../pages/admin/invoices/CreateInvoice.jsx";
 
+/* ================= COMMON CHILD ROUTES (UNCHANGED) ================= */
+
+const adminChildren = [
+  { path: "dashboard", element: <Dashboard /> },
+
+  {
+    path: "departments/:id/edit",
+    element: (
+      <RoleInterceptor allowedRoles={["ADMIN"]}>
+        <UpdateDepartment />
+      </RoleInterceptor>
+    ),
+  },
+
+  {
+    path: "users",
+    element: (
+      <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN"]}>
+        <Users />
+      </RoleInterceptor>
+    ),
+  },
+  {
+    path: "users/:id",
+    element: (
+      <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN"]}>
+        <UserDetails />
+      </RoleInterceptor>
+    ),
+  },
+  {
+    path: "create-user",
+    element: (
+      <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN"]}>
+        <CreateUser />
+      </RoleInterceptor>
+    ),
+  },
+
+  {
+    path: "reports",
+    element: (
+      <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN"]}>
+        <Reports />
+      </RoleInterceptor>
+    ),
+  },
+  {
+    path: "reports/leads",
+    element: (
+      <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN"]}>
+        <LeadsReports />
+      </RoleInterceptor>
+    ),
+  },
+  {
+    path: "reports/customers",
+    element: (
+      <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN"]}>
+        <CustomerReports />
+      </RoleInterceptor>
+    ),
+  },
+
+  {
+    path: "department",
+    element: (
+      <RoleInterceptor allowedRoles={["ADMIN"]}>
+        <Department />
+      </RoleInterceptor>
+    ),
+  },
+
+  {
+    path: "staff",
+    element: (
+      <RoleInterceptor allowedRoles={["SUB_ADMIN"]}>
+        <Staff />
+      </RoleInterceptor>
+    ),
+  },
+  {
+    path: "create-staff",
+    element: (
+      <RoleInterceptor allowedRoles={["SUB_ADMIN"]}>
+        <CreateStaff />
+      </RoleInterceptor>
+    ),
+  },
+
+  {
+    path: "leads",
+    element: (
+      <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
+        <Leads />
+      </RoleInterceptor>
+    ),
+  },
+  {
+    path: "lead-details/:id",
+    element: (
+      <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
+        <LeadDetailsPage />
+      </RoleInterceptor>
+    ),
+  },
+  {
+    path: "create-lead",
+    element: (
+      <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
+        <CreateLead />
+      </RoleInterceptor>
+    ),
+  },
+
+  {
+    path: "customers",
+    element: (
+      <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
+        <Customers />
+      </RoleInterceptor>
+    ),
+  },
+  {
+    path: "customers/:id",
+    element: (
+      <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
+        <CustomerDetails />
+      </RoleInterceptor>
+    ),
+  },
+  {
+    path: "create-customer",
+    element: (
+      <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
+        <CreateCustomer />
+      </RoleInterceptor>
+    ),
+  },
+
+  {
+    path: "invoices",
+    element: (
+      <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN"]}>
+        <Invoices />
+      </RoleInterceptor>
+    ),
+  },
+  {
+    path: "invoices/:id",
+    element: (
+      <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN"]}>
+        <InvoiceDetails />
+      </RoleInterceptor>
+    ),
+  },
+  {
+    path: "create-invoice",
+    element: (
+      <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN"]}>
+        <CreateInvoice />
+      </RoleInterceptor>
+    ),
+  },
+
+  {
+    path: "customers/:customerId/contacts",
+    element: (
+      <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
+        <Contacts />
+      </RoleInterceptor>
+    ),
+  },
+  {
+    path: "contacts/:id",
+    element: (
+      <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
+        <ContactDetails />
+      </RoleInterceptor>
+    ),
+  },
+  {
+    path: "create-contact/:customerId",
+    element: (
+      <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
+        <CreateContact />
+      </RoleInterceptor>
+    ),
+  },
+
+  {
+    path: "task",
+    element: (
+      <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
+        <Task />
+      </RoleInterceptor>
+    ),
+  },
+  {
+    path: "create-task",
+    element: (
+      <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
+        <CreateTask />
+      </RoleInterceptor>
+    ),
+  },
+  {
+    path: "task/:id",
+    element: (
+      <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
+        <TaskDetails />
+      </RoleInterceptor>
+    ),
+  },
+
+  {
+    path: "proposals",
+    element: (
+      <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
+        <Proposals />
+      </RoleInterceptor>
+    ),
+  },
+  {
+    path: "proposals/:id",
+    element: (
+      <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
+        <ProposalDetails />
+      </RoleInterceptor>
+    ),
+  },
+  {
+    path: "create-proposal",
+    element: (
+      <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
+        <CreateProposal />
+      </RoleInterceptor>
+    ),
+  },
+
+  {
+    path: "ticket",
+    element: (
+      <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
+        <Tickets />
+      </RoleInterceptor>
+    ),
+  },
+  {
+    path: "create-ticket",
+    element: (
+      <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
+        <CreateTicket />
+      </RoleInterceptor>
+    ),
+  },
+  {
+    path: "edit-ticket/:id",
+    element: (
+      <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
+        <TicketDetails />
+      </RoleInterceptor>
+    ),
+  },
+
+  {
+    path: "profile",
+    element: (
+      <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
+        <Profile />
+      </RoleInterceptor>
+    ),
+  },
+
+  {
+    path: "expenses",
+    element: (
+      <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
+        <Expenses />
+      </RoleInterceptor>
+    ),
+  },
+  {
+    path: "create-expense",
+    element: (
+      <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
+        <CreateExpense />
+      </RoleInterceptor>
+    ),
+  },
+  {
+    path: "expenses/:id",
+    element: (
+      <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
+        <ExpenseDetails />
+      </RoleInterceptor>
+    ),
+  },
+
+  {
+    path: "payment",
+    element: (
+      <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
+        <Payment />
+      </RoleInterceptor>
+    ),
+  },
+  {
+    path: "payments/:id",
+    element: (
+      <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
+        <PaymentDetails />
+      </RoleInterceptor>
+    ),
+  },
+  {
+    path: "create-payment",
+    element: (
+      <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
+        <CreatePayment />
+      </RoleInterceptor>
+    ),
+  },
+];
+
+/* ================= FINAL ROUTER ================= */
+
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Navigate to="/admin/login" replace />,
+    element: <Navigate to="/login" replace />,
     errorElement: <ErrorPage />,
   },
-  { path: "/admin/login", element: <Login /> },
-  { path: "/admin/forgot-password", element: <ForgotPassword /> },
-  { path: "/admin/reset-password", element: <ResetPassword /> },
+
+  { path: "/login", element: <Login /> },
+  { path: "/forgot-password", element: <ForgotPassword /> },
+  { path: "/reset-password", element: <ResetPassword /> },
   { path: "/unauthorized", element: <Unauthorized /> },
 
-  // Protected Admin Layout
   {
     path: "/admin",
     element: (
-      <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
+      <RoleInterceptor allowedRoles={["ADMIN"]}>
         <AdminLayout />
       </RoleInterceptor>
     ),
-    errorElement: <ErrorPage />,
-    children: [
-      { path: "dashboard", element: <Dashboard /> },
-
-      // -------- Admin Only --------
-      {
-        path: "departments/:id/edit", // plural "departments"
-        element: (
-          <RoleInterceptor allowedRoles={["ADMIN"]}>
-            <UpdateDepartment />
-          </RoleInterceptor>
-        ),
-      },
-
-      {
-        path: "users",
-        element: (
-          <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN"]}>
-            <Users />
-          </RoleInterceptor>
-        ),
-      },
-      {
-        path: "users/:id",
-        element: (
-          <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN"]}>
-            <UserDetails />
-          </RoleInterceptor>
-        ),
-      },
-
-      {
-        path: "create-user",
-        element: (
-          <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN"]}>
-            <CreateUser />
-          </RoleInterceptor>
-        ),
-      },
-
-      {
-        path: "reports",
-        element: (
-          <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN"]}>
-            <Reports />
-          </RoleInterceptor>
-        ),
-      },
-      {
-        path: "reports/leads",
-        element: (
-          <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN"]}>
-            <LeadsReports />
-          </RoleInterceptor>
-        ),
-      },
-      {
-        path: "reports/customers",
-        element: (
-          <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN"]}>
-            <CustomerReports />
-          </RoleInterceptor>
-        ),
-      },
-
-      {
-        path: "department",
-        element: (
-          <RoleInterceptor allowedRoles={["ADMIN"]}>
-            <Department />
-          </RoleInterceptor>
-        ),
-      },
-
-      // -------- SubAdmin Only --------
-      {
-        path: "staff",
-        element: (
-          <RoleInterceptor allowedRoles={["SUB_ADMIN"]}>
-            <Staff />
-          </RoleInterceptor>
-        ),
-      },
-      {
-        path: "create-staff",
-        element: (
-          <RoleInterceptor allowedRoles={["SUB_ADMIN"]}>
-            <CreateStaff />
-          </RoleInterceptor>
-        ),
-      },
-
-      // -------- Admin + SubAdmin --------
-      {
-        path: "leads",
-        element: (
-          <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
-            <Leads />
-          </RoleInterceptor>
-        ),
-      },
-      {
-        path: "lead-details/:id",
-        element: (
-          <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
-            <LeadDetailsPage />
-          </RoleInterceptor>
-        ),
-      },
-      {
-        path: "create-lead",
-        element: (
-          <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
-            <CreateLead />
-          </RoleInterceptor>
-        ),
-      },
-      {
-        path: "customers/:id",
-        element: (
-          <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
-            <CustomerDetails />
-          </RoleInterceptor>
-        ),
-      },
-      {
-        path: "customers",
-        element: (
-          <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
-            <Customers />
-          </RoleInterceptor>
-        ),
-      },
-      {
-        path: "create-customer",
-        element: (
-          <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
-            <CreateCustomer />
-          </RoleInterceptor>
-        ),
-      },
-
-      {
-        path: "invoices",
-        element: (
-          <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN"]}>
-            <Invoices />
-          </RoleInterceptor>
-        ),
-      },
-      {
-        path: "invoices/:id",
-        element: (
-          <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN"]}>
-            <InvoiceDetails />
-          </RoleInterceptor>
-        ),
-      },
-      {
-        path: "create-invoice",
-        element: (
-          <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN"]}>
-            <CreateInvoice />
-          </RoleInterceptor>
-        ),
-      },
-
-      // -------- All Roles (ADMIN, SUB_ADMIN, STAFF) --------
-
-      // -------- Contacts --------
-      {
-        path: "customers/:customerId/contacts",
-        element: (
-          <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
-            <Contacts />
-          </RoleInterceptor>
-        ),
-      },
-      {
-        path: "contacts/:id",
-        element: (
-          <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
-            <ContactDetails />
-          </RoleInterceptor>
-        ),
-      },
-      {
-        path: "create-contact/:customerId",
-        element: (
-          <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
-            <CreateContact />
-          </RoleInterceptor>
-        ),
-      },
-
-      {
-        path: "task",
-        element: (
-          <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
-            <Task />
-          </RoleInterceptor>
-        ),
-      },
-      {
-        path: "create-task",
-        element: (
-          <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
-            <CreateTask />
-          </RoleInterceptor>
-        ),
-      },
-      // -------- Tasks --------
-      {
-        path: "task/:id", // dynamic route for task details
-        element: (
-          <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
-            <TaskDetails />
-          </RoleInterceptor>
-        ),
-      },
-
-      {
-        path: "proposals",
-        element: (
-          <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
-            <Proposals />
-          </RoleInterceptor>
-        ),
-      },
-      {
-        path: "proposals/:id",
-        element: (
-          <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
-            <ProposalDetails />
-          </RoleInterceptor>
-        ),
-      },
-      {
-        path: "create-proposal",
-        element: (
-          <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
-            <CreateProposal />
-          </RoleInterceptor>
-        ),
-      },
-
-      {
-        path: "ticket",
-        element: (
-          <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
-            <Tickets />
-          </RoleInterceptor>
-        ),
-      },
-      {
-        path: "create-ticket",
-        element: (
-          <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
-            <CreateTicket />
-          </RoleInterceptor>
-        ),
-      },
-      {
-        path: "edit-ticket/:id", // <-- new route
-        element: (
-          <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
-            <TicketDetails />
-          </RoleInterceptor>
-        ),
-      },
-
-      {
-        path: "profile",
-        element: (
-          <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
-            <Profile />
-          </RoleInterceptor>
-        ),
-      },
-
-      {
-        path: "expenses",
-        element: (
-          <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
-            <Expenses />
-          </RoleInterceptor>
-        ),
-      },
-
-      {
-        path: "create-expense",
-        element: (
-          <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
-            <CreateExpense />
-          </RoleInterceptor>
-        ),
-      },
-
-      {
-        path: "expenses/:id",
-        element: (
-          <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
-            <ExpenseDetails />
-          </RoleInterceptor>
-        ),
-      },
-
-      // Payment
-
-      // Payments
-      {
-        path: "payment",
-        element: (
-          <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
-            <Payment />
-          </RoleInterceptor>
-        ),
-      },
-      {
-        path: "payments/:id",
-        element: (
-          <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
-            <PaymentDetails />
-          </RoleInterceptor>
-        ),
-      },
-      {
-        path: "create-payment",
-        element: (
-          <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
-            <CreatePayment />
-          </RoleInterceptor>
-        ),
-      },
-    ],
+    children: adminChildren,
+  },
+  {
+    path: "/sub-admin",
+    element: (
+      <RoleInterceptor allowedRoles={["SUB_ADMIN"]}>
+        <AdminLayout />
+      </RoleInterceptor>
+    ),
+    children: adminChildren,
+  },
+  {
+    path: "/staff",
+    element: (
+      <RoleInterceptor allowedRoles={["STAFF"]}>
+        <AdminLayout />
+      </RoleInterceptor>
+    ),
+    children: adminChildren,
   },
 ]);
 

@@ -13,10 +13,10 @@ export const login = createAsyncThunk(
 
 
       const role = user.roleName; 
-const accessTokenKey = `${role}AccessToken`; 
+const accessTokenKey = `${role}AccessToken`;
 
       const refreshTokenKey = `${role}RefreshToken`;
-
+      localStorage.setItem("Role", role);
       localStorage.setItem(accessTokenKey, accessToken);
       localStorage.setItem(refreshTokenKey, refreshToken);
 

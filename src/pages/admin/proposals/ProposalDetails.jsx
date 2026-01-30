@@ -11,12 +11,7 @@ import { adminUpdateProposalApi } from "../../../services/proposal/adminUpdatePr
 /* =======================
    SAFE SELECT OPTIONS
 ======================= */
-const PROPOSAL_STATUS_OPTIONS = [
-  "DRAFT",
-  "SENT",
-  "APPROVED",
-  "REJECTED",
-];
+const PROPOSAL_STATUS_OPTIONS = ["DRAFT", "SENT", "APPROVED", "REJECTED"];
 
 export default function ProposalDetails() {
   const { id } = useParams();
@@ -24,8 +19,10 @@ export default function ProposalDetails() {
   const dispatch = useDispatch();
 
   const { loading, proposal, error } = useSelector(
-    (state) => state.adminGetProposalById
+    (state) => state.adminGetProposalById,
   );
+  const { role } = useSelector((state) => state.auth.user);
+  const rolePath = role?.toLowerCase() || "admin"; // fallback to "admin"
 
   const [isEditMode, setIsEditMode] = useState(false);
   const [editedData, setEditedData] = useState({});
@@ -124,8 +121,7 @@ export default function ProposalDetails() {
       name: "createdAt",
       label: "Created At",
       readOnly: true,
-      format: (val) =>
-        val ? new Date(val).toLocaleString("en-IN") : "N/A",
+      format: (val) => (val ? new Date(val).toLocaleString("en-IN") : "N/A"),
     },
   ];
 
@@ -137,7 +133,7 @@ export default function ProposalDetails() {
   proposalFields.forEach((field) => {
     if (field.format && formattedProposal[field.name]) {
       formattedProposal[field.name] = field.format(
-        formattedProposal[field.name]
+        formattedProposal[field.name],
       );
     }
   });
@@ -163,18 +159,14 @@ export default function ProposalDetails() {
             deadline: editedData.deadline,
             status: editedData.status,
           },
-        })
+        }),
       ).unwrap();
 
       alert("Proposal updated successfully");
       dispatch(adminGetProposalByIdApi(id));
       setIsEditMode(false);
     } catch (err) {
-      alert(
-        typeof err === "string"
-          ? err
-          : "Failed to update proposal"
-      );
+      alert(typeof err === "string" ? err : "Failed to update proposal");
     }
   };
 
@@ -184,8 +176,8 @@ export default function ProposalDetails() {
   return (
     <div className="p-6 md:p-12">
       <button
+        onClick={() => navigate(`/${rolePath}/proposals`)} // ✅ dynamic
         className="mb-6 px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition"
-        onClick={() => navigate(-1)}
       >
         ← Back
       </button>

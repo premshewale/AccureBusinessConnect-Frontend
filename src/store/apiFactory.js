@@ -59,7 +59,7 @@ const api = () => {
               return apiInstance(original);
             } catch {
               localStorage.clear();
-              window.location.href = "/admin/login";
+              window.location.href = "/login";
             }
           }
         }
