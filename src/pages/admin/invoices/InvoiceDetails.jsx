@@ -14,9 +14,10 @@ export default function InvoiceDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const role = useSelector((state) => state.auth.role);
+  const rolePath = role?.toLowerCase().replace("_", "-") || "admin";
 
-const { invoice, loading } = useSelector((state) => state.invoices);
-
+  const { invoice, loading } = useSelector((state) => state.invoices);
 
   const [editedData, setEditedData] = useState({});
 
@@ -39,19 +40,21 @@ const { invoice, loading } = useSelector((state) => state.invoices);
   // 🔹 Save updated invoice
   const handleSave = () => {
     dispatch(
-      updateInvoice({
+      adminUpdateExpense({
         id,
         payload: editedData,
-      })
+      }),
     ).then((res) => {
       if (res.meta.requestStatus === "fulfilled") {
-        navigate("/admin/invoices");
+        // Navigate dynamically based on role
+        navigate(`/${rolePath}/expenses`);
       }
     });
   };
 
   if (loading) return <div className="p-4">Loading invoice details...</div>;
-  if (!invoice) return <div className="p-4 text-red-500">Invoice not found</div>;
+  if (!invoice)
+    return <div className="p-4 text-red-500">Invoice not found</div>;
 
   return (
     <CommonDetails
@@ -75,14 +78,7 @@ const { invoice, loading } = useSelector((state) => state.invoices);
           name: "status",
           label: "Status",
           type: "select",
-          options: [
-            "DRAFT",
-            "SENT",
-            "PAID",
-            "UNPAID",
-            "OVERDUE",
-            "CANCELLED",
-          ],
+          options: ["DRAFT", "SENT", "PAID", "UNPAID", "OVERDUE", "CANCELLED"],
         },
 
         {
@@ -107,7 +103,7 @@ const { invoice, loading } = useSelector((state) => state.invoices);
       setEditedData={setEditedData}
       onSave={handleSave}
       loading={loading}
-      onBack={() => navigate("/admin/invoices")}
+      onBack={() => navigate(`/${rolePath}/invoices`)}
     />
   );
 }

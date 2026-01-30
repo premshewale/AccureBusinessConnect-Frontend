@@ -14,6 +14,12 @@ export default function CreateLead() {
     (state) => state.adminCreateLead
   );
 
+  // ✅ get role from auth
+  const { role } = useSelector((state) => state.auth);
+
+  // ✅ dynamic role based path (admin / sub-admin / staff)
+  const rolePath = role ? role.toLowerCase().replace("_", "-") : "admin";
+
   const fields = [
     { type: "text", label: "Name", name: "name", placeholder: "Enter name" },
     { type: "email", label: "Email", name: "email", placeholder: "Enter email" },
@@ -46,7 +52,6 @@ export default function CreateLead() {
     { type: "number", label: "Department ID", name: "departmentId" },
   ];
 
-  // ✅ validations (added only)
   const validateForm = (data) => {
     if (!data.name || data.name.trim().length < 3) {
       showError("Name must be at least 3 characters");
@@ -96,14 +101,16 @@ export default function CreateLead() {
     if (success) {
       showSuccess("Lead created successfully");
       dispatch(resetAdminCreateLead());
-      navigate("/admin/leads");
+      navigate(`/${rolePath}/leads`);
     }
-  }, [success, dispatch, navigate]);
+  }, [success, dispatch, navigate, rolePath]);
 
   useEffect(() => {
     if (error) {
       showError(
-        typeof error === "string" ? error : error.message || "Something went wrong"
+        typeof error === "string"
+          ? error
+          : error.message || "Something went wrong"
       );
     }
   }, [error]);

@@ -4,18 +4,21 @@ import { useNavigate } from "react-router-dom";
 import CommonForm from "../../../components/common/CommonForm";
 import { adminCreateUser } from "../../../services/user/adminCreateUserApi";
 import { resetAdminCreateUser } from "../../../slices/user/adminCreateUserSlice";
-import { showError, showSuccess } from "../../../utils/toast"; 
+import { showError, showSuccess } from "../../../utils/toast";
 
 export default function CreateUser() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const { loading, success, error } = useSelector(
-    (state) => state.adminCreateUser
+    (state) => state.adminCreateUser,
   );
 
   // ✅ get logged-in user role
   const { role } = useSelector((state) => state.auth);
+
+  // 👉 convert role to url part: ADMIN -> admin, SUB_ADMIN -> sub-admin
+  const rolePath = role ? role.toLowerCase().replace("_", "-") : "admin"; // fallback
 
   // ✅ role options based on logged-in user
   const roleOptions =
@@ -24,9 +27,7 @@ export default function CreateUser() {
           { label: "Sub Admin", value: "SUB_ADMIN" },
           { label: "Staff", value: "STAFF" },
         ]
-      : [
-          { label: "Staff", value: "STAFF" },
-        ];
+      : [{ label: "Staff", value: "STAFF" }];
 
   const fields = [
     { type: "text", label: "Name", name: "name" },
@@ -94,14 +95,16 @@ export default function CreateUser() {
     if (success) {
       showSuccess("User created successfully");
       dispatch(resetAdminCreateUser());
-      navigate("/admin/users");
+      navigate(`/${rolePath}/users`);
     }
   }, [success, dispatch, navigate]);
 
   useEffect(() => {
     if (error) {
       showError(
-        typeof error === "string" ? error : error.message || "Something went wrong"
+        typeof error === "string"
+          ? error
+          : error.message || "Something went wrong",
       );
     }
   }, [error]);
@@ -115,11 +118,7 @@ export default function CreateUser() {
         </p>
       )}
 
-      <CommonForm
-        title="Create User"
-        fields={fields}
-        onSubmit={handleSubmit}
-      />
+      <CommonForm title="Create User" fields={fields} onSubmit={handleSubmit} />
     </>
   );
 }

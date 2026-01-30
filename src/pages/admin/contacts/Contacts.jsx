@@ -3,34 +3,29 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { RxDashboard, RxTable } from "react-icons/rx";
 import { IoSearchSharp } from "react-icons/io5";
-
 import Kanban from "../../../components/common/Kanban.jsx";
 import CommonTable from "../../../components/common/CommonTable.jsx";
-
 import { adminGetContacts } from "../../../services/contact/adminGetContactsApi";
 import {
   adminAddContactToGoogle,
   adminRemoveContactFromGoogle,
 } from "../../../services/contact/adminAddContactToggleApi";
-
 import { showSuccess, showError } from "../../../utils/toast";
 
 export default function Contacts() {
   const [activeTab, setActiveTab] = useState("table");
   const [filter, setFilter] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
-
+  const role = useSelector((state) => state.auth.role);
+  const rolePath = role?.toLowerCase().replace("_", "-");
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { customerId } = useParams();
-
   const {
     contacts = [],
     loading,
     error,
   } = useSelector((state) => state.adminGetContacts);
-
-  /* ✅ LOCAL TOGGLE STATE (SOURCE OF TRUTH) */
   const [googleToggles, setGoogleToggles] = useState({});
 
   useEffect(() => {
@@ -95,10 +90,11 @@ export default function Contacts() {
     }));
 
   const handleEdit = (id) => {
-    navigate(`/admin/contacts/${id}`);
+    navigate(`/${rolePath}/contacts/${id}`);
   };
 
   /* ✅ FIXED GOOGLE TOGGLE HANDLER */
+
   const handleGoogleToggle = async (id, newValue) => {
     // Optimistic update
     setGoogleToggles((prev) => ({
@@ -134,7 +130,7 @@ export default function Contacts() {
         </div>
 
         <button
-          onClick={() => navigate(`/admin/create-contact/${customerId}`)}
+          onClick={() => navigate(`/${rolePath}/create-contact/${customerId}`)}
           className="px-4 py-2 bg-cyan text-white rounded-lg shadow"
         >
           + New Contact

@@ -9,10 +9,21 @@ import {
 } from "react-icons/fi";
 
 export default function ExpensesStats({ stats }) {
+  // safe defaults
+  const safeStats = {
+    totalAmount: 0,
+    avgAmount: 0,
+    approved: 0,
+    pending: 0,
+    rejected: 0,
+    total: 0,
+    ...stats, // overwrite with actual stats if available
+  };
+
   const cards = [
     {
       title: "Total Expenses",
-      value: `₹${stats.totalAmount.toLocaleString("en-IN")}`,
+      value: `₹${safeStats.totalAmount.toLocaleString("en-IN")}`,
       icon: <FiDollarSign size={24} className="text-white" />,
       color: "bg-blue-500",
       trend: "+15%",
@@ -20,7 +31,7 @@ export default function ExpensesStats({ stats }) {
     },
     {
       title: "Approved",
-      value: stats.approved,
+      value: safeStats.approved,
       icon: <FiCheckCircle size={24} className="text-white" />,
       color: "bg-green-500",
       trend: "+8%",
@@ -28,7 +39,7 @@ export default function ExpensesStats({ stats }) {
     },
     {
       title: "Pending Approval",
-      value: stats.pending,
+      value: safeStats.pending,
       icon: <FiClock size={24} className="text-white" />,
       color: "bg-yellow-500",
       trend: "-3%",
@@ -36,7 +47,7 @@ export default function ExpensesStats({ stats }) {
     },
     {
       title: "Rejected",
-      value: stats.rejected,
+      value: safeStats.rejected,
       icon: <FiXCircle size={24} className="text-white" />,
       color: "bg-red-500",
       trend: "+2%",
@@ -44,7 +55,7 @@ export default function ExpensesStats({ stats }) {
     },
     {
       title: "Average Expense",
-      value: `₹${stats.avgAmount.toLocaleString("en-IN")}`,
+      value: `₹${safeStats.avgAmount.toLocaleString("en-IN")}`,
       icon: <FiTrendingUp size={24} className="text-white" />,
       color: "bg-purple-500",
       trend: "+5%",
@@ -52,7 +63,7 @@ export default function ExpensesStats({ stats }) {
     },
     {
       title: "Total Count",
-      value: stats.total,
+      value: safeStats.total,
       icon: <FiCalendar size={24} className="text-white" />,
       color: "bg-cyan",
       trend: "+12%",
@@ -95,7 +106,7 @@ export default function ExpensesStats({ stats }) {
                 style={{
                   width: `${
                     typeof card.value === "number"
-                      ? Math.min((card.value / (stats.total || 1)) * 100, 100)
+                      ? Math.min((card.value / (safeStats.total || 1)) * 100, 100)
                       : 100
                   }%`,
                 }}

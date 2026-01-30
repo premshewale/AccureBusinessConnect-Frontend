@@ -3,8 +3,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 
 import CommonDetails from "../../../components/common/CommonDetails";
-import { fetchTaskById, updateExistingTask, resetTaskState } from "../../../slices/tasks/tasksSlice";
-
+import {
+  fetchTaskById,
+  updateExistingTask,
+  resetTaskState,
+} from "../../../slices/tasks/tasksSlice";
 
 export default function TaskDetails() {
   const { id } = useParams();
@@ -12,6 +15,8 @@ export default function TaskDetails() {
   const dispatch = useDispatch();
 
   const { task, loading, error } = useSelector((state) => state.tasks);
+  const { role } = useSelector((state) => state.auth.user);
+  const rolePath = role?.toLowerCase() || "admin"; // fallback to "admin"
 
   const [editedData, setEditedData] = useState({});
   const [updating, setUpdating] = useState(false);
@@ -36,7 +41,7 @@ export default function TaskDetails() {
     dispatch(updateExistingTask({ id, payload: editedData }))
       .then((res) => {
         if (res.meta.requestStatus === "fulfilled") {
-          navigate("/admin/task"); // go back to task list
+          navigate(`/${rolePath}/task`); // dynamic based on role
         }
       })
       .finally(() => setUpdating(false));
@@ -68,7 +73,7 @@ export default function TaskDetails() {
       setEditedData={setEditedData}
       onSave={handleSave}
       loading={updating}
-      onBack={() => navigate("/admin/task")}
+      onBack={() => navigate(`/${rolePath}/task`)}
     />
   );
 }

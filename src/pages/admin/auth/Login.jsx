@@ -13,9 +13,9 @@ import LoginBg from "../../../assets/images/LoginBg.png";
 export default function Login() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { isLoading, error, isAuthenticated, user } = useSelector(
-    (state) => state.auth
-  );
+ const { isLoading, error, isAuthenticated, user, role } = useSelector(
+  (state) => state.auth
+);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -27,15 +27,12 @@ export default function Login() {
   }, [dispatch]);
 
   // Auto-redirect if authenticated (runs on mount AND when state changes)
-  useEffect(() => {
-    if (isAuthenticated && user?.roleName) {
-      // All roles go to same  
-
-      
-      // board per your router
-      navigate("/admin/dashboard", { replace: true }); // replace: true prevents history stack buildup
-    }
-  }, [isAuthenticated, user?.roleName, navigate]); // Proper deps: re-runs only on changes
+ useEffect(() => {
+  if (isAuthenticated && role) {
+    const rolePath = role.toLowerCase().replace("_", "-");
+    navigate(`/${rolePath}/dashboard`, { replace: true });
+  }
+}, [isAuthenticated, role, navigate]);
 
   // Early return if already authenticated (prevents form render)
   if (isAuthenticated && user?.roleName) {
@@ -164,7 +161,7 @@ export default function Login() {
 
           <span
             className="text-white text-sm text-right ml-auto block cursor-pointer underline mt-2"
-            onClick={() => navigate("/admin/forgot-password")}
+            onClick={() => navigate("/forgot-password")}
           >
             Forgot/Reset Password?
           </span>

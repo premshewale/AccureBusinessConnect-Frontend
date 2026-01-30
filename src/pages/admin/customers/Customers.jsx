@@ -254,33 +254,35 @@ export default function Customers() {
 
   const statuses = ["All", "Active", "Inactive", "Prospect", "Blocked"];
 
-const handleEdit = (id) => {
-  navigate(`/admin/customers/${id}`);
-};
+  const role = useSelector((state) => state.auth.role);
+  const rolePath = role?.toLowerCase().replace("_", "-");
 
-const handleView = (customer) => {
-  const id = customer.id ?? customer; 
-  navigate(`/admin/customers/${id}/contacts`);
-};
+  const handleEdit = (id) => {
+    navigate(`/${rolePath}/customers/${id}`);
+  };
 
+  const handleView = (customer) => {
+    const id = customer.id ?? customer;
+    navigate(`/${rolePath}/customers/${id}/contacts`);
+  };
 
-const handleDelete = async (id) => {
-  if (!window.confirm("Are you sure you want to delete this customer?")) return;
+  const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this customer?"))
+      return;
 
-  try {
-    await dispatch(deleteCustomer(id)).unwrap();
-    showSuccess("Customer deleted successfully");
+    try {
+      await dispatch(deleteCustomer(id)).unwrap();
+      showSuccess("Customer deleted successfully");
 
-    dispatch(
-      adminGetAllCustomers({ page: 0, size: 10, search: searchQuery })
-    );
-  } catch (err) {
-    showError(err || "Failed to delete customer");
-  } finally {
-    dispatch(resetDeleteCustomerState());
-  }
-};
-
+      dispatch(
+        adminGetAllCustomers({ page: 0, size: 10, search: searchQuery }),
+      );
+    } catch (err) {
+      showError(err || "Failed to delete customer");
+    } finally {
+      dispatch(resetDeleteCustomerState());
+    }
+  };
 
   return (
     <div className="p-4">
@@ -293,15 +295,12 @@ const handleDelete = async (id) => {
           </p>
         </div>
         <button
-          onClick={() => navigate("/admin/create-customer")}
+          onClick={() => navigate(`/${rolePath}/create-customer`)}
           className="px-4 py-2 bg-cyan text-white rounded-lg shadow hover:bg-cyan-700 transition-colors flex items-center gap-2"
         >
           <span>+</span> Add Customer
         </button>
       </div>
-
-      {/* Statistics Cards */}
-      {/* <CustomerStats stats={customerStats} /> */}
 
       {/* Actions Bar */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 p-4 bg-white rounded-lg shadow-sm border">

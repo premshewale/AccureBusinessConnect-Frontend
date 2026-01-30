@@ -4,9 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 
 import CommonDetails from "../../../components/common/CommonDetails.jsx";
 
-import {
-  CUSTOMER_STATUS_OPTIONS,
-} from "../../../constants/customerEnums.js";
+import { CUSTOMER_STATUS_OPTIONS } from "../../../constants/customerEnums.js";
 
 import { adminGetCustomerById } from "../../../services/customers/adminGetCustomerByIdApi";
 import { resetCustomerDetails } from "../../../slices/customers/adminGetCustomerByIdSlice";
@@ -18,8 +16,10 @@ export default function CustomerDetails() {
   const dispatch = useDispatch();
 
   const { loading, customer, error } = useSelector(
-    (state) => state.adminGetCustomerById
+    (state) => state.adminGetCustomerById,
   );
+  const role = useSelector((state) => state.auth.role);
+  const rolePath = role?.toLowerCase().replace("_", "-");
 
   const [isEditMode, setIsEditMode] = useState(false);
   const [editedData, setEditedData] = useState({});
@@ -66,8 +66,7 @@ export default function CustomerDetails() {
       </p>
     );
 
-  if (error)
-    return <p className="mt-6 text-red-500 text-center">{error}</p>;
+  if (error) return <p className="mt-6 text-red-500 text-center">{error}</p>;
 
   if (!customer) return null;
 
@@ -80,7 +79,7 @@ export default function CustomerDetails() {
     { name: "email", label: "Email" },
     { name: "phone", label: "Phone" },
     { name: "address", label: "Address" },
-    {name: "industry",label: "Industry"},
+    { name: "industry", label: "Industry" },
     {
       name: "status",
       label: "Status",
@@ -111,15 +110,13 @@ export default function CustomerDetails() {
       name: "createdAt",
       label: "Created At",
       readOnly: true,
-      format: (val) =>
-        val ? new Date(val).toLocaleString("en-IN") : "N/A",
+      format: (val) => (val ? new Date(val).toLocaleString("en-IN") : "N/A"),
     },
     {
       name: "updatedAt",
       label: "Last Updated",
       readOnly: true,
-      format: (val) =>
-        val ? new Date(val).toLocaleString("en-IN") : "N/A",
+      format: (val) => (val ? new Date(val).toLocaleString("en-IN") : "N/A"),
     },
   ];
 
@@ -131,7 +128,7 @@ export default function CustomerDetails() {
   customerFields.forEach((field) => {
     if (field.format && formattedCustomer[field.name]) {
       formattedCustomer[field.name] = field.format(
-        formattedCustomer[field.name]
+        formattedCustomer[field.name],
       );
     }
   });
@@ -148,12 +145,12 @@ export default function CustomerDetails() {
         adminUpdateCustomer({
           id,
           payload: editedData,
-        })
+        }),
       ).unwrap();
 
-      dispatch(adminGetCustomerById(id)); // refresh latest
       alert("Customer updated successfully");
-      setIsEditMode(false);
+
+      navigate(`/${rolePath}/customers`);
     } catch (err) {
       alert(err?.message || "Failed to update customer");
     }
@@ -166,7 +163,7 @@ export default function CustomerDetails() {
     <div className="p-6 md:p-12">
       <button
         className="mb-6 px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition"
-        onClick={() => navigate(-1)}
+        onClick={() => navigate(`/${rolePath}/customers`)}
       >
         ← Back
       </button>

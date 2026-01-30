@@ -8,7 +8,7 @@ export const deleteDepartment = createAsyncThunk(
   "department/delete",
   async (id, { rejectWithValue }) => {
     try {
-      const response = await adminApi.delete(`/departments/${id}`);
+      const response = await adminApi.delete(`/admin/departments/${id}`);
       return { id }; // Return deleted department ID
     } catch (error) {
       return rejectWithValue(
