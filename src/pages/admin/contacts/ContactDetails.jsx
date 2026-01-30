@@ -14,8 +14,10 @@ export default function ContactDetails() {
   const dispatch = useDispatch();
 
   const { loading, contact, error } = useSelector(
-    (state) => state.adminGetContactById
+    (state) => state.adminGetContactById,
   );
+  const role = useSelector((state) => state.auth.role);
+  const rolePath = role?.toLowerCase().replace("_", "-") || "admin";
 
   const [isEditMode, setIsEditMode] = useState(false);
   const [editedData, setEditedData] = useState({});
@@ -56,8 +58,7 @@ export default function ContactDetails() {
       </p>
     );
 
-  if (error)
-    return <p className="mt-6 text-red-500 text-center">{error}</p>;
+  if (error) return <p className="mt-6 text-red-500 text-center">{error}</p>;
 
   if (!contact) return null;
 
@@ -96,12 +97,13 @@ export default function ContactDetails() {
         adminUpdateContact({
           id,
           payload: editedData,
-        })
+        }),
       ).unwrap();
 
       dispatch(adminGetContactById(id));
-      alert("Contact updated successfully");
-      setIsEditMode(false);
+
+      const customerId = contact.customerId;
+      navigate(`/${rolePath}/customers/${customerId}/contacts`);
     } catch (err) {
       alert(err?.message || "Failed to update contact");
     }

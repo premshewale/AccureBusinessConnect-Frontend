@@ -12,8 +12,10 @@ export default function CreateContact() {
   const { customerId } = useParams();
 
   const { loading, success, error } = useSelector(
-    (state) => state.adminCreateContact
+    (state) => state.adminCreateContact,
   );
+  const role = useSelector((state) => state.auth.role);
+  const rolePath = role?.toLowerCase().replace("_", "-") || "admin";
 
   const fields = [
     {
@@ -108,7 +110,7 @@ export default function CreateContact() {
       adminCreateContact({
         customerId,
         data: payload,
-      })
+      }),
     );
   };
 
@@ -116,7 +118,7 @@ export default function CreateContact() {
     if (success) {
       showSuccess("Contact created successfully"); // ✅ replaced alert
       dispatch(resetAdminCreateContact());
-      navigate(`/admin/customers/${customerId}/contacts`);
+      navigate(`/${rolePath}/customers/${customerId}/contacts`);
     }
   }, [success, dispatch, navigate, customerId]);
 
@@ -124,7 +126,9 @@ export default function CreateContact() {
   useEffect(() => {
     if (error) {
       showError(
-        typeof error === "string" ? error : error.message || "Something went wrong"
+        typeof error === "string"
+          ? error
+          : error.message || "Something went wrong",
       );
     }
   }, [error]);

@@ -13,11 +13,7 @@ import {
   adminDeactivateUser,
 } from "../../../services/user/adminToggleUserStatusApi";
 
-import {
-  showSuccess,
-  showError,
-  showInfo,
-} from "../../../utils/toast";
+import { showSuccess, showError, showInfo } from "../../../utils/toast";
 
 export default function Users() {
   const dispatch = useDispatch();
@@ -28,6 +24,11 @@ export default function Users() {
     loading,
     error,
   } = useSelector((state) => state.adminGetAllUsers);
+  // 👉 get logged in role from auth slice
+  const role = useSelector((state) => state.auth.role);
+
+  // 👉 convert role to url part: ADMIN -> admin, SUB_ADMIN -> sub-admin
+  const rolePath = role ? role.toLowerCase().replace("_", "-") : "admin"; // fallback
 
   const [filter, setFilter] = useState("All");
   const [search, setSearch] = useState("");
@@ -70,7 +71,7 @@ export default function Users() {
       .filter(
         (user) =>
           user.name?.toLowerCase().includes(search.toLowerCase()) ||
-          user.email?.toLowerCase().includes(search.toLowerCase())
+          user.email?.toLowerCase().includes(search.toLowerCase()),
       );
   }, [users, filter, search]);
 
@@ -79,7 +80,7 @@ export default function Users() {
 
   const paginatedUsers = filteredUsers.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
+    currentPage * ITEMS_PER_PAGE,
   );
 
   // ✅ Apply toggle state to table data
@@ -89,16 +90,14 @@ export default function Users() {
       userToggles[user.id] === undefined
         ? user.status
         : userToggles[user.id]
-        ? "ACTIVE"
-        : "INACTIVE",
+          ? "ACTIVE"
+          : "INACTIVE",
   }));
 
   // Edit handler
-const handleEdit = (id) => {
-  console.log("Editing user id:", id);
-  navigate(`/admin/users/${id}`);
-};
-
+  const handleEdit = (id) => {
+    navigate(`/${rolePath}/users/${id}`);
+  };
 
   // ✅ FIXED Toggle handler
   const handleStatusToggle = async (id, newStatus) => {
@@ -112,7 +111,7 @@ const handleEdit = (id) => {
 
     if (!isActivating) {
       const confirmDeactivate = window.confirm(
-        "Are you sure you want to deactivate this user?"
+        "Are you sure you want to deactivate this user?",
       );
 
       if (!confirmDeactivate) {
@@ -152,7 +151,7 @@ const handleEdit = (id) => {
           <CommonExportButton data={filteredUsers} fileName="users" />
 
           <button
-            onClick={() => navigate("/admin/create-user")}
+            onClick={() => navigate(`/${rolePath}/create-user`)}
             className="px-4 py-2 bg-cyan text-white rounded-lg shadow"
           >
             + New User

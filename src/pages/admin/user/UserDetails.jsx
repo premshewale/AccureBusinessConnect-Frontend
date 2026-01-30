@@ -18,6 +18,12 @@ export default function UserDetails() {
     (state) => state.adminUpdateUser,
   );
 
+  // 👉 get logged in role from auth slice
+  const role = useSelector((state) => state.auth.role);
+
+  // 👉 convert role to url part: ADMIN -> admin, SUB_ADMIN -> sub-admin
+  const rolePath = role ? role.toLowerCase().replace("_", "-") : "admin"; // fallback
+
   const [editedData, setEditedData] = useState({});
 
   // 🔹 Fetch user
@@ -44,7 +50,7 @@ export default function UserDetails() {
       }),
     ).then((res) => {
       if (res.meta.requestStatus === "fulfilled") {
-        navigate("/admin/users");
+        navigate(`/${rolePath}/users`);
       }
     });
   };
@@ -80,7 +86,7 @@ export default function UserDetails() {
       setEditedData={setEditedData}
       onSave={handleSave}
       loading={updateLoading}
-      onBack={() => navigate("/admin/users")}
+      onBack={() => navigate(`/${rolePath}/users`)}
     />
   );
 }

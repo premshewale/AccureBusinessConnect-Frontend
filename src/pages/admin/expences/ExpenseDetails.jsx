@@ -14,12 +14,16 @@ export default function ExpenseDetails() {
   const dispatch = useDispatch();
 
   const { expense, loading } = useSelector(
-    (state) => state.adminGetExpenseById
+    (state) => state.adminGetExpenseById,
   );
 
   const { loading: updateLoading } = useSelector(
-    (state) => state.adminUpdateExpense
+    (state) => state.adminUpdateExpense,
   );
+
+  // 🔹 get rolePath (missing in your code before)
+  const role = useSelector((state) => state.auth.role);
+  const rolePath = role?.toLowerCase().replace("_", "-") || "admin";
 
   const [editedData, setEditedData] = useState({});
 
@@ -31,7 +35,7 @@ export default function ExpenseDetails() {
     };
   }, [id, dispatch]);
 
-  // 🔹 Sync API data into form
+  // 🔹 Sync API data into form state
   useEffect(() => {
     if (expense) {
       setEditedData(expense);
@@ -43,11 +47,17 @@ export default function ExpenseDetails() {
     dispatch(
       adminUpdateExpense({
         id,
-        payload: editedData,
-      })
+        payload: {
+          category: editedData.category,
+          amount: editedData.amount,
+          date: editedData.date,
+          status: editedData.status,
+          description: editedData.description,
+        },
+      }),
     ).then((res) => {
       if (res.meta.requestStatus === "fulfilled") {
-        navigate("/admin/expenses");
+        navigate(`/${rolePath}/expenses`);
       }
     });
   };
@@ -62,52 +72,66 @@ export default function ExpenseDetails() {
       data={editedData}
       fields={[
         { name: "id", label: "Expense ID", readOnly: true },
-        { name: "title", label: "Title" },
+
         {
           name: "category",
           label: "Category",
           type: "select",
           options: [
-            "Office",
-            "Travel",
-            "Marketing",
-            "Software",
-            "Training",
-            "Utilities",
-            "Entertainment",
-            "Maintenance",
-            "Equipment",
-            "Other",
+            "TRAVEL",
+            "OFFICE",
+            "MARKETING",
+            "SOFTWARE",
+            "TRAINING",
+            "UTILITIES",
+            "ENTERTAINMENT",
+            "MAINTENANCE",
+            "EQUIPMENT",
+            "OTHER",
           ],
         },
+
         { name: "amount", label: "Amount (₹)", type: "number" },
         { name: "date", label: "Date", type: "date" },
-        { name: "vendor", label: "Vendor" },
-        {
-          name: "paymentMethod",
-          label: "Payment Method",
-          type: "select",
-          options: [
-            "Cash",
-            "Credit Card",
-            "Debit Card",
-            "Bank Transfer",
-            "Cheque",
-            "UPI",
-            "Other",
-          ],
-        },
+
         {
           name: "status",
           label: "Status",
           type: "select",
-          options: ["pending", "approved", "rejected"],
+          options: ["PENDING", "APPROVED", "REJECTED"],
         },
-        { name: "receiptNumber", label: "Receipt Number" },
+
+        {
+          name: "relatedCustomerName",
+          label: "Customer",
+          readOnly: true,
+        },
+        {
+          name: "departmentName",
+          label: "Department",
+          readOnly: true,
+        },
+        {
+          name: "ownerName",
+          label: "Owner",
+          readOnly: true,
+        },
+
         {
           name: "description",
           label: "Description",
           type: "textarea",
+        },
+
+        {
+          name: "createdAt",
+          label: "Created At",
+          readOnly: true,
+        },
+        {
+          name: "updatedAt",
+          label: "Updated At",
+          readOnly: true,
         },
       ]}
       isEditMode={true}
@@ -115,7 +139,7 @@ export default function ExpenseDetails() {
       setEditedData={setEditedData}
       onSave={handleSave}
       loading={updateLoading}
-      onBack={() => navigate("/admin/expenses")}
+      onBack={() => navigate(`/${rolePath}/expenses`)}
     />
   );
 }

@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from "react";
-
 import { useNavigate } from "react-router-dom";
 import { RxDashboard, RxTable } from "react-icons/rx";
 import { IoSearchSharp, IoFilterSharp } from "react-icons/io5";
 import { MdOutlineRefresh } from "react-icons/md";
 import { FiPlus } from "react-icons/fi";
 import { useDispatch, useSelector } from "react-redux";
-
 
 import Kanban from "../../../components/common/Kanban.jsx";
 import CommonTable from "../../../components/common/CommonTable.jsx";
@@ -28,31 +26,21 @@ export default function Tickets() {
   });
 
   const navigate = useNavigate();
-
-  // Get tickets from context
-  // const { tickets, loading, deleteTicket, getTicketStats } = useTickets();
-  // const ticketStats = getTicketStats();
   const dispatch = useDispatch();
+
   useEffect(() => {
-  dispatch(getAllTickets());
-}, [dispatch]);
+    dispatch(getAllTickets());
+  }, [dispatch]);
 
+  const { list: tickets, loading, error } = useSelector((state) => state.tickets);
+  const { role } = useSelector((state) => state.auth.user);
+  const rolePath = role?.toLowerCase() || "admin";
 
-  const {
-    list: tickets,
-    loading,
-    error,
-  } = useSelector((state) => state.tickets);
+  const handleRefresh = () => dispatch(getAllTickets());
 
-  // Refresh tickets
-const handleRefresh = () => {
-  dispatch(getAllTickets());
-};
-
-  // Prepare data for export
   const exportData = tickets.map((ticket) => ({
     ID: ticket.id,
-    Title: ticket.title,
+    Subject: ticket.subject,
     Description: ticket.description,
     Priority: ticket.priority,
     Status: ticket.status,
@@ -65,184 +53,102 @@ const handleRefresh = () => {
     "Due Date": ticket.dueDate,
   }));
 
-  // Filter tickets based on active filters
+  const mapPriority = (priority) => {
+    if (!priority) return "";
+    switch (priority.toUpperCase()) {
+      case "HIGH":
+        return "🔥 High";
+      case "MEDIUM":
+        return "⚠️ Medium";
+      case "LOW":
+        return "✅ Low";
+      case "CRITICAL":
+        return "💥 Critical";
+      default:
+        return priority;
+    }
+  };
+
+  // Filter tickets
   const filteredTickets = tickets.filter((ticket) => {
-    // Search filter
     if (
       searchQuery &&
-      !ticket.title?.toLowerCase().includes(searchQuery.toLowerCase()) &&
+      !ticket.subject?.toLowerCase().includes(searchQuery.toLowerCase()) &&
       !ticket.description?.toLowerCase().includes(searchQuery.toLowerCase()) &&
       !ticket.reporter?.toLowerCase().includes(searchQuery.toLowerCase())
-    ) {
+    )
       return false;
-    }
 
-    // Status filter buttons
-    if (filter !== "All" && ticket.status !== filter) {
-      return false;
-    }
-
-    // Additional filter options from filter panel
-    if (
-      filterOptions.status !== "All" &&
-      ticket.status !== filterOptions.status
-    ) {
-      return false;
-    }
-
-    if (
-      filterOptions.priority !== "All" &&
-      ticket.priority !== filterOptions.priority
-    ) {
-      return false;
-    }
-
-    if (filterOptions.type !== "All" && ticket.type !== filterOptions.type) {
-      return false;
-    }
-
-    if (
-      filterOptions.assignee !== "All" &&
-      ticket.assignee !== filterOptions.assignee
-    ) {
-      return false;
-    }
+    if (filter !== "All" && ticket.status?.toUpperCase() !== filter) return false;
+    if (filterOptions.status !== "All" && ticket.status?.toUpperCase() !== filterOptions.status) return false;
+    if (filterOptions.priority !== "All" && ticket.priority !== filterOptions.priority) return false;
+    if (filterOptions.type !== "All" && ticket.type !== filterOptions.type) return false;
+    if (filterOptions.assignee !== "All" && ticket.assignee !== filterOptions.assignee) return false;
 
     return true;
   });
-  
 
-  // Convert filtered tickets to Kanban format
-  const kanbanColumns = [
-    {
-      title: "Open",
-      cards: filteredTickets
-        .filter((t) => t.status === "open")
-        .map((ticket) => ({
-          id: ticket.id,
-          name: ticket.title,
-          service: ticket.type,
-          phone:
-            ticket.priority === "high"
-              ? "🔥 High"
-              : ticket.priority === "medium"
-              ? "⚠️ Medium"
-              : "✅ Low",
-          email: ticket.assignee,
-          createdOn: new Date(ticket.createdAt).toLocaleDateString("en-IN", {
-            day: "2-digit",
-            month: "short",
-            year: "numeric",
-          }),
-          status: "Open",
-        })),
-    },
-    {
-      title: "In Progress",
-      cards: filteredTickets
-        .filter((t) => t.status === "in_progress")
-        .map((ticket) => ({
-          id: ticket.id,
-          name: ticket.title,
-          service: ticket.type,
-          phone:
-            ticket.priority === "high"
-              ? "🔥 High"
-              : ticket.priority === "medium"
-              ? "⚠️ Medium"
-              : "✅ Low",
-          email: ticket.assignee,
-          createdOn: new Date(ticket.createdAt).toLocaleDateString("en-IN", {
-            day: "2-digit",
-            month: "short",
-            year: "numeric",
-          }),
-          status: "In Progress",
-        })),
-    },
-    {
-      title: "Resolved",
-      cards: filteredTickets
-        .filter((t) => t.status === "resolved")
-        .map((ticket) => ({
-          id: ticket.id,
-          name: ticket.title,
-          service: ticket.type,
-          phone:
-            ticket.priority === "high"
-              ? "🔥 High"
-              : ticket.priority === "medium"
-              ? "⚠️ Medium"
-              : "✅ Low",
-          email: ticket.assignee,
-          createdOn: new Date(ticket.createdAt).toLocaleDateString("en-IN", {
-            day: "2-digit",
-            month: "short",
-            year: "numeric",
-          }),
-          status: "Resolved",
-        })),
-    },
-    {
-      title: "Closed",
-      cards: filteredTickets
-        .filter((t) => t.status === "closed")
-        .map((ticket) => ({
-          id: ticket.id,
-          name: ticket.title,
-          service: ticket.type,
-          phone:
-            ticket.priority === "high"
-              ? "🔥 High"
-              : ticket.priority === "medium"
-              ? "⚠️ Medium"
-              : "✅ Low",
-          email: ticket.assignee,
-          createdOn: new Date(ticket.createdAt).toLocaleDateString("en-IN", {
-            day: "2-digit",
-            month: "short",
-            year: "numeric",
-          }),
-          status: "Closed",
-        })),
-    },
-  ];
+  // Kanban columns
+  const kanbanColumns = ["OPEN", "IN_PROGRESS", "RESOLVED", "CLOSED"].map((status) => ({
+    title:
+      status === "OPEN"
+        ? "Open"
+        : status === "IN_PROGRESS"
+        ? "In Progress"
+        : status === "RESOLVED"
+        ? "Resolved"
+        : "Closed",
+    cards: filteredTickets
+      .filter((t) => t.status?.toUpperCase() === status)
+      .map((ticket) => ({
+        id: ticket.id,
+        name: ticket.subject || "",
+        service: ticket.type || "",
+        priorityLabel: mapPriority(ticket.priority),
+        assignee: ticket.assignee || "",
+        createdOn: ticket.createdAt
+          ? new Date(ticket.createdAt).toLocaleDateString("en-IN", {
+              day: "2-digit",
+              month: "short",
+              year: "numeric",
+            })
+          : "",
+        status:
+          status === "OPEN"
+            ? "Open"
+            : status === "IN_PROGRESS"
+            ? "In Progress"
+            : status === "RESOLVED"
+            ? "Resolved"
+            : "Closed",
+      })),
+  }));
 
-  // Status options for filter buttons
-  const statuses = ["All", "Open", "In Progress", "Resolved", "Closed"];
+  const statuses = ["All", "OPEN", "IN_PROGRESS", "RESOLVED", "CLOSED"];
 
-const handleEdit = (ticket) => {
-  const id = ticket?.id ?? ticket; // ticket could be object or just id
-  navigate(`/admin/edit-ticket/${id}`);
-};
+  const handleEdit = (ticket) => {
+    const id = ticket?.id ?? ticket;
+    navigate(`/${rolePath}/edit-ticket/${id}`);
+  };
 
-const handleView = (ticket) => {
-  const id = ticket?.id ?? ticket;
-  navigate(`/admin/edit-ticket/${id}`); // or a separate view route if needed
-};
+  const handleView = (ticket) => {
+    const id = ticket?.id ?? ticket;
+    navigate(`/${rolePath}/edit-ticket/${id}`);
+  };
 
-  
-
-const handleDelete = (ticket) => {
-  alert("Delete API not connected yet");
-};
-
-
-
+  const handleDelete = (ticket) => alert("Delete API not connected yet");
 
   const ticketStats = {
-  total: tickets.length,
-  open: tickets.filter((t) => t.status === "open").length,
-  inProgress: tickets.filter((t) => t.status === "in_progress").length,
-  resolved: tickets.filter((t) => t.status === "resolved").length,
-  closed: tickets.filter((t) => t.status === "closed").length,
-};
+    total: tickets.length,
+    open: tickets.filter((t) => t.status?.toUpperCase() === "OPEN").length,
+    inProgress: tickets.filter((t) => t.status?.toUpperCase() === "IN_PROGRESS").length,
+    resolved: tickets.filter((t) => t.status?.toUpperCase() === "RESOLVED").length,
+    closed: tickets.filter((t) => t.status?.toUpperCase() === "CLOSED").length,
+  };
 
   return (
     <div className="p-4">
-      {/* Header */}
-      {/* Ticket Statistics */}
-<TicketStats stats={ticketStats} />
+      <TicketStats stats={ticketStats} />
 
       <div className="flex justify-between items-start mb-6">
         <div>
@@ -250,20 +156,16 @@ const handleDelete = (ticket) => {
           <p className="text-gray-600">Manage and track all support tickets</p>
         </div>
         <button
-          onClick={() => navigate("/admin/create-ticket")}
+          onClick={() => navigate(`/${rolePath}/create-ticket`)}
           className="px-4 py-2 bg-cyan text-white rounded-lg shadow hover:bg-cyan-700 transition-colors flex items-center gap-2"
         >
           <FiPlus /> Create Ticket
         </button>
       </div>
 
-      
-      {/* Actions Bar */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 p-4 bg-white rounded-lg shadow-sm border">
         <div className="flex items-center gap-4">
-          {/* Use CommonExportButton */}
           <CommonExportButton data={exportData} fileName="tickets" />
-
           <button
             onClick={handleRefresh}
             className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
@@ -274,7 +176,6 @@ const handleDelete = (ticket) => {
         </div>
 
         <div className="flex items-center gap-4">
-          {/* Search Bar */}
           <div className="relative">
             <IoSearchSharp className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
@@ -286,7 +187,6 @@ const handleDelete = (ticket) => {
             />
           </div>
 
-          {/* Filter Button */}
           <button
             onClick={() => setShowFilter(!showFilter)}
             className={`px-4 py-2 rounded-lg border flex items-center gap-2 ${
@@ -300,7 +200,6 @@ const handleDelete = (ticket) => {
         </div>
       </div>
 
-      {/* Filter Panel */}
       {showFilter && (
         <TicketFilter
           filterOptions={filterOptions}
@@ -309,33 +208,30 @@ const handleDelete = (ticket) => {
         />
       )}
 
-      {/* Status Filter Buttons */}
       <div className="flex gap-2 mb-6 flex-wrap">
         {statuses.map((status) => (
           <button
             key={status}
-            onClick={() =>
-              setFilter(
-                status === "All"
-                  ? "All"
-                  : status.toLowerCase().replace(" ", "_")
-              )
-            }
+            onClick={() => setFilter(status === "All" ? "All" : status)}
             className={`rounded-lg px-4 py-2 text-sm font-medium border transition-colors ${
-              filter ===
-              (status === "All"
-                ? "All"
-                : status.toLowerCase().replace(" ", "_"))
+              filter === status
                 ? "bg-cyan text-white border-cyan"
                 : "bg-white text-gray-600 border-gray-300 hover:bg-gray-50"
             }`}
           >
-            {status}
+            {status === "OPEN"
+              ? "Open"
+              : status === "IN_PROGRESS"
+              ? "In Progress"
+              : status === "RESOLVED"
+              ? "Resolved"
+              : status === "CLOSED"
+              ? "Closed"
+              : "All"}
           </button>
         ))}
       </div>
 
-      {/* View Toggle */}
       <div className="flex justify-between items-center mb-4">
         <p className="text-gray-600">
           Showing {filteredTickets.length} of {tickets.length} tickets
@@ -351,7 +247,6 @@ const handleDelete = (ticket) => {
           >
             <RxDashboard /> Kanban View
           </button>
-
           <button
             onClick={() => setActiveTab("table")}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${
@@ -365,7 +260,6 @@ const handleDelete = (ticket) => {
         </div>
       </div>
 
-      {/* Content Area */}
       <div className="bg-white rounded-xl shadow-sm border p-4">
         {loading ? (
           <div className="flex justify-center items-center h-64">
@@ -379,31 +273,24 @@ const handleDelete = (ticket) => {
               Try adjusting your filters or search query
             </p>
             <button
-              onClick={() => navigate("/admin/create-ticket")}
+              onClick={() => navigate(`/${rolePath}/create-ticket`)}
               className="px-4 py-2 bg-cyan text-white rounded-lg hover:bg-cyan-700"
             >
               Create First Ticket
             </button>
           </div>
+        ) : activeTab === "kanban" ? (
+          <Kanban columns={kanbanColumns} />
         ) : (
-          <>
-            {/* Kanban View */}
-            {activeTab === "kanban" && <Kanban columns={kanbanColumns} />}
-
-            {/* Table View */}
-            {activeTab === "table" && (
-              <CommonTable
-                type="tickets"
-                data={filteredTickets}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-                onView={handleView}
-                showExport={false}
-                showActions={true}
-                
-              />
-            )}
-          </>
+          <CommonTable
+            type="tickets"
+            data={filteredTickets}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+            onView={handleView}
+            showExport={false}
+            showActions={true}
+          />
         )}
       </div>
     </div>

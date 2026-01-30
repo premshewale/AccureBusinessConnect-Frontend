@@ -1,35 +1,61 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
 import CommonForm from "../../../components/common/CommonForm.jsx";
-// import { useExpenses } from "../../../contexts/ExpenseContext.jsx";
-import { useDispatch } from "react-redux";
 import { adminCreateExpense } from "../../../services/expenses/adminCreateExpenseApi";
+import adminApi from "../../../store/adminApi"; // axios instance
 
 export default function CreateExpense() {
   const navigate = useNavigate();
-  // const { addExpense } = useExpenses();
   const dispatch = useDispatch();
+  const role = useSelector((state) => state.auth.role);
+  const rolePath = role?.toLowerCase() || "admin";
 
   const [formLoading, setFormLoading] = useState(false);
+  const [customers, setCustomers] = useState([]);
+
+  // 🔹 Fetch customers dynamically
+useEffect(() => {
+  const fetchCustomers = async () => {
+    try {
+      const res = await adminApi.get("/customers");
+
+      // handle different backend response shapes safely
+      const list = Array.isArray(res.data)
+        ? res.data
+        : Array.isArray(res.data.content)
+        ? res.data.content
+        : Array.isArray(res.data.data)
+        ? res.data.data
+        : [];
+
+      setCustomers(list);
+    } catch (err) {
+      console.error("Failed to load customers", err);
+      setCustomers([]); // always keep it an array
+    }
+  };
+
+  fetchCustomers();
+}, []);
+
 
   const handleSubmit = async (data) => {
     setFormLoading(true);
 
     try {
       const expenseData = {
-        ...data,
-        amount: Number(data.amount) || 0,
-        category: data.category || "Other",
-        status: data.status || "pending",
-        paymentMethod: data.paymentMethod || "Cash",
-        vendor: data.vendor || "Unknown",
+        category: data.category,                 // already uppercase from select
+        amount: Number(data.amount),
+        date: data.date,
+        description: data.description || data.title || "",
+        relatedCustomerId: Number(data.relatedCustomerId), // 🔥 dynamic
       };
 
-      // await addExpense(expenseData);
       await dispatch(adminCreateExpense(expenseData)).unwrap();
 
       alert("Expense created successfully!");
-      navigate("/admin/expenses");
+      navigate(`/${rolePath}/expenses`);
     } catch (error) {
       alert("Failed to create expense. Please try again.");
       console.error("Create expense error:", error);
@@ -62,23 +88,11 @@ export default function CreateExpense() {
       min: 0,
     },
     {
-      type: "select",
+      type: "text",
       label: "Category",
       name: "category",
+      placeholder: "Enter Category here",
       required: true,
-      options: [
-        { label: "Select Category", value: "" },
-        { label: "Office", value: "Office" },
-        { label: "Travel", value: "Travel" },
-        { label: "Marketing", value: "Marketing" },
-        { label: "Software", value: "Software" },
-        { label: "Training", value: "Training" },
-        { label: "Utilities", value: "Utilities" },
-        { label: "Entertainment", value: "Entertainment" },
-        { label: "Maintenance", value: "Maintenance" },
-        { label: "Equipment", value: "Equipment" },
-        { label: "Other", value: "Other" },
-      ],
     },
     {
       type: "date",
@@ -87,56 +101,29 @@ export default function CreateExpense() {
       required: true,
       defaultValue: new Date().toISOString().split("T")[0],
     },
-    {
-      type: "text",
-      label: "Vendor",
-      name: "vendor",
-      placeholder: "Enter vendor name",
-    },
+
+    // 🔥 Dynamic customer dropdown (no static ID)
     {
       type: "select",
-      label: "Payment Method",
-      name: "paymentMethod",
+      label: "Customer",
+      name: "relatedCustomerId",
+      required: true,
       options: [
-        { label: "Select Payment Method", value: "" },
-        { label: "Cash", value: "Cash" },
-        { label: "Credit Card", value: "Credit Card" },
-        { label: "Debit Card", value: "Debit Card" },
-        { label: "Bank Transfer", value: "Bank Transfer" },
-        { label: "Cheque", value: "Cheque" },
-        { label: "UPI", value: "UPI" },
-        { label: "Other", value: "Other" },
+        { label: "Select Customer", value: "" },
+        ...customers.map((c) => ({
+          label: c.name,
+          value: c.id,
+        })),
       ],
-    },
-    {
-      type: "text",
-      label: "Receipt Number",
-      name: "receiptNumber",
-      placeholder: "Enter receipt number",
-    },
-    {
-      type: "select",
-      label: "Status",
-      name: "status",
-      options: [
-        { label: "Select Status", value: "" },
-        { label: "Pending", value: "pending" },
-        { label: "Approved", value: "approved" },
-        { label: "Rejected", value: "rejected" },
-      ],
-    },
-    {
-      type: "file",
-      label: "Receipt/Invoice",
-      name: "receiptFile",
-      accept: "image/*,.pdf,.doc,.docx",
     },
   ];
 
   return (
     <div className="p-4">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">Create New Expense</h1>
+        <h1 className="text-2xl font-bold text-gray-800">
+          Create New Expense
+        </h1>
         <p className="text-gray-600">Add a new expense record</p>
       </div>
 

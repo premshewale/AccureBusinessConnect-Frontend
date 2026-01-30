@@ -8,12 +8,15 @@ export default function CreateTicket() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { loading } = useSelector((state) => state.createTicket);
+  const { role } = useSelector((state) => state.auth.user);
+  const rolePath = role?.toLowerCase() || "admin"; // fallback to "admin"
 
+  // ✅ Submit handler
   const handleSubmit = async (data) => {
     try {
       const payload = {
         customerId: Number(data.customerId),
-        contactId: Number(data.customerId), // SAME as Postman
+        contactId: Number(data.customerId), // same as backend expects
         subject: data.title,
         description: data.description,
         priority: data.priority,
@@ -23,13 +26,14 @@ export default function CreateTicket() {
       await dispatch(createTicketThunk(payload)).unwrap();
 
       alert("Ticket created successfully!");
-      navigate("/admin/ticket");
+      navigate(`/${rolePath}/ticket`); // ✅ role-based navigation
     } catch (error) {
       console.error(error);
       alert("Failed to create ticket");
     }
   };
 
+  // ✅ Form fields
   const fields = [
     {
       type: "number",
@@ -82,14 +86,10 @@ export default function CreateTicket() {
   ];
 
   return (
-    <div className="p-4">
+    <div className="p-4 md:p-6">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">
-          Create New Ticket
-        </h1>
-        <p className="text-gray-600">
-          Add a new support ticket
-        </p>
+        <h1 className="text-2xl font-bold text-gray-800">Create New Ticket</h1>
+        <p className="text-gray-600">Add a new support ticket</p>
       </div>
 
       <CommonForm
@@ -98,6 +98,7 @@ export default function CreateTicket() {
         fields={fields}
         onSubmit={handleSubmit}
         submitText={loading ? "Creating..." : "Create Ticket"}
+        onBack={() => navigate(`/${rolePath}/tickets`)} // ✅ optional back button
       />
     </div>
   );

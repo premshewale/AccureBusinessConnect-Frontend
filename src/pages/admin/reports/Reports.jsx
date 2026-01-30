@@ -13,24 +13,32 @@ export default function Reports() {
     (state) => state.dashboardCounts
   );
 
+  const { role } = useSelector((state) => state.auth);
+
+const rolePath = role
+  ? role.toLowerCase().replace("_", "-")
+  : "admin"; // fallback
+
+
   useEffect(() => {
     dispatch(adminGetDashboardCounts());
   }, [dispatch]);
 
-  const cards = [
-    {
-      title: "Total Leads",
-      value: counts?.totalLeads ?? 0,
-      icon: <LuUsers size={28} className="text-white" />,
-      onClick: () => navigate("/admin/reports/leads"),
-    },
-    {
-      title: "Total Customers",
-      value: counts?.totalCustomers ?? 0,
-      icon: <FiUserCheck size={28} className="text-white" />,
-      onClick: () => navigate("/admin/reports/customers"),
-    },
-  ];
+const cards = [
+  {
+    title: "Total Leads",
+    value: counts?.totalLeads ?? 0,
+    icon: <LuUsers size={28} className="text-white" />,
+    onClick: () => navigate(`/${rolePath}/reports/leads`),
+  },
+  {
+    title: "Total Customers",
+    value: counts?.totalCustomers ?? 0,
+    icon: <FiUserCheck size={28} className="text-white" />,
+    onClick: () => navigate(`/${rolePath}/reports/customers`),
+  },
+];
+
 
   if (loading) {
     return <p className="text-gray-500">Loading report stats...</p>;

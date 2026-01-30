@@ -4,7 +4,7 @@ import CommonForm from "../../../components/common/CommonForm.jsx";
 import { useCustomers } from "../../../contexts/CustomerContext";
 import { useDispatch, useSelector } from "react-redux";
 import { adminCreateCustomer } from "../../../services/customers/adminCreateCustomerApi";
-import { showError, showSuccess } from "../../../utils/toast"; // ✅ ADDED
+import { showError, showSuccess } from "../../../utils/toast"; 
 
 export default function CreateCustomer() {
   const navigate = useNavigate();
@@ -12,6 +12,8 @@ export default function CreateCustomer() {
   const [formLoading, setFormLoading] = useState(false);
   const dispatch = useDispatch();
   const { loading } = useSelector((state) => state.adminCreateCustomer);
+  const role = useSelector((state) => state.auth.role);
+  const rolePath = role?.toLowerCase().replace("_", "-") || "admin";
 
   // ✅ VALIDATION ADDED (no existing logic touched)
   const validateForm = (data) => {
@@ -61,9 +63,8 @@ export default function CreateCustomer() {
       };
 
       await dispatch(adminCreateCustomer(payload)).unwrap();
-
-      showSuccess("Customer created successfully!"); // ✅ replaced alert
-      navigate("/admin/customers");
+      showSuccess("Customer created successfully!");
+      navigate(`/${rolePath}/customers`);
     } catch (err) {
       showError("Failed to create customer"); // ✅ replaced alert
       console.error(err);

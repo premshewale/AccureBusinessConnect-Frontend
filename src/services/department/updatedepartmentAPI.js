@@ -10,7 +10,7 @@ export const updateDepartment = createAsyncThunk(
   async ({ id, payload }, { rejectWithValue }) => {
     try {
       const response = await adminApi.put(
-        `/departments/${id}`, // Remove the extra /api
+        `/admin/departments/${id}`, // Remove the extra /api
         payload
       );
       return response.data;

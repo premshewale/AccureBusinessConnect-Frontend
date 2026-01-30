@@ -12,16 +12,15 @@ import CommonExportButton from "../../../components/common/CommonExportButton";
 import TaskStats from "./TaskStats";
 import TaskFilter from "./TaskFilter";
 
-import {
-  fetchAllTasks,
-  deleteTask as deleteTaskThunk,
-} from "../../../slices/tasks/tasksSlice";
+import { fetchAllTasks, deleteTask as deleteTaskThunk } from "../../../slices/tasks/tasksSlice";
 
 export default function Task() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const { tasks, loading } = useSelector((state) => state.tasks);
+  const { role } = useSelector((state) => state.auth.user);
+  const rolePath = role?.toLowerCase() || "admin";
 
   const [activeTab, setActiveTab] = useState("table");
   const [searchQuery, setSearchQuery] = useState("");
@@ -52,47 +51,32 @@ export default function Task() {
     ID: t.id,
     Title: t.title,
     Status: t.status,
-    Assignee: t.assignee_id,
-    Department: t.department_id,
-    DueDate: t.due_date,
-    Created: t.createdAt,
+    Assignee: t.assigneeName || t.assignee_id,
+    Department: t.departmentName || t.department_id,
+    DueDate: t.dueDate || t.due_date || "-",
+    Created: t.createdAt || "-",
   }));
 
   const filteredTasks = tasks.filter((t) => {
-    if (
-      searchQuery &&
-      !t.title?.toLowerCase().includes(searchQuery.toLowerCase())
-    )
-      return false;
+    if (searchQuery && !t.title?.toLowerCase().includes(searchQuery.toLowerCase())) return false;
     if (filter !== "All" && t.status !== filter) return false;
-    if (filterOptions.status !== "All" && t.status !== filterOptions.status)
-      return false;
-    if (
-      filterOptions.departmentId !== "All" &&
-      String(t.department_id) !== filterOptions.departmentId
-    )
-      return false;
-    if (
-      filterOptions.assigneeId !== "All" &&
-      String(t.assignee_id) !== filterOptions.assigneeId
-    )
-      return false;
+    if (filterOptions.status !== "All" && t.status !== filterOptions.status) return false;
+    if (filterOptions.departmentId !== "All" && String(t.departmentId || t.department_id) !== filterOptions.departmentId) return false;
+    if (filterOptions.assigneeId !== "All" && String(t.assigneeId || t.assignee_id) !== filterOptions.assigneeId) return false;
     return true;
   });
 
-  const kanbanColumns = ["TODO", "IN_PROGRESS", "DONE", "BLOCKED"].map(
-    (status) => ({
-      title: status.replace("_", " "),
-      cards: filteredTasks
-        .filter((t) => t.status === status)
-        .map((t) => ({
-          id: t.id,
-          name: t.title,
-          service: `Assignee ${t.assignee_id}`,
-          status,
-        })),
-    }),
-  );
+  const kanbanColumns = ["TODO", "IN_PROGRESS", "DONE", "BLOCKED"].map((status) => ({
+    title: status.replace("_", " "),
+    cards: filteredTasks
+      .filter((t) => t.status === status)
+      .map((t) => ({
+        id: t.id,
+        name: t.title,
+        service: `Assignee: ${t.assigneeName || t.assignee_id}`,
+        status,
+      })),
+  }));
 
   const statuses = ["All", "TODO", "IN_PROGRESS", "DONE", "BLOCKED"];
 
@@ -102,10 +86,10 @@ export default function Task() {
     }
   };
 
-const handleEdit = (task) => {
-  const id = task?.id ?? task;
-  navigate(`/admin/task/${id}`);
-};
+  const handleEdit = (task) => {
+    const id = task?.id ?? task;
+    navigate(`/${rolePath}/task/${id}`);
+  };
 
   return (
     <div className="p-4">
@@ -115,7 +99,7 @@ const handleEdit = (task) => {
           <p className="text-gray-600">Manage and track staff tasks</p>
         </div>
         <button
-          onClick={() => navigate("/admin/create-task")}
+          onClick={() => navigate(`/${rolePath}/create-task`)}
           className="px-4 py-2 bg-cyan text-white rounded-lg shadow"
         >
           + Create Task
@@ -169,9 +153,7 @@ const handleEdit = (task) => {
             key={s}
             onClick={() => setFilter(s)}
             className={`px-4 py-2 text-sm border rounded-lg ${
-              filter === s
-                ? "bg-cyan text-white border-cyan"
-                : "border-gray-300"
+              filter === s ? "bg-cyan text-white border-cyan" : "border-gray-300"
             }`}
           >
             {s}
@@ -188,9 +170,7 @@ const handleEdit = (task) => {
           <button
             onClick={() => setActiveTab("kanban")}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg border ${
-              activeTab === "kanban"
-                ? "bg-white border-cyan text-cyan shadow"
-                : "border-gray-300"
+              activeTab === "kanban" ? "bg-white border-cyan text-cyan shadow" : "border-gray-300"
             }`}
           >
             <RxDashboard /> Kanban View
@@ -199,9 +179,7 @@ const handleEdit = (task) => {
           <button
             onClick={() => setActiveTab("table")}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg border ${
-              activeTab === "table"
-                ? "bg-white border-cyan text-cyan shadow"
-                : "border-gray-300"
+              activeTab === "table" ? "bg-white border-cyan text-cyan shadow" : "border-gray-300"
             }`}
           >
             <RxTable /> Table View
@@ -224,7 +202,7 @@ const handleEdit = (task) => {
                 type="tasks"
                 data={filteredTasks}
                 onDelete={handleDelete}
-                onEdit={handleEdit} 
+                onEdit={handleEdit}
                 showActions
               />
             )}

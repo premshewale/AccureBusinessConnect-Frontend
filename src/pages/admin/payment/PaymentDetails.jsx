@@ -13,9 +13,10 @@ export default function PaymentDetails() {
   const dispatch = useDispatch();
 
   const { loading, payment, error } = useSelector(
-    (state) => state.adminGetPaymentById
+    (state) => state.adminGetPaymentById,
   );
-
+  const { role } = useSelector((state) => state.auth.user);
+  const rolePath = role?.toLowerCase() || "admin"; // fallback to "admin"
   /* =======================
      FETCH PAYMENT
   ======================= */
@@ -33,11 +34,7 @@ export default function PaymentDetails() {
      SAFETY: NO ID
   ======================= */
   if (!id) {
-    return (
-      <p className="mt-6 text-red-500 text-center">
-        Invalid payment ID
-      </p>
-    );
+    return <p className="mt-6 text-red-500 text-center">Invalid payment ID</p>;
   }
 
   if (loading) {
@@ -49,11 +46,7 @@ export default function PaymentDetails() {
   }
 
   if (error) {
-    return (
-      <p className="mt-6 text-red-500 text-center">
-        {error}
-      </p>
-    );
+    return <p className="mt-6 text-red-500 text-center">{error}</p>;
   }
 
   if (!payment) return null;
@@ -81,8 +74,7 @@ export default function PaymentDetails() {
     {
       name: "createdAt",
       label: "Created At",
-      format: (val) =>
-        val ? new Date(val).toLocaleString("en-IN") : "N/A",
+      format: (val) => (val ? new Date(val).toLocaleString("en-IN") : "N/A"),
     },
   ];
 
@@ -93,9 +85,7 @@ export default function PaymentDetails() {
 
   paymentFields.forEach((field) => {
     if (field.format && formattedPayment[field.name] != null) {
-      formattedPayment[field.name] = field.format(
-        formattedPayment[field.name]
-      );
+      formattedPayment[field.name] = field.format(formattedPayment[field.name]);
     }
   });
 
@@ -106,7 +96,7 @@ export default function PaymentDetails() {
     <div className="p-6 md:p-12">
       <button
         className="mb-6 px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition"
-        onClick={() => navigate(-1)}
+        onClick={() => navigate(`/${rolePath}/payment`)}
       >
         ← Back
       </button>

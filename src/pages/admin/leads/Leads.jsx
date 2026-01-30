@@ -32,7 +32,6 @@ export default function Leads() {
   const [searchTerm, setSearchTerm] = useState("");
   const [showConvertPopup, setShowConvertPopup] = useState(false);
   const [selectedLead, setSelectedLead] = useState(null);
-  // ✅ Lead active/inactive toggle (UI source of truth)
   const [leadToggles, setLeadToggles] = useState({});
 
   const {
@@ -40,6 +39,9 @@ export default function Leads() {
     leads = [],
     error,
   } = useSelector((state) => state.adminGetAllLeads);
+  const { role } = useSelector((state) => state.auth);
+
+  const rolePath = role ? role.toLowerCase().replace("_", "-") : "admin";
 
   useEffect(() => {
     dispatch(adminGetAllLeads());
@@ -76,10 +78,9 @@ export default function Leads() {
       cards: filteredLeads.filter((lead) => lead.status === status),
     }));
 
-const handleEdit = (id) => {
-  navigate(`/admin/lead-details/${id}`);
-};
-
+  const handleEdit = (id) => {
+    navigate(`/${rolePath}/lead-details/${id}`);
+  };
 
   // 🔹 Delete lead handler
   const handleDelete = async (lead) => {
@@ -199,7 +200,7 @@ const handleEdit = (id) => {
         </div>
 
         <button
-          onClick={() => navigate("/admin/create-lead")}
+          onClick={() => navigate(`/${rolePath}/create-lead`)}
           className="px-4 py-2 bg-cyan text-white rounded-lg shadow"
         >
           + New Lead

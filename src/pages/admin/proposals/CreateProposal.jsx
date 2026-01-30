@@ -9,14 +9,17 @@ export default function CreateProposal() {
   const dispatch = useDispatch();
 
   const { user } = useSelector((state) => state.auth);
+  const { role } = useSelector((state) => state.auth.user);
+  const rolePath = role?.toLowerCase() || "admin"; // fallback to "admin"
+
   const { loading } = useSelector((state) => state.adminCreateProposal);
 
   const handleSubmit = async (data) => {
     const payload = {
       customerId: Number(data.customerId),
-      departmentId: Number(data.departmentId) || null,
+      departmentId: data.departmentId ? Number(data.departmentId) : null, // fixed
       description: data.description,
-      budget: Number(data.budget) || null,
+      budget: data.budget ? Number(data.budget) : null, // fixed
       deadline: data.deadline,
       ownerId: user?.id,
     };
@@ -24,10 +27,10 @@ export default function CreateProposal() {
     try {
       await dispatch(adminCreateProposalApi(payload)).unwrap();
       alert("Proposal created successfully!");
-      navigate("/admin/proposals");
+      navigate(`/${rolePath}/proposals`);
     } catch (error) {
       console.error("Create proposal error:", error);
-      alert(error || "Failed to create proposal");
+      alert(error?.message || "Failed to create proposal"); // fixed
     }
   };
 
@@ -38,25 +41,34 @@ export default function CreateProposal() {
       type: "number",
       required: true,
     },
-    { name: "departmentId", label: "Department ID", type: "number" },
+    {
+      name: "departmentId",
+      label: "Department ID",
+      type: "number",
+    },
     {
       name: "description",
       label: "Description",
       type: "textarea",
       required: true,
     },
-    { name: "budget", label: "Budget (₹)", type: "number" },
-    { name: "deadline", label: "Deadline", type: "date", required: true },
+    {
+      name: "budget",
+      label: "Budget (₹)",
+      type: "number",
+    },
+    {
+      name: "deadline",
+      label: "Deadline",
+      type: "date",
+      required: true,
+    },
   ];
 
   return (
     <div className="p-4">
-      <h1 className="text-2xl font-bold text-gray-800 mb-1">
-        Create Proposal
-      </h1>
-      <p className="text-gray-600 mb-6">
-        Draft a new proposal for a customer
-      </p>
+      <h1 className="text-2xl font-bold text-gray-800 mb-1">Create Proposal</h1>
+      <p className="text-gray-600 mb-6">Draft a new proposal for a customer</p>
 
       <CommonForm
         title="Proposal Information"

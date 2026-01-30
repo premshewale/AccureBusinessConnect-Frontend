@@ -5,7 +5,7 @@ export const adminCreateExpense = createAsyncThunk(
   "adminCreateExpense/create",
   async (payload, { rejectWithValue }) => {
     try {
-      const res = await adminApi.post("/api/expenses", payload);
+      const res = await adminApi.post("/expenses", payload);
       return res.data;
     } catch (error) {
       return rejectWithValue(

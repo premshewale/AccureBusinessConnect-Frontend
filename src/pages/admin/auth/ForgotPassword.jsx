@@ -11,7 +11,7 @@ export default function ForgotPassword() {
     // Call your API to send reset link
     console.log("Send reset link to:", email);
     alert("If this email exists, a reset link will be sent.");
-    navigate("/admin/reset-password"); // Redirect after submission
+    navigate("/reset-password"); // Redirect after submission
   };
 
   return (
@@ -50,7 +50,7 @@ export default function ForgotPassword() {
 
         <button
           className="w-full text-white text-sm underline"
-          onClick={() => navigate("/admin/login")}
+          onClick={() => navigate("/login")}
         >
           Back to Login
         </button>

@@ -4,7 +4,10 @@ import { useDispatch, useSelector } from "react-redux";
 
 import CommonDetails from "../../../components/common/CommonDetails.jsx";
 import ConvertToCustomerPopup from "./ConvertToCustomerPopup.jsx";
-import { LEAD_SOURCE_OPTIONS, LEAD_STATUS_OPTIONS } from "../../../constants/leadEnums.js";
+import {
+  LEAD_SOURCE_OPTIONS,
+  LEAD_STATUS_OPTIONS,
+} from "../../../constants/leadEnums.js";
 
 import { adminGetLeadByIdApi } from "../../../services/lead/adminGetLeadByIdApi";
 import { resetLeadDetails } from "../../../slices/lead/adminGetLeadByIdSlice";
@@ -19,7 +22,12 @@ export default function LeadDetailsPage() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const { loading, lead, error } = useSelector((state) => state.adminGetLeadById);
+  const { loading, lead, error } = useSelector(
+    (state) => state.adminGetLeadById,
+  );
+  const { role } = useSelector((state) => state.auth);
+
+  const rolePath = role ? role.toLowerCase().replace("_", "-") : "admin"; // fallback so existing admin flow never breaks
 
   const [isEditMode, setIsEditMode] = useState(false);
   const [editedData, setEditedData] = useState({});
@@ -56,9 +64,10 @@ export default function LeadDetailsPage() {
   }, [lead]);
 
   if (loading)
-    return <p className="mt-6 text-gray-500 text-center">Loading lead details...</p>;
-  if (error)
-    return <p className="mt-6 text-red-500 text-center">{error}</p>;
+    return (
+      <p className="mt-6 text-gray-500 text-center">Loading lead details...</p>
+    );
+  if (error) return <p className="mt-6 text-red-500 text-center">{error}</p>;
   if (!lead) return null;
 
   /* =======================
@@ -69,8 +78,18 @@ export default function LeadDetailsPage() {
     { name: "name", label: "Name" },
     { name: "email", label: "Email" },
     { name: "phone", label: "Phone" },
-    { name: "source", label: "Source", type: "select", options: LEAD_SOURCE_OPTIONS },
-    { name: "status", label: "Status", type: "select", options: LEAD_STATUS_OPTIONS },
+    {
+      name: "source",
+      label: "Source",
+      type: "select",
+      options: LEAD_SOURCE_OPTIONS,
+    },
+    {
+      name: "status",
+      label: "Status",
+      type: "select",
+      options: LEAD_STATUS_OPTIONS,
+    },
     { name: "ownerName", label: "Owner", readOnly: true },
     { name: "assignedToName", label: "Assigned To", readOnly: true },
     { name: "departmentName", label: "Department", readOnly: true },
@@ -108,9 +127,11 @@ export default function LeadDetailsPage() {
   const handleSave = async () => {
     try {
       await dispatch(adminUpdateLeadApi({ id, payload: editedData })).unwrap();
-      dispatch(adminGetLeadByIdApi(id));
+
       alert("Lead updated successfully");
-      setIsEditMode(false);
+
+      // 👉 navigate to Leads.jsx page after save
+      navigate(`/${rolePath}/leads`);
     } catch (err) {
       alert(err?.message || "Failed to update lead");
     }
@@ -121,7 +142,7 @@ export default function LeadDetailsPage() {
     try {
       await dispatch(adminDeleteLeadApi(id)).unwrap();
       alert("Lead deleted successfully");
-      navigate("/admin/leads");
+      navigate(`/${rolePath}/leads`);
       dispatch(resetDeleteLeadState());
     } catch (err) {
       alert(err?.message || "Failed to delete lead");
@@ -141,7 +162,7 @@ export default function LeadDetailsPage() {
             address: payload.address,
             website: payload.website,
           },
-        })
+        }),
       ).unwrap();
       alert("Lead converted to customer successfully");
       setShowConvertPopup(false);
