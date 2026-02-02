@@ -3,31 +3,40 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { RxDashboard, RxTable } from "react-icons/rx";
 import { IoSearchSharp } from "react-icons/io5";
+
 import Kanban from "../../../components/common/Kanban.jsx";
 import CommonTable from "../../../components/common/CommonTable.jsx";
+
 import { adminGetContacts } from "../../../services/contact/adminGetContactsApi";
 import {
-  adminAddContactToGoogle,
-  adminRemoveContactFromGoogle,
-} from "../../../services/contact/adminAddContactToggleApi";
-import { showSuccess, showError } from "../../../utils/toast";
+  adminActivateContact,
+  adminDeactivateContact,
+} from "../../../services/contact/adminToggleContactStatusApi.js";
+
+import { showSuccess, showError, showInfo } from "../../../utils/toast";
 
 export default function Contacts() {
   const [activeTab, setActiveTab] = useState("table");
   const [filter, setFilter] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
+
   const role = useSelector((state) => state.auth.role);
   const rolePath = role?.toLowerCase().replace("_", "-");
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { customerId } = useParams();
+
   const {
     contacts = [],
     loading,
     error,
   } = useSelector((state) => state.adminGetContacts);
-  const [googleToggles, setGoogleToggles] = useState({});
 
+  /* ✅ SOURCE OF TRUTH FOR TOGGLE */
+  const [contactToggles, setcontactToggles] = useState({});
+
+  /* Fetch contacts */
   useEffect(() => {
     const id = Number(customerId);
     if (customerId && !isNaN(id)) {
@@ -39,7 +48,7 @@ export default function Contacts() {
 
   /* ✅ INITIALIZE TOGGLES ONLY ONCE */
   useEffect(() => {
-    setGoogleToggles((prev) => {
+    setcontactToggles((prev) => {
       if (Object.keys(prev).length > 0) return prev;
 
       const initial = {};
@@ -55,29 +64,29 @@ export default function Contacts() {
   /* ✅ TABLE DATA WITH TOGGLE STATE APPLIED */
   const tableData = contacts.map((c) => ({
     id: c.id,
-    customer_id: c.customerId,
     firstname: c.firstName,
     lastname: c.lastName,
     email: c.email,
     phone: c.phone,
-    role: c.role,
-    is_primary: c.isPrimary,
-    status: c.status,
-    is_google_synced:
-      googleToggles[c.id] === undefined
-        ? c.isGoogleSynced
-        : googleToggles[c.id],
-    createdOn: new Date(c.createdAt).toLocaleDateString(),
+    role: c.role || "-",
+    customerName: c.customerName,
+    is_primary: c.primary,
+    status: c.status || "ACTIVE", // default status
+    toggle:
+      contactToggles[c.id] === undefined
+        ? c.primary // or whatever default you want
+        : contactToggles[c.id],
+    actions: "actions", // placeholder
   }));
 
   const filteredTableData = tableData.filter((c) => {
     const matchesFilter = filter === "All" || c.status === filter;
     const matchesSearch =
       !searchQuery ||
-      c.firstname.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.lastname.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.phone.includes(searchQuery);
+      c.firstname?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      c.lastname?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      c.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      c.phone?.includes(searchQuery);
     return matchesFilter && matchesSearch;
   });
 
@@ -93,30 +102,42 @@ export default function Contacts() {
     navigate(`/${rolePath}/contacts/${id}`);
   };
 
-  /* ✅ FIXED GOOGLE TOGGLE HANDLER */
+  /* ✅ CONTACT TOGGLE — USER STYLE WITH ACTIVATE / DEACTIVATE */
+  const handleContactToggle = async (id, newValue) => {
+    const isActivating = newValue === true;
 
-  const handleGoogleToggle = async (id, newValue) => {
     // Optimistic update
-    setGoogleToggles((prev) => ({
+    setcontactToggles((prev) => ({
       ...prev,
-      [id]: newValue,
+      [id]: isActivating,
     }));
 
+    if (!isActivating) {
+      const confirmDeactivate = window.confirm(
+        "Are you sure you want to deactivate this contact?",
+      );
+      if (!confirmDeactivate) {
+        setcontactToggles((prev) => ({ ...prev, [id]: true }));
+        showInfo("Contact deactivation cancelled");
+        return;
+      }
+    }
+
     try {
-      if (newValue) {
-        await dispatch(adminAddContactToGoogle(id)).unwrap();
-        showSuccess("Contact added to Google");
+      if (isActivating) {
+        await dispatch(adminActivateContact(id)).unwrap();
+        showSuccess("Contact activated successfully");
       } else {
-        await dispatch(adminRemoveContactFromGoogle(id)).unwrap();
-        showSuccess("Contact removed from Google");
+        await dispatch(adminDeactivateContact(id)).unwrap();
+        showSuccess("Contact deactivated successfully");
       }
     } catch (err) {
       // Rollback on failure
-      setGoogleToggles((prev) => ({
+      setcontactToggles((prev) => ({
         ...prev,
-        [id]: !newValue,
+        [id]: !isActivating,
       }));
-      showError(err || "Failed to update Google sync");
+      showError(err || "Failed to update contact status");
     }
   };
 
@@ -187,9 +208,9 @@ export default function Contacts() {
         {activeTab === "table" && (
           <CommonTable
             type="contacts"
-            data={filteredTableData}
+            data={tableData}
             onEdit={handleEdit}
-            onStatusToggle={handleGoogleToggle}
+            onStatusToggle={handleContactToggle}
             showActions
           />
         )}

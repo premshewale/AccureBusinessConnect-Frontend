@@ -127,11 +127,15 @@ export default function CommonTable({
 
     contacts: [
       { header: "ID", accessor: "id", sortable: true },
-      { header: "Name", accessor: "name", sortable: true },
+      { header: "First Name", accessor: "firstname", sortable: true },
+      { header: "Last Name", accessor: "lastname", sortable: true },
       { header: "Email", accessor: "email", sortable: true },
-      { header: "Phone", accessor: "phone", sortable: false },
-      { header: "Company", accessor: "company", sortable: true },
+      { header: "Phone", accessor: "phone", sortable: true },
+      { header: "Role", accessor: "role", sortable: true },
+      { header: "Customer Name", accessor: "customerName", sortable: true },
+      { header: "Primary", accessor: "is_primary", sortable: true },
       { header: "Status", accessor: "status", sortable: true },
+      { header: "Toggle", accessor: "toggle", sortable: false },
       { header: "Actions", accessor: "actions", sortable: false },
     ],
     tickets: [

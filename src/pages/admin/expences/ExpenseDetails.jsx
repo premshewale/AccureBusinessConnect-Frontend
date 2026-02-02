@@ -8,26 +8,29 @@ import { adminGetExpenseById } from "../../../services/expenses/adminGetExpenseB
 import { resetAdminGetExpenseById } from "../../../slices/expenses/adminGetExpenseByIdSlice";
 import { adminUpdateExpense } from "../../../services/expenses/adminUpdateExpenseApi";
 
+// toast helpers
+import { showSuccess, showError, showWarning } from "../../../utils/toast";
+
 export default function ExpenseDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const { expense, loading } = useSelector(
-    (state) => state.adminGetExpenseById,
+    (state) => state.adminGetExpenseById
   );
 
   const { loading: updateLoading } = useSelector(
-    (state) => state.adminUpdateExpense,
+    (state) => state.adminUpdateExpense
   );
 
-  // 🔹 get rolePath (missing in your code before)
+  // role path for navigation
   const role = useSelector((state) => state.auth.role);
   const rolePath = role?.toLowerCase().replace("_", "-") || "admin";
 
   const [editedData, setEditedData] = useState({});
 
-  // 🔹 Fetch expense by ID
+  // Fetch expense by ID
   useEffect(() => {
     dispatch(adminGetExpenseById(id));
     return () => {
@@ -35,31 +38,66 @@ export default function ExpenseDetails() {
     };
   }, [id, dispatch]);
 
-  // 🔹 Sync API data into form state
+  // Sync API data to local state
   useEffect(() => {
     if (expense) {
       setEditedData(expense);
     }
   }, [expense]);
 
-  // 🔹 Save updated expense
+  // Save with validation + toast
   const handleSave = () => {
+    // ===== VALIDATION =====
+    if (!editedData.category || editedData.category.trim() === "") {
+      showWarning("Please enter a category");
+      return;
+    }
+
+    if (!editedData.amount || Number(editedData.amount) <= 0) {
+      showWarning("Amount must be greater than 0");
+      return;
+    }
+
+    if (!editedData.date) {
+      showWarning("Please select a date");
+      return;
+    }
+
+    if (!editedData.status) {
+      showWarning("Please select a status");
+      return;
+    }
+
+    if (!editedData.description || editedData.description.trim() === "") {
+      showWarning("Description is required");
+      return;
+    }
+
+    // ===== API CALL =====
     dispatch(
       adminUpdateExpense({
         id,
         payload: {
-          category: editedData.category,
-          amount: editedData.amount,
+          // convert to uppercase to match backend enum
+          category: editedData.category.trim().toUpperCase(),
+          amount: Number(editedData.amount),
           date: editedData.date,
           status: editedData.status,
-          description: editedData.description,
+          description: editedData.description.trim(),
         },
-      }),
-    ).then((res) => {
-      if (res.meta.requestStatus === "fulfilled") {
-        navigate(`/${rolePath}/expenses`);
-      }
-    });
+      })
+    )
+      .then((res) => {
+        if (res.meta.requestStatus === "fulfilled") {
+          showSuccess("Expense updated successfully");
+          navigate(`/${rolePath}/expenses`);
+        } else {
+          showError("Failed to update expense");
+        }
+      })
+      .catch(() => {
+        showError("Something went wrong while updating expense");
+      });
   };
 
   if (loading) return <div className="p-4">Loading expense details...</div>;
@@ -73,22 +111,11 @@ export default function ExpenseDetails() {
       fields={[
         { name: "id", label: "Expense ID", readOnly: true },
 
+        // free text category (editable)
         {
           name: "category",
           label: "Category",
-          type: "select",
-          options: [
-            "TRAVEL",
-            "OFFICE",
-            "MARKETING",
-            "SOFTWARE",
-            "TRAINING",
-            "UTILITIES",
-            "ENTERTAINMENT",
-            "MAINTENANCE",
-            "EQUIPMENT",
-            "OTHER",
-          ],
+          type: "text",
         },
 
         { name: "amount", label: "Amount (₹)", type: "number" },
@@ -101,21 +128,9 @@ export default function ExpenseDetails() {
           options: ["PENDING", "APPROVED", "REJECTED"],
         },
 
-        {
-          name: "relatedCustomerName",
-          label: "Customer",
-          readOnly: true,
-        },
-        {
-          name: "departmentName",
-          label: "Department",
-          readOnly: true,
-        },
-        {
-          name: "ownerName",
-          label: "Owner",
-          readOnly: true,
-        },
+        { name: "relatedCustomerName", label: "Customer", readOnly: true },
+        { name: "departmentName", label: "Department", readOnly: true },
+        { name: "ownerName", label: "Owner", readOnly: true },
 
         {
           name: "description",
@@ -123,16 +138,8 @@ export default function ExpenseDetails() {
           type: "textarea",
         },
 
-        {
-          name: "createdAt",
-          label: "Created At",
-          readOnly: true,
-        },
-        {
-          name: "updatedAt",
-          label: "Updated At",
-          readOnly: true,
-        },
+        { name: "createdAt", label: "Created At", readOnly: true },
+        { name: "updatedAt", label: "Updated At", readOnly: true },
       ]}
       isEditMode={true}
       editedData={editedData}

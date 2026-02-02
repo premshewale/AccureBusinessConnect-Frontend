@@ -18,41 +18,45 @@ export default function CommonDetails({
     }));
   };
 
-  const renderField = (field) => {
-    const value = editedData[field.name] ?? "";
+const renderField = (field) => {
+  const value = editedData[field.name] ?? "";
 
-    // READ ONLY
-    if (field.readOnly) {
-      return <p className="font-medium">{data[field.name] ?? "-"}</p>;
-    }
+  // READ ONLY
+  if (field.readOnly) {
+    return <p className="font-medium">{data[field.name] ?? "-"}</p>;
+  }
 
-    // SELECT
-    if (field.type === "select") {
-      return (
-        <select
-          className="w-full border p-2 rounded"
-          value={value}
-          onChange={(e) => handleChange(field.name, e.target.value)}
-        >
-          <option value="">Select {field.label}</option>
-          {field.options.map((opt) => (
-            <option key={opt} value={opt}>
-              {opt}
-            </option>
-          ))}
-        </select>
-      );
-    }
-
-    // DEFAULT INPUT
+  // SELECT
+  if (field.type === "select") {
     return (
-      <input
+      <select
         className="w-full border p-2 rounded"
         value={value}
         onChange={(e) => handleChange(field.name, e.target.value)}
-      />
+      >
+        <option value="">Select {field.label}</option>
+        {field.options.map((opt) => (
+          <option key={opt} value={opt}>
+            {opt}
+          </option>
+        ))}
+      </select>
     );
-  };
+  }
+
+  // DEFAULT INPUT (now supports date, number, etc.)
+  return (
+    <input
+      type={field.type || "text"}
+      className="w-full border p-2 rounded"
+      value={value}
+      onChange={(e) => handleChange(field.name, e.target.value)}
+    />
+  );
+};
+
+
+
 
   return (
     <div className="bg-white rounded-lg shadow p-6">
