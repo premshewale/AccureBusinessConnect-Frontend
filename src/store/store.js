@@ -18,7 +18,7 @@ import adminCreateContactReducer from "../slices/contact/adminCreateContactSlice
 import adminGetContactsReducer from "../slices/contact/adminGetContactsSlice";
 import adminGetContactByIdReducer from "../slices/contact/adminGetContactByIdSlice";
 import adminUpdateContactReducer from "../slices/contact/adminUpdateContactSlice";
-import adminAddContactToggleReducer from "../slices/contact/adminAddContactToggleSlice";
+import adminAddContactToggleReducer from "../slices/contact/adminToggleContactStatusSlice";
 
 
 import profileReducer from "../slices/profile/profileSlice";

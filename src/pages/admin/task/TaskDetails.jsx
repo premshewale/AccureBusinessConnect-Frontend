@@ -21,7 +21,7 @@ export default function TaskDetails() {
   const [editedData, setEditedData] = useState({});
   const [updating, setUpdating] = useState(false);
 
-  // 🔹 Fetch task by ID
+  // Fetch task by ID
   useEffect(() => {
     dispatch(fetchTaskById(id));
 
@@ -30,18 +30,18 @@ export default function TaskDetails() {
     };
   }, [id, dispatch]);
 
-  // 🔹 Sync API data into form
+  // Sync API data into form
   useEffect(() => {
     if (task) setEditedData(task);
   }, [task]);
 
-  // 🔹 Save changes
+  // Save changes
   const handleSave = () => {
     setUpdating(true);
     dispatch(updateExistingTask({ id, payload: editedData }))
       .then((res) => {
         if (res.meta.requestStatus === "fulfilled") {
-          navigate(`/${rolePath}/task`); // dynamic based on role
+          navigate(`/${rolePath}/task`);
         }
       })
       .finally(() => setUpdating(false));
@@ -62,10 +62,19 @@ export default function TaskDetails() {
           name: "status",
           label: "Status",
           type: "select",
-          options: ["TODO", "IN PROGRESS", "DONE"],
+          // fixed to match backend ENUM exactly
+          options: ["TODO", "IN_PROGRESS", "DONE", "BLOCKED"],
         },
-        { name: "assigneeName", label: "Assignee", readOnly: true },
-        { name: "departmentName", label: "Department", readOnly: true },
+
+        // Assignee
+        { name: "assigneeName", label: "Assignee Name", readOnly: true },
+        { name: "assigneeId", label: "Assignee ID", readOnly: true },
+
+        // Department
+        { name: "departmentName", label: "Department Name", readOnly: true },
+        { name: "departmentId", label: "Department ID", readOnly: true },
+
+        // Due date
         { name: "dueDate", label: "Due Date", type: "date" },
       ]}
       isEditMode={true}
