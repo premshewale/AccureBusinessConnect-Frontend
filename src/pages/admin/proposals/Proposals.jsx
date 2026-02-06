@@ -200,7 +200,6 @@ export default function Proposals() {
             Manage all customer proposals in one place
           </p>
         </div>
-        // Create proposal
         <button
           onClick={() => navigate(`/${rolePath}/create-proposal`)} // ✅ dynamic
           className="px-4 py-2 bg-cyan text-white rounded-lg shadow"
