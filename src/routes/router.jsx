@@ -13,10 +13,12 @@ import ErrorPage from "../components/common/ErrorPage.jsx";
 import CreateUser from "../pages/admin/user/CreateUser.jsx";
 import Users from "../pages/admin/user/Users.jsx";
 import UserDetails from "../pages/admin/user/UserDetails.jsx";
+import ShowUser from "../pages/admin/user/ShowUser.jsx";
 
 import Leads from "../pages/admin/leads/Leads.jsx";
 import LeadDetailsPage from "../pages/admin/leads/LeadDetailsPage.jsx";
 import CreateLead from "../pages/admin/leads/CreateLead.jsx";
+import ShowLead from "../pages/admin/leads/ShowLead.jsx";
 
 import Reports from "../pages/admin/reports/Reports.jsx";
 import LeadsReports from "../pages/admin/reports/LeadsReports.jsx";
@@ -25,6 +27,7 @@ import CustomerReports from "../pages/admin/reports/CustomerReports.jsx";
 import Customers from "../pages/admin/customers/Customers.jsx";
 import CustomerDetails from "../pages/admin/customers/CustomerDetails.jsx";
 import CreateCustomer from "../pages/admin/customers/CreateCustomer.jsx";
+import ShowCustomer from "../pages/admin/customers/ShowCustomer.jsx";
 
 import Contacts from "../pages/admin/contacts/Contacts.jsx";
 import ContactDetails from "../pages/admin/contacts/ContactDetails.jsx";
@@ -33,10 +36,12 @@ import CreateContact from "../pages/admin/contacts/CreateContact.jsx";
 import Task from "../pages/admin/task/Task.jsx";
 import CreateTask from "../pages/admin/task/CreateTask.jsx";
 import TaskDetails from "../pages/admin/task/TaskDetails.jsx";
+import ShowTask from "../pages/admin/task/ShowTask.jsx";
 
 import Tickets from "../pages/admin/ticket/Ticket.jsx";
 import CreateTicket from "../pages/admin/ticket/CreateTicket.jsx";
 import TicketDetails from "../pages/admin/ticket/TicketDetails.jsx";
+import ShowTicket from "../pages/admin/ticket/ShowTicket.jsx";
 
 import Staff from "../pages/subadmin/staff/Staff.jsx";
 import CreateStaff from "../pages/subadmin/staff/CreateStaff.jsx";
@@ -45,6 +50,7 @@ import RoleInterceptor from "../security/RoleInterceptor.jsx";
 import Proposals from "../pages/admin/proposals/Proposals.jsx";
 import CreateProposal from "../pages/admin/proposals/CreateProposal.jsx";
 import ProposalDetails from "../pages/admin/proposals/ProposalDetails.jsx";
+import ShowProposal from "../pages/admin/proposals/ShowProposal.jsx";
 
 import UpdateDepartment from "../pages/admin/department/UpdateDepartment.jsx";
 import Department from "../pages/admin/department/Department.jsx";
@@ -53,6 +59,7 @@ import Profile from "../pages/common/Profile.jsx";
 import Expenses from "../pages/admin/expences/Expences.jsx";
 import CreateExpense from "../pages/admin/expences/CreateExpense.jsx";
 import ExpenseDetails from "../pages/admin/expences/ExpenseDetails.jsx";
+import ShowExpense from "../pages/admin/expences/ShowExpense.jsx";
 
 import Payment from "../pages/admin/payment/Payment.jsx";
 import CreatePayment from "../pages/admin/payment/CreatePayment.jsx";
@@ -61,6 +68,7 @@ import PaymentDetails from "../pages/admin/payment/PaymentDetails.jsx";
 import Invoices from "../pages/admin/invoices/Invoices.jsx";
 import InvoiceDetails from "../pages/admin/invoices/InvoiceDetails.jsx";
 import CreateInvoice from "../pages/admin/invoices/CreateInvoice.jsx";
+import ShowInvoice from "../pages/admin/invoices/ShowInvoice.jsx";
 
 /* ================= COMMON CHILD ROUTES (UNCHANGED) ================= */
 
@@ -100,6 +108,14 @@ const adminChildren = [
       </RoleInterceptor>
     ),
   },
+  {
+    path: "users/:id/view",
+    element: (
+      <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN"]}>
+        <ShowUser />
+      </RoleInterceptor>
+    ),
+  },
 
   {
     path: "reports",
@@ -117,6 +133,15 @@ const adminChildren = [
       </RoleInterceptor>
     ),
   },
+  {
+    path: "leads/:id/view",
+    element: (
+      <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
+        <ShowLead />
+      </RoleInterceptor>
+    ),
+  },
+
   {
     path: "reports/customers",
     element: (
@@ -194,6 +219,14 @@ const adminChildren = [
     ),
   },
   {
+    path: "customers/:id/view",
+    element: (
+      <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
+        <ShowCustomer />
+      </RoleInterceptor>
+    ),
+  },
+  {
     path: "create-customer",
     element: (
       <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
@@ -218,6 +251,15 @@ const adminChildren = [
       </RoleInterceptor>
     ),
   },
+  {
+    path: "invoices/:id/view",
+    element: (
+      <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN"]}>
+        <ShowInvoice />
+      </RoleInterceptor>
+    ),
+  },
+
   {
     path: "create-invoice",
     element: (
@@ -276,6 +318,14 @@ const adminChildren = [
       </RoleInterceptor>
     ),
   },
+  {
+    path: "task/:id/view",
+    element: (
+      <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
+        <ShowTask />
+      </RoleInterceptor>
+    ),
+  },
 
   {
     path: "proposals",
@@ -298,6 +348,14 @@ const adminChildren = [
     element: (
       <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
         <CreateProposal />
+      </RoleInterceptor>
+    ),
+  },
+  {
+    path: "proposals/:id/view",
+    element: (
+      <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
+        <ShowProposal />
       </RoleInterceptor>
     ),
   },
@@ -326,6 +384,15 @@ const adminChildren = [
       </RoleInterceptor>
     ),
   },
+  {
+  path: "ticket/:id/view",
+  element: (
+    <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
+      <ShowTicket />
+    </RoleInterceptor>
+  ),
+},
+
 
   {
     path: "profile",
@@ -360,6 +427,15 @@ const adminChildren = [
       </RoleInterceptor>
     ),
   },
+  {
+  path: "expenses/:id/view",
+  element: (
+    <RoleInterceptor allowedRoles={["ADMIN", "SUB_ADMIN", "STAFF"]}>
+      <ShowExpense />
+    </RoleInterceptor>
+  ),
+},
+
 
   {
     path: "payment",

@@ -6,7 +6,7 @@ export const adminGetLeadsReport = createAsyncThunk(
   "adminGetLeadsReport/fetch",
   async (_, { rejectWithValue }) => {
     try {
-      const res = await adminApi.get("/reports/leads");
+      const res = await adminApi.get("/leads");
       return res.data; // array of leads
     } catch (error) {
       return rejectWithValue(

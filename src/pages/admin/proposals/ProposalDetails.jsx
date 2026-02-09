@@ -10,20 +10,16 @@ import { adminUpdateProposalApi } from "../../../services/proposal/adminUpdatePr
 
 import { showSuccess, showError, showWarning } from "../../../utils/toast";
 
-/* =======================
-   SAFE SELECT OPTIONS
-======================= */
-const PROPOSAL_STATUS_OPTIONS = ["DRAFT", "SENT", "APPROVED", "REJECTED"];
-
 export default function ProposalDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const { loading, proposal, error } = useSelector(
-    (state) => state.adminGetProposalById,
+    (state) => state.adminGetProposalById
   );
-  const { role } = useSelector((state) => state.auth.user);
+
+  const { user, role } = useSelector((state) => state.auth);
   const rolePath = role?.toLowerCase() || "admin";
 
   const [isEditMode, setIsEditMode] = useState(false);
@@ -38,23 +34,21 @@ export default function ProposalDetails() {
   }, [dispatch, id]);
 
   /* =======================
-     POPULATE EDIT DATA
+     POPULATE FORM DATA
   ======================= */
   useEffect(() => {
     if (proposal) {
       setEditedData({
-        id: proposal.id ?? "",
         description: proposal.description ?? "",
         budget: proposal.budget ?? "",
         deadline: proposal.deadline ?? "",
-        status: proposal.status ?? "",
-        customerName: proposal.customerName ?? "",
-        departmentName: proposal.departmentName ?? "",
-        ownerName: proposal.ownerName ?? "",
+        customerId: proposal.customerId ?? "",
+        departmentId: proposal.departmentId ?? "",
+        ownerId: proposal.ownerId ?? user?.id,
         createdAt: proposal.createdAt ?? "",
       });
     }
-  }, [proposal]);
+  }, [proposal, user]);
 
   if (loading)
     return (
@@ -76,19 +70,12 @@ export default function ProposalDetails() {
      FIELDS CONFIG
   ======================= */
   const proposalFields = [
-    { name: "id", label: "Proposal ID", readOnly: true },
     { name: "description", label: "Description" },
     { name: "budget", label: "Budget (₹)", type: "number" },
     { name: "deadline", label: "Deadline", type: "date" },
-    {
-      name: "status",
-      label: "Status",
-      type: "select",
-      options: PROPOSAL_STATUS_OPTIONS,
-    },
-    { name: "customerName", label: "Customer", readOnly: true },
-    { name: "departmentName", label: "Department", readOnly: true },
-    { name: "ownerName", label: "Owner", readOnly: true },
+    { name: "customerId", label: "Customer ID", type: "number" },
+    { name: "departmentId", label: "Department ID", type: "number" },
+    { name: "ownerId", label: "Owner ID", type: "number", readOnly: true },
     {
       name: "createdAt",
       label: "Created At",
@@ -104,7 +91,7 @@ export default function ProposalDetails() {
   proposalFields.forEach((field) => {
     if (field.format && formattedProposal[field.name]) {
       formattedProposal[field.name] = field.format(
-        formattedProposal[field.name],
+        formattedProposal[field.name]
       );
     }
   });
@@ -115,71 +102,73 @@ export default function ProposalDetails() {
   const handleEdit = () => setIsEditMode(true);
 
   const handleCancelEdit = () => {
-    setEditedData({ ...proposal });
+    setEditedData({
+      description: proposal.description,
+      budget: proposal.budget,
+      deadline: proposal.deadline,
+      customerId: proposal.customerId,
+      departmentId: proposal.departmentId,
+      ownerId: proposal.ownerId,
+      createdAt: proposal.createdAt,
+    });
     setIsEditMode(false);
   };
 
-  const handleSave = async () => {
-    // ===== FRONTEND VALIDATION =====
-    if (!editedData.description?.trim()) {
-      showWarning("Description is required");
-      return;
-    }
+const handleSave = async () => {
+  if (!editedData.description?.trim()) {
+    showWarning("Description is required");
+    return;
+  }
 
-    if (!editedData.budget || Number(editedData.budget) <= 0) {
-      showWarning("Budget must be greater than 0");
-      return;
-    }
+  if (!editedData.budget || Number(editedData.budget) <= 0) {
+    showWarning("Budget must be greater than 0");
+    return;
+  }
 
-    if (!editedData.deadline) {
-      showWarning("Please select a deadline");
-      return;
-    }
+  if (!editedData.deadline) {
+    showWarning("Deadline is required");
+    return;
+  }
 
-    const today = new Date();
-    const selectedDate = new Date(editedData.deadline);
-    today.setHours(0, 0, 0, 0);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
-    if (selectedDate < today) {
-      showWarning("Deadline must be in the future");
-      return;
-    }
+  if (new Date(editedData.deadline) < today) {
+    showWarning("Deadline must be in the future");
+    return;
+  }
 
-    if (!editedData.status) {
-      showWarning("Please select proposal status");
-      return;
-    }
+  if (!editedData.customerId || Number(editedData.customerId) <= 0) {
+    showWarning("Customer ID is required");
+    return;
+  }
 
-    // ===== API CALL =====
-    try {
-      await dispatch(
-        adminUpdateProposalApi({
-          id,
-          payload: {
-            description: editedData.description.trim(),
-            budget: Number(editedData.budget),
-            deadline: editedData.deadline,
-            status: editedData.status,
-          },
-        }),
-      ).unwrap();
+  if (!editedData.departmentId || Number(editedData.departmentId) <= 0) {
+    showWarning("Department ID is required");
+    return;
+  }
 
-      showSuccess("Proposal updated successfully");
-      dispatch(adminGetProposalByIdApi(id));
-      setIsEditMode(false);
-    } catch (err) {
-      // show backend combined validation message if available
-      if (typeof err === "string") {
-        showError(err);
-      } else if (err?.message) {
-        showError(err.message);
-      } else {
-        showError(
-          "Validation failed: Customer ID is required; Deadline must be in the future; Department ID is required; Owner ID is required"
-        );
-      }
-    }
+  const payload = {
+    description: editedData.description.trim(),
+    budget: Number(editedData.budget),
+    deadline: editedData.deadline,
+    customerId: Number(editedData.customerId),
+    departmentId: Number(editedData.departmentId),
+    ownerId: Number(editedData.ownerId),
   };
+
+  try {
+    await dispatch(
+      adminUpdateProposalApi({ id, payload })
+    ).unwrap();
+
+    showSuccess("Proposal updated successfully 🎉");
+    navigate(`/${rolePath}/proposals`);
+  } catch (err) {
+    showError(err?.message || "Failed to update proposal");
+  }
+};
+
 
   /* =======================
      UI
