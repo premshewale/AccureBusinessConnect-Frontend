@@ -14,8 +14,13 @@ export default function CustomerReports() {
     dispatch(adminGetCustomersReport());
   }, [dispatch]);
 
+  // ✅ normalize customers safely (array guard)
+  const customersArray = Array.isArray(customers)
+    ? customers
+    : customers?.content || customers?.data || [];
+
   // 🔁 normalize for CommonTable
-  const tableData = customers.map((c) => ({
+  const tableData = customersArray.map((c) => ({
     ...c,
     totalContacts: c.contactPersonCount ?? 0,
     assignedUserName: c.assignedUser?.name || "-",
@@ -28,7 +33,7 @@ export default function CustomerReports() {
       </h2>
 
       <CommonTable
-        type="customers"   // 🔥 reuse existing table type
+        type="customerReport"
         data={tableData}
         searchable={true}
         showExport={true}

@@ -132,9 +132,11 @@ export default function Invoices() {
     goToInvoice(invoice);
   };
 
-  const handleView = (invoice) => {
-    goToInvoice(invoice);
-  };
+const handleView = (invoice) => {
+  const id = invoice?.id || invoice;
+  if (!id) return;
+  navigate(`/${rolePath}/invoices/${id}/view`);
+};
 
   const handleCreateInvoice = () => {
     navigate(`/${rolePath}/create-invoice`);
