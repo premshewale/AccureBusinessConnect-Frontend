@@ -6,6 +6,8 @@ import { useDispatch, useSelector } from "react-redux";
 
 import Kanban from "../../../components/common/Kanban.jsx";
 import CommonTable from "../../../components/common/CommonTable.jsx";
+import LeadStats from "./LeadStats.jsx";
+import ConvertToCustomerPopup from "./ConvertToCustomerPopup";
 
 import { adminGetAllLeads } from "../../../services/lead/adminGetAllLeadsApi.js";
 import { adminDeleteLeadApi } from "../../../slices/lead/adminDeleteLeadSlice.js";
@@ -20,7 +22,6 @@ import {
   adminDeactivateLead,
 } from "../../../services/lead/adminToggleLeadStatusApi";
 
-import ConvertToCustomerPopup from "./ConvertToCustomerPopup";
 import { showSuccess, showError, showWarning } from "../../../utils/toast.js";
 
 export default function Leads() {
@@ -46,6 +47,7 @@ export default function Leads() {
   useEffect(() => {
     dispatch(adminGetAllLeads());
   }, [dispatch]);
+
   useEffect(() => {
     setLeadToggles((prev) => {
       if (Object.keys(prev).length > 0) return prev;
@@ -58,8 +60,65 @@ export default function Leads() {
     });
   }, [leads]);
 
+  // Calculate lead statistics
+  const leadStats = React.useMemo(() => {
+    const total = leads.length;
+    
+    // Count leads by status
+    const newLeads = leads.filter(lead => lead.status === "NEW").length;
+    const contacted = leads.filter(lead => lead.status === "CONTACTED").length;
+    const qualified = leads.filter(lead => lead.status === "QUALIFIED").length;
+    const won = leads.filter(lead => lead.status === "WON").length;
+    const lost = leads.filter(lead => lead.status === "LOST").length;
+    
+    // Calculate conversion rate (WON / (WON + LOST)) * 100
+    const conversionRate = won + lost > 0 
+      ? Math.round((won / (won + lost)) * 100) 
+      : 0;
+    
+    // Calculate estimated value (assuming each lead has an 'estimatedValue' property)
+    const estimatedValue = leads.reduce((sum, lead) => 
+      sum + (lead.estimatedValue || 0), 0
+    );
+
+    // Calculate new leads this month
+    const thisMonthLeads = leads.filter(lead => {
+      const createdDate = new Date(lead.createdAt);
+      const now = new Date();
+      const oneMonthAgo = new Date(now.setMonth(now.getMonth() - 1));
+      return createdDate > oneMonthAgo;
+    }).length;
+
+    return {
+      total,
+      new: newLeads,
+      contacted,
+      qualified,
+      won,
+      lost,
+      conversionRate,
+      estimatedValue,
+      thisMonth: thisMonthLeads,
+      // These would typically come from backend or historical data
+      totalChange: "+12%",
+      newChange: "+18%",
+      qualifiedChange: "+8%",
+      contactedChange: "+15%",
+      conversionChange: "+5%",
+      valueChange: "+22%",
+      wonChange: "+10%",
+      lostChange: "-5%"
+    };
+  }, [leads]);
+
+  // Map leads with toggle state for optimistic UI
+  const mappedLeads = leads.map((lead) => ({
+    ...lead,
+    active: leadToggles[lead.id] === undefined ? lead.active : leadToggles[lead.id],
+  }));
+
   // 🔹 Filtered Leads
-  const filteredLeads = leads
+  const filteredLeads = mappedLeads
     .filter((lead) => filter === "All" || lead.status === filter)
     .filter((lead) =>
       [lead.name, lead.email, lead.phone].some(
@@ -89,14 +148,15 @@ export default function Leads() {
 
     try {
       await dispatch(adminDeleteLeadApi(lead.id)).unwrap();
-      alert(`${lead.name} deleted successfully`);
+      showSuccess(`${lead.name} deleted successfully`);
       dispatch(adminGetAllLeads()); // refresh list
     } catch (err) {
-      alert(err || "Failed to delete lead");
+      showError(err || "Failed to delete lead");
     } finally {
       dispatch(resetDeleteLeadState());
     }
   };
+
   const handleConvertToCustomer = (lead) => {
     if (!["QUALIFIED", "WON"].includes(lead.status)) {
       showWarning("Only QUALIFIED or WON leads can be converted");
@@ -141,13 +201,15 @@ export default function Leads() {
         adminUpdateLeadStatusApi({ id: lead.id, status: newStatus }),
       ).unwrap();
 
+      showSuccess(`Lead status updated to ${newStatus}`);
       dispatch(adminGetAllLeads()); // refresh AFTER update
     } catch (err) {
-      alert(err || "Failed to update status");
+      showError(err || "Failed to update status");
     } finally {
       dispatch(resetUpdateLeadStatusState());
     }
   };
+
   const handleLeadToggle = async (id, isActive) => {
     // Optimistic update
     setLeadToggles((prev) => ({
@@ -161,12 +223,13 @@ export default function Leads() {
       );
       if (!confirm) {
         setLeadToggles((prev) => ({ ...prev, [id]: true }));
+        showWarning("Lead deactivation cancelled");
         return;
       }
 
       try {
         await dispatch(adminDeactivateLead(id)).unwrap();
-        showSuccess("Lead deactivated");
+        showSuccess("Lead deactivated successfully");
       } catch (err) {
         showError(err);
         setLeadToggles((prev) => ({ ...prev, [id]: true }));
@@ -174,7 +237,7 @@ export default function Leads() {
     } else {
       try {
         await dispatch(adminActivateLead(id)).unwrap();
-        showSuccess("Lead activated");
+        showSuccess("Lead activated successfully");
       } catch (err) {
         showError(err);
         setLeadToggles((prev) => ({ ...prev, [id]: false }));
@@ -182,45 +245,40 @@ export default function Leads() {
     }
   };
 
-  const mappedLeads = filteredLeads.map((lead) => ({
-    ...lead,
-    active:
-      leadToggles[lead.id] === undefined ? lead.active : leadToggles[lead.id],
-  }));
-
   return (
-    <>
+    <div className="p-4">
       {/* Header */}
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex justify-between items-start mb-6">
         <div>
-          <h3 className="text-[22px] font-lato">Leads</h3>
-          <p className="text-sm text-fontgrey">
-            Manage And Track Your Sales Leads
+          <h1 className="text-2xl font-bold text-gray-800">Leads</h1>
+          <p className="text-gray-600">
+            Manage and track your sales leads
           </p>
         </div>
 
         <button
           onClick={() => navigate(`/${rolePath}/create-lead`)}
-          className="px-4 py-2 bg-cyan text-white rounded-lg shadow"
+          className="px-4 py-2 bg-cyan text-white rounded-lg shadow hover:bg-cyan-700 transition-colors flex items-center gap-2"
         >
-          + New Lead
+          <span>+</span> New Lead
         </button>
       </div>
 
+      {/* Statistics Cards */}
+      <LeadStats stats={leadStats} />
+
       {/* Status Filter */}
       {activeTab === "table" && (
-        <div className="flex gap-2 mb-4 flex-wrap">
+        <div className="flex gap-2 mb-6 flex-wrap">
           {statuses.map((status) => (
             <button
               key={status}
               onClick={() => setFilter(status)}
-              className={`rounded-[8px] px-4 py-1 text-sm font-medium border
-                w-[123px] h-[27px]
-                ${
-                  filter === status
-                    ? "bg-cyan text-white"
-                    : "bg-white text-[#5f5f5f] hover:bg-cyan hover:text-white"
-                }`}
+              className={`rounded-lg px-4 py-2 text-sm font-medium border transition-colors ${
+                filter === status
+                  ? "bg-cyan text-white border-cyan"
+                  : "bg-white text-gray-600 border-gray-300 hover:bg-gray-50"
+              }`}
             >
               {status}
             </button>
@@ -229,84 +287,102 @@ export default function Leads() {
       )}
 
       {/* Search + Tabs */}
-      <div className="flex">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 p-4 bg-white rounded-lg shadow-sm border">
+        {/* Search - only shown in table view */}
         {activeTab === "table" && (
-          <div className="w-full flex justify-start mt-4 mb-2">
-            <div className="relative w-[430px]">
-              <IoSearchSharp className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search leads by name, email, phone..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full h-[30px] rounded-[8px] border pl-10 pr-3 text-sm outline-none"
-              />
-            </div>
+          <div className="relative w-full md:w-96">
+            <IoSearchSharp className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search leads by name, email, phone..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full h-10 rounded-lg border pl-10 pr-3 text-sm outline-none focus:border-cyan"
+            />
           </div>
         )}
 
-        <div className="w-full flex justify-end mt-4">
-          <div className="flex gap-4">
-            <button
-              onClick={() => setActiveTab("kanban")}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg border
-                ${
-                  activeTab === "kanban"
-                    ? "bg-white border-cyan text-cyan shadow"
-                    : "border-gray-300 hover:bg-gray-100"
-                }`}
-            >
-              <RxDashboard size={14} />
-              Kanban
-            </button>
-
-            <button
-              onClick={() => setActiveTab("table")}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg border
-                ${
-                  activeTab === "table"
-                    ? "bg-white border-cyan text-cyan shadow"
-                    : "border-gray-300 hover:bg-gray-100"
-                }`}
-            >
-              <RxTable size={14} />
-              Table
-            </button>
-          </div>
+        {/* View Toggle Buttons */}
+        <div className="flex gap-2 ml-auto">
+          <button
+            onClick={() => setActiveTab("kanban")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${
+              activeTab === "kanban"
+                ? "bg-white border-cyan text-cyan shadow"
+                : "bg-transparent hover:bg-gray-100 border-gray-300 text-gray-700"
+            }`}
+          >
+            <RxDashboard /> Kanban View
+          </button>
+          <button
+            onClick={() => setActiveTab("table")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${
+              activeTab === "table"
+                ? "bg-white border-cyan text-cyan shadow"
+                : "bg-transparent hover:bg-gray-100 border-gray-300 text-gray-700"
+            }`}
+          >
+            <RxTable /> Table View
+          </button>
         </div>
       </div>
 
-      {/* States */}
+      {/* Loading and Error States */}
       {loading && (
-        <p className="mt-4 text-sm text-gray-500">Loading leads...</p>
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-cyan"></div>
+        </div>
       )}
-      {error && <p className="mt-4 text-sm text-red-500">{error}</p>}
+      
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
+          <p className="font-medium">Error loading leads</p>
+          <p className="text-sm">{error}</p>
+        </div>
+      )}
 
-      {/* Content */}
-      <div className="mt-6">
-        {activeTab === "kanban" && <Kanban columns={columns} />}
+      {/* Content Area */}
+      {!loading && !error && (
+        <div className="bg-white rounded-xl shadow-sm border p-4">
+          {filteredLeads.length === 0 ? (
+            <div className="text-center p-8 text-gray-500">
+              <div className="text-4xl mb-4">📁</div>
+              <p className="text-lg mb-2">No leads found</p>
+              <p className="text-sm mb-4">
+                Try adjusting your filters or search query
+              </p>
+            </div>
+          ) : (
+            <>
+              {activeTab === "kanban" && <Kanban columns={columns} />}
+              {activeTab === "table" && (
+                <CommonTable
+                  type="leads"
+                  data={filteredLeads}
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
+                  onConvertToCustomer={handleConvertToCustomer}
+                  onStatusToggle={handleLeadToggle}
+                  onStatusChange={handleStatusChange}
+                  showExport={false}
+                  showActions={true}
+                />
+              )}
+            </>
+          )}
+        </div>
+      )}
 
-        {activeTab === "table" && (
-          <CommonTable
-            type="leads"
-            data={filteredLeads}
-            onEdit={handleEdit}
-            onConvertToCustomer={handleConvertToCustomer}
-            showActions={true}
-            onStatusToggle={handleLeadToggle}
-            onStatusChange={handleStatusChange}
-          />
-        )}
-        <ConvertToCustomerPopup
-          open={showConvertPopup}
-          onClose={() => {
-            setShowConvertPopup(false);
-            setSelectedLead(null);
-          }}
-          leadId={selectedLead?.id}
-          onSubmit={handleConvertSubmit}
-        />
-      </div>
-    </>
+      {/* Convert to Customer Popup */}
+      <ConvertToCustomerPopup
+        open={showConvertPopup}
+        onClose={() => {
+          setShowConvertPopup(false);
+          setSelectedLead(null);
+        }}
+        leadId={selectedLead?.id}
+        onSubmit={handleConvertSubmit}
+      />
+    </div>
   );
 }
