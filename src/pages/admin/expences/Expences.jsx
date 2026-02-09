@@ -33,10 +33,9 @@ export default function Expenses() {
   }, [dispatch]);
 
   const handleCreateExpense = () => navigate(`/${rolePath}/create-expense`);
-  const handleEdit = (id) =>
-    navigate(`/${rolePath}/expenses/${id}`);
-  const handleView = (id) =>
-    navigate(`/${rolePath}/expenses/${id}`);
+  const handleEdit = (id) => navigate(`/${rolePath}/expenses/${id}`);
+  const handleView = (id) => navigate(`/${rolePath}/expenses/${id}/view`);
+
   const handleDelete = (id) => {
     if (window.confirm("Are you sure you want to delete this expense?")) {
       dispatch(adminDeleteExpense(expense.id));

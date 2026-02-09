@@ -327,8 +327,8 @@ export default function Payment() {
     alert("Mark as paid API not wired yet");
   };
 
-  const handleView = (payment) => {
-    navigate(`/${rolePath}/${payment.id}`);
+  const handleView = (id) => {
+    navigate(`/${rolePath}/payments/${id}`);
   };
 
   // const handleMarkAsPaid = async (payment) => {
@@ -576,8 +576,8 @@ export default function Payment() {
               <CommonTable
                 type="payments"
                 data={filteredPayments}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
+                // onEdit={handleEdit}
+                // onDelete={handleDelete}
                 onView={handleView}
                 showExport={false}
                 showActions={true}

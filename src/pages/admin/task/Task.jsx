@@ -12,7 +12,10 @@ import CommonExportButton from "../../../components/common/CommonExportButton";
 import TaskStats from "./TaskStats";
 import TaskFilter from "./TaskFilter";
 
-import { fetchAllTasks, deleteTask as deleteTaskThunk } from "../../../slices/tasks/tasksSlice";
+import {
+  fetchAllTasks,
+  deleteTask as deleteTaskThunk,
+} from "../../../slices/tasks/tasksSlice";
 
 export default function Task() {
   const navigate = useNavigate();
@@ -58,25 +61,40 @@ export default function Task() {
   }));
 
   const filteredTasks = tasks.filter((t) => {
-    if (searchQuery && !t.title?.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+    if (
+      searchQuery &&
+      !t.title?.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+      return false;
     if (filter !== "All" && t.status !== filter) return false;
-    if (filterOptions.status !== "All" && t.status !== filterOptions.status) return false;
-    if (filterOptions.departmentId !== "All" && String(t.departmentId || t.department_id) !== filterOptions.departmentId) return false;
-    if (filterOptions.assigneeId !== "All" && String(t.assigneeId || t.assignee_id) !== filterOptions.assigneeId) return false;
+    if (filterOptions.status !== "All" && t.status !== filterOptions.status)
+      return false;
+    if (
+      filterOptions.departmentId !== "All" &&
+      String(t.departmentId || t.department_id) !== filterOptions.departmentId
+    )
+      return false;
+    if (
+      filterOptions.assigneeId !== "All" &&
+      String(t.assigneeId || t.assignee_id) !== filterOptions.assigneeId
+    )
+      return false;
     return true;
   });
 
-  const kanbanColumns = ["TODO", "IN_PROGRESS", "DONE", "BLOCKED"].map((status) => ({
-    title: status.replace("_", " "),
-    cards: filteredTasks
-      .filter((t) => t.status === status)
-      .map((t) => ({
-        id: t.id,
-        name: t.title,
-        service: `Assignee: ${t.assigneeName || t.assignee_id}`,
-        status,
-      })),
-  }));
+  const kanbanColumns = ["TODO", "IN_PROGRESS", "DONE", "BLOCKED"].map(
+    (status) => ({
+      title: status.replace("_", " "),
+      cards: filteredTasks
+        .filter((t) => t.status === status)
+        .map((t) => ({
+          id: t.id,
+          name: t.title,
+          service: `Assignee: ${t.assigneeName || t.assignee_id}`,
+          status,
+        })),
+    }),
+  );
 
   const statuses = ["All", "TODO", "IN_PROGRESS", "DONE", "BLOCKED"];
 
@@ -85,6 +103,13 @@ export default function Task() {
       dispatch(deleteTaskThunk(task.id));
     }
   };
+
+  const handleView = (task) => {
+  const id = task?.id || task;
+  if (!id) return;
+  navigate(`/${rolePath}/task/${id}/view`);
+};
+
 
   const handleEdit = (task) => {
     const id = task?.id ?? task;
@@ -153,7 +178,9 @@ export default function Task() {
             key={s}
             onClick={() => setFilter(s)}
             className={`px-4 py-2 text-sm border rounded-lg ${
-              filter === s ? "bg-cyan text-white border-cyan" : "border-gray-300"
+              filter === s
+                ? "bg-cyan text-white border-cyan"
+                : "border-gray-300"
             }`}
           >
             {s}
@@ -170,7 +197,9 @@ export default function Task() {
           <button
             onClick={() => setActiveTab("kanban")}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg border ${
-              activeTab === "kanban" ? "bg-white border-cyan text-cyan shadow" : "border-gray-300"
+              activeTab === "kanban"
+                ? "bg-white border-cyan text-cyan shadow"
+                : "border-gray-300"
             }`}
           >
             <RxDashboard /> Kanban View
@@ -179,7 +208,9 @@ export default function Task() {
           <button
             onClick={() => setActiveTab("table")}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg border ${
-              activeTab === "table" ? "bg-white border-cyan text-cyan shadow" : "border-gray-300"
+              activeTab === "table"
+                ? "bg-white border-cyan text-cyan shadow"
+                : "border-gray-300"
             }`}
           >
             <RxTable /> Table View
@@ -202,6 +233,7 @@ export default function Task() {
                 type="tasks"
                 data={filteredTasks}
                 onDelete={handleDelete}
+                onView={handleView}
                 onEdit={handleEdit}
                 showActions
               />

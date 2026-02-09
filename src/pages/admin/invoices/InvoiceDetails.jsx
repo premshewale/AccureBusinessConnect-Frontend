@@ -17,13 +17,13 @@ export default function InvoiceDetails() {
   const role = useSelector((state) => state.auth.role);
   const rolePath = role?.toLowerCase().replace("_", "-") || "admin";
 
-  const { invoice, loading } = useSelector((state) => state.invoices);
+  const { invoice, loading, error } = useSelector((state) => state.invoices);
 
   const [editedData, setEditedData] = useState({});
 
   // 🔹 Fetch invoice by ID
   useEffect(() => {
-    dispatch(getInvoiceById(id));
+    if (id) dispatch(getInvoiceById(id));
 
     return () => {
       dispatch(resetInvoiceState());
@@ -39,20 +39,23 @@ export default function InvoiceDetails() {
 
   // 🔹 Save updated invoice
   const handleSave = () => {
-    dispatch(
-      adminUpdateExpense({
-        id,
-        payload: editedData,
-      }),
-    ).then((res) => {
+    // Only send editable fields to backend
+    const payload = {
+      status: editedData.status,
+      issueDate: editedData.issueDate,
+      dueDate: editedData.dueDate,
+    };
+
+    dispatch(updateInvoice({ id, payload })).then((res) => {
       if (res.meta.requestStatus === "fulfilled") {
-        // Navigate dynamically based on role
-        navigate(`/${rolePath}/expenses`);
+        navigate(`/${rolePath}/invoices`);
       }
     });
   };
 
   if (loading) return <div className="p-4">Loading invoice details...</div>;
+  if (error)
+    return <div className="p-4 text-red-500">{error || "Failed to load invoice"}</div>;
   if (!invoice)
     return <div className="p-4 text-red-500">Invoice not found</div>;
 
@@ -62,17 +65,8 @@ export default function InvoiceDetails() {
       data={editedData}
       fields={[
         { name: "id", label: "Invoice ID", readOnly: true },
-
-        {
-          name: "customerId",
-          label: "Customer ID",
-          readOnly: true,
-        },
-        {
-          name: "departmentId",
-          label: "Department ID",
-          readOnly: true,
-        },
+        { name: "customerId", label: "Customer ID", readOnly: true },
+        { name: "departmentId", label: "Department ID", readOnly: true },
 
         {
           name: "status",
@@ -81,22 +75,10 @@ export default function InvoiceDetails() {
           options: ["DRAFT", "SENT", "PAID", "UNPAID", "OVERDUE", "CANCELLED"],
         },
 
-        {
-          name: "issueDate",
-          label: "Issue Date",
-          type: "date",
-        },
-        {
-          name: "dueDate",
-          label: "Due Date",
-          type: "date",
-        },
+        { name: "issueDate", label: "Issue Date", type: "date" },
+        { name: "dueDate", label: "Due Date", type: "date" },
 
-        {
-          name: "totalAmount",
-          label: "Total Amount (₹)",
-          readOnly: true,
-        },
+        { name: "totalAmount", label: "Total Amount (₹)", readOnly: true },
       ]}
       isEditMode={true}
       editedData={editedData}

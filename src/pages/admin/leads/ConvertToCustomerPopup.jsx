@@ -22,12 +22,17 @@ export default function ConvertToCustomerPopup({
     });
   };
 
-  const handleSubmit = () => {
-    onSubmit({
-      leadId,
-      ...formData,
-    });
-  };
+const handleSubmit = () => {
+  if (!leadId) {
+    alert("Lead ID missing");
+    return;
+  }
+
+  onSubmit({
+    leadId,
+    ...formData,
+  });
+};
 
   return (
     // ✅ Overlay click closes popup
