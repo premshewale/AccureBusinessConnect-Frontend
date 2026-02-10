@@ -94,6 +94,13 @@ export default function Users() {
           : "INACTIVE",
   }));
 
+const handleView = (user) => {
+  const id = user?.id || user;
+  if (!id) return;
+  navigate(`/${rolePath}/users/${id}/view`);
+};
+
+
   // Edit handler
   const handleEdit = (id) => {
     navigate(`/${rolePath}/users/${id}`);
@@ -201,6 +208,7 @@ export default function Users() {
         <CommonTable
           type="users"
           data={mappedUsers}
+          onView={handleView}
           onEdit={handleEdit}
           onStatusToggle={handleStatusToggle}
         />

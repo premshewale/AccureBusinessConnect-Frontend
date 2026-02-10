@@ -131,10 +131,10 @@ export default function Tickets() {
     navigate(`/${rolePath}/edit-ticket/${id}`);
   };
 
-  const handleView = (ticket) => {
-    const id = ticket?.id ?? ticket;
-    navigate(`/${rolePath}/edit-ticket/${id}`);
-  };
+const handleView = (ticket) => {
+  const id = ticket?.id ?? ticket;
+  navigate(`/${rolePath}/ticket/${id}/view`);
+};
 
   const handleDelete = (ticket) => alert("Delete API not connected yet");
 

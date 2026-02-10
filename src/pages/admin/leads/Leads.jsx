@@ -166,33 +166,27 @@ export default function Leads() {
     setSelectedLead(lead);
     setShowConvertPopup(true);
   };
+const handleView = (lead) => {
+  const id = lead?.id || lead;
+  if (!id) return;
+  navigate(`/${rolePath}/leads/${id}/view`);
+};
 
-  const handleConvertSubmit = async (payload) => {
-    try {
-      await dispatch(
-        adminConvertLeadApi({
-          leadId: payload.leadId,
-          payload: {
-            customerType: payload.customerType,
-            industry: payload.industry,
-            address: payload.address,
-            website: payload.website,
-          },
-        }),
-      ).unwrap();
+const handleConvertSubmit = async (data) => {
+  try {
+    await dispatch(adminConvertLeadApi(data)).unwrap();
 
-      showSuccess("Lead converted to customer successfully");
+    showSuccess("Lead converted to customer successfully");
+    setShowConvertPopup(false);
+    setSelectedLead(null);
+    dispatch(adminGetAllLeads());
+  } catch (err) {
+    showError(err);
+  } finally {
+    dispatch(resetConvertLeadState());
+  }
+};
 
-      setShowConvertPopup(false);
-      setSelectedLead(null);
-
-      dispatch(adminGetAllLeads());
-    } catch (err) {
-      showError(err || "Failed to convert lead");
-    } finally {
-      dispatch(resetConvertLeadState());
-    }
-  };
 
   // 🔹 Update lead status handler
   const handleStatusChange = async (lead, newStatus) => {

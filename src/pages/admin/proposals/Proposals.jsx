@@ -177,10 +177,14 @@ export default function Proposals() {
   ];
 
   const statuses = ["All", "PENDING", "SENT", "ACCEPTED", "REJECTED"];
-  // Edit proposal
+  const handleView = (proposal) => {
+    const id = proposal?.id ?? proposal;
+    navigate(`/${rolePath}/proposals/${id}/view`);
+  };
+
   const handleEdit = (proposal) => {
     const id = proposal?.id ?? proposal;
-    navigate(`/${rolePath}/proposals/${id}`); // ✅ dynamic
+    navigate(`/${rolePath}/proposals/${id}`);
   };
 
   const handleDelete = async (proposal) => {
@@ -200,7 +204,6 @@ export default function Proposals() {
             Manage all customer proposals in one place
           </p>
         </div>
-        // Create proposal
         <button
           onClick={() => navigate(`/${rolePath}/create-proposal`)} // ✅ dynamic
           className="px-4 py-2 bg-cyan text-white rounded-lg shadow"
@@ -312,6 +315,7 @@ export default function Proposals() {
               <CommonTable
                 type="proposals"
                 data={filteredProposals}
+                onView={handleView}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
                 showActions

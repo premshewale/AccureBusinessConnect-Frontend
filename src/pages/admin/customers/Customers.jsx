@@ -303,8 +303,23 @@ export default function Customers() {
     navigate(`/${rolePath}/customers/${id}`);
   };
 
-  const handleView = (customer) => {
-    const id = customer.id ?? customer;
+  // 👁 View (read-only page)
+  const handleView = (payload) => {
+    if (!payload) return;
+
+    const id = typeof payload === "object" ? payload.id : payload;
+    if (!id) return;
+
+    navigate(`/${rolePath}/customers/${id}/view`);
+  };
+
+  // 🧾 Row click → Contacts
+  const handleRowClick = (payload) => {
+    if (!payload) return;
+
+    const id = typeof payload === "object" ? payload.id : payload;
+    if (!id) return;
+
     navigate(`/${rolePath}/customers/${id}/contacts`);
   };
 
@@ -461,7 +476,7 @@ export default function Customers() {
             {activeTab === "table" && (
               <CommonTable
                 type="customers"
-                data={mappedCustomers}
+                data={filteredCustomers}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
                 onView={handleView}
