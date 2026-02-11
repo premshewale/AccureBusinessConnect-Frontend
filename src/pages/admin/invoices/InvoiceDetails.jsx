@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 
 import CommonDetails from "../../../components/common/CommonDetails";
+import { showError, showSuccess } from "../../../utils/toast"; // ✅ toast utils
 
 import {
   getInvoiceById,
@@ -37,8 +38,37 @@ export default function InvoiceDetails() {
     }
   }, [invoice]);
 
+  /* =======================
+     VALIDATION
+  ======================= */
+  const validateInvoice = (data) => {
+    if (!data.status) {
+      showError("Please select invoice status");
+      return false;
+    }
+
+    if (!data.issueDate) {
+      showError("Issue Date is required");
+      return false;
+    }
+
+    if (!data.dueDate) {
+      showError("Due Date is required");
+      return false;
+    }
+
+    if (data.issueDate && data.dueDate && new Date(data.dueDate) < new Date(data.issueDate)) {
+      showError("Due Date cannot be before Issue Date");
+      return false;
+    }
+
+    return true;
+  };
+
   // 🔹 Save updated invoice
   const handleSave = () => {
+    if (!validateInvoice(editedData)) return; // ✅ validation
+
     // Only send editable fields to backend
     const payload = {
       status: editedData.status,
@@ -48,7 +78,10 @@ export default function InvoiceDetails() {
 
     dispatch(updateInvoice({ id, payload })).then((res) => {
       if (res.meta.requestStatus === "fulfilled") {
+        showSuccess("Invoice updated successfully"); // ✅ success toast
         navigate(`/${rolePath}/invoices`);
+      } else {
+        showError("Failed to update invoice"); // ✅ error toast
       }
     });
   };

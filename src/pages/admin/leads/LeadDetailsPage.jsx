@@ -4,10 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 
 import CommonDetails from "../../../components/common/CommonDetails.jsx";
 import ConvertToCustomerPopup from "./ConvertToCustomerPopup.jsx";
-import {
-  LEAD_SOURCE_OPTIONS,
-  LEAD_STATUS_OPTIONS,
-} from "../../../constants/leadEnums.js";
+import { LEAD_SOURCE_OPTIONS, LEAD_STATUS_OPTIONS } from "../../../constants/leadEnums.js";
 
 import { adminGetLeadByIdApi } from "../../../services/lead/adminGetLeadByIdApi";
 import { resetLeadDetails } from "../../../slices/lead/adminGetLeadByIdSlice";
@@ -16,18 +13,17 @@ import { adminDeleteLeadApi } from "../../../services/lead/adminDeleteLeadApi";
 import { resetDeleteLeadState } from "../../../slices/lead/adminDeleteLeadSlice";
 import { adminConvertLeadApi } from "../../../services/lead/adminConvertLeadApi";
 import { resetConvertLeadState } from "../../../slices/lead/adminConvertLeadSlice";
+import { showError, showSuccess } from "../../../utils/toast"; // ✅ toast utils
 
 export default function LeadDetailsPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const { loading, lead, error } = useSelector(
-    (state) => state.adminGetLeadById,
-  );
+  const { loading, lead, error } = useSelector((state) => state.adminGetLeadById);
   const { role } = useSelector((state) => state.auth);
 
-  const rolePath = role ? role.toLowerCase().replace("_", "-") : "admin"; // fallback so existing admin flow never breaks
+  const rolePath = role ? role.toLowerCase().replace("_", "-") : "admin";
 
   const [isEditMode, setIsEditMode] = useState(false);
   const [editedData, setEditedData] = useState({});
@@ -43,7 +39,6 @@ export default function LeadDetailsPage() {
     };
   }, [dispatch, id]);
 
-  // Populate editable data when lead loads
   useEffect(() => {
     if (lead) {
       setEditedData({
@@ -64,9 +59,7 @@ export default function LeadDetailsPage() {
   }, [lead]);
 
   if (loading)
-    return (
-      <p className="mt-6 text-gray-500 text-center">Loading lead details...</p>
-    );
+    return <p className="mt-6 text-gray-500 text-center">Loading lead details...</p>;
   if (error) return <p className="mt-6 text-red-500 text-center">{error}</p>;
   if (!lead) return null;
 
@@ -78,39 +71,16 @@ export default function LeadDetailsPage() {
     { name: "name", label: "Name" },
     { name: "email", label: "Email" },
     { name: "phone", label: "Phone" },
-    {
-      name: "source",
-      label: "Source",
-      type: "select",
-      options: LEAD_SOURCE_OPTIONS,
-    },
-    {
-      name: "status",
-      label: "Status",
-      type: "select",
-      options: LEAD_STATUS_OPTIONS,
-    },
+    { name: "source", label: "Source", type: "select", options: LEAD_SOURCE_OPTIONS },
+    { name: "status", label: "Status", type: "select", options: LEAD_STATUS_OPTIONS, readOnly: true },
     { name: "ownerName", label: "Owner", readOnly: true },
     { name: "assignedToName", label: "Assigned To", readOnly: true },
     { name: "departmentName", label: "Department", readOnly: true },
     { name: "customerId", label: "Customer ID", readOnly: true },
-    {
-      name: "createdAt",
-      label: "Created At",
-      readOnly: true,
-      format: (val) => (val ? new Date(val).toLocaleString("en-IN") : "N/A"),
-    },
-    {
-      name: "updatedAt",
-      label: "Last Updated",
-      readOnly: true,
-      format: (val) => (val ? new Date(val).toLocaleString("en-IN") : "N/A"),
-    },
+    { name: "createdAt", label: "Created At", readOnly: true, format: (val) => val ? new Date(val).toLocaleString("en-IN") : "N/A" },
+    { name: "updatedAt", label: "Last Updated", readOnly: true, format: (val) => val ? new Date(val).toLocaleString("en-IN") : "N/A" },
   ];
 
-  /* =======================
-     FORMAT DISPLAY DATA
-  ======================= */
   const formattedLead = { ...editedData };
   leadFields.forEach((field) => {
     if (field.format && formattedLead[field.name]) {
@@ -119,21 +89,48 @@ export default function LeadDetailsPage() {
   });
 
   /* =======================
+     VALIDATION
+  ======================= */
+  const validateLead = (data) => {
+    if (!data.name || data.name.trim().length < 3) {
+      showError("Name must be at least 3 characters");
+      return false;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!data.email || !emailRegex.test(data.email)) {
+      showError("Please enter a valid email address");
+      return false;
+    }
+    if (!data.phone || data.phone.trim().length < 10) {
+      showError("Phone number must be at least 10 digits");
+      return false;
+    }
+    if (!data.source) {
+      showError("Please select a lead source");
+      return false;
+    }
+    if (!data.status) {
+      showError("Please select a lead status");
+      return false;
+    }
+    return true;
+  };
+
+  /* =======================
      HANDLERS
   ======================= */
   const handleEdit = () => setIsEditMode(true);
   const handleCancelEdit = () => setIsEditMode(false);
 
   const handleSave = async () => {
+    if (!validateLead(editedData)) return; // ✅ validation
+
     try {
       await dispatch(adminUpdateLeadApi({ id, payload: editedData })).unwrap();
-
-      alert("Lead updated successfully");
-
-      // 👉 navigate to Leads.jsx page after save
+      showSuccess("Lead updated successfully"); // ✅ success toast
       navigate(`/${rolePath}/leads`);
     } catch (err) {
-      alert(err?.message || "Failed to update lead");
+      showError(err?.message || "Failed to update lead"); // ✅ error toast
     }
   };
 
@@ -141,11 +138,11 @@ export default function LeadDetailsPage() {
     if (!window.confirm("Are you sure you want to delete this lead?")) return;
     try {
       await dispatch(adminDeleteLeadApi(id)).unwrap();
-      alert("Lead deleted successfully");
+      showSuccess("Lead deleted successfully"); // ✅ success toast
       navigate(`/${rolePath}/leads`);
       dispatch(resetDeleteLeadState());
     } catch (err) {
-      alert(err?.message || "Failed to delete lead");
+      showError(err?.message || "Failed to delete lead"); // ✅ error toast
     }
   };
 
@@ -153,23 +150,21 @@ export default function LeadDetailsPage() {
 
   const handleConvertSubmit = async (payload) => {
     try {
-      await dispatch(
-        adminConvertLeadApi({
-          leadId: payload.leadId,
-          payload: {
-            customerType: payload.customerType,
-            industry: payload.industry,
-            address: payload.address,
-            website: payload.website,
-          },
-        }),
-      ).unwrap();
-      alert("Lead converted to customer successfully");
+      await dispatch(adminConvertLeadApi({
+        leadId: payload.leadId,
+        payload: {
+          customerType: payload.customerType,
+          industry: payload.industry,
+          address: payload.address,
+          website: payload.website,
+        },
+      })).unwrap();
+      showSuccess("Lead converted to customer successfully"); // ✅ success toast
       setShowConvertPopup(false);
       dispatch(adminGetLeadByIdApi(id));
       dispatch(resetConvertLeadState());
     } catch (err) {
-      alert(err?.message || "Failed to convert lead");
+      showError(err?.message || "Failed to convert lead"); // ✅ error toast
     }
   };
 

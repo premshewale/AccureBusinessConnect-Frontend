@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
 import CommonDetails from "../../../components/common/CommonDetails.jsx";
+import { showError, showSuccess } from "../../../utils/toast"; // ✅ toast utils
 
 // Thunks
 import { getTicketById as fetchTicketById } from "../../../services/ticket/getTicketByIdApi.js";
@@ -56,16 +57,45 @@ export default function TicketDetails() {
     }
   }, [ticket]);
 
+  /* =======================
+     VALIDATION
+  ======================= */
+  const validateTicket = (data) => {
+    if (!data.subject || data.subject.trim().length < 3) {
+      showError("Subject must be at least 3 characters");
+      return false;
+    }
+
+    if (!data.description || data.description.trim().length < 5) {
+      showError("Description must be at least 5 characters");
+      return false;
+    }
+
+    if (!data.priority) {
+      showError("Please select a priority");
+      return false;
+    }
+
+    if (!data.status) {
+      showError("Please select a status");
+      return false;
+    }
+
+    return true;
+  };
+
   // Save handler
   const handleSave = async () => {
+    if (!validateTicket(editedData)) return; // ✅ validation
+
     try {
       await dispatch(updateTicket({ id, payload: editedData })).unwrap();
-      alert("Ticket updated successfully");
+      showSuccess("Ticket updated successfully"); // ✅ success toast
 
       // Navigate to the ticket page after save
       navigate(`/${rolePath}/ticket`);
     } catch (err) {
-      alert(err?.message || "Failed to update ticket");
+      showError(err?.message || "Failed to update ticket"); // ✅ error toast
     }
   };
 
@@ -96,7 +126,7 @@ export default function TicketDetails() {
       {/* Back Button */}
       <button
         className="mb-6 px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition"
-        onClick={() => navigate(`/${rolePath}/tickets`)}
+        onClick={() => navigate(`/${rolePath}/ticket`)}
       >
         ← Back
       </button>

@@ -8,6 +8,8 @@ import { useEffect } from "react";
 
 import { adminGetAllProposals } from "../../../services/proposal/adminGetAllProposalsApi";
 import { adminDeleteProposalApi } from "../../../services/proposal/adminDeleteProposalApi";
+import { adminUpdateProposalStatusApi } from "../../../services/proposal/adminUpdateProposalStatusApi";
+
 
 import Kanban from "../../../components/common/Kanban.jsx";
 import CommonTable from "../../../components/common/CommonTable.jsx";
@@ -194,6 +196,17 @@ export default function Proposals() {
       dispatch(adminDeleteProposalApi(id));
     }
   };
+  const handleStatusChange = (proposal, newStatus) => {
+  if (!proposal?.id || proposal.status === newStatus) return;
+
+  dispatch(
+    adminUpdateProposalStatusApi({
+      id: proposal.id,
+      status: newStatus,
+    })
+  );
+};
+
 
   return (
     <div className="p-4">
@@ -318,6 +331,7 @@ export default function Proposals() {
                 onView={handleView}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
+                onStatusChange={handleStatusChange}
                 showActions
               />
             )}

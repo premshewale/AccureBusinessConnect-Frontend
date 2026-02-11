@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 
 import CommonDetails from "../../../components/common/CommonDetails";
+import { showError, showSuccess } from "../../../utils/toast"; // ✅ toast utils
 import {
   fetchTaskById,
   updateExistingTask,
@@ -35,13 +36,49 @@ export default function TaskDetails() {
     if (task) setEditedData(task);
   }, [task]);
 
+  /* =======================
+     VALIDATION
+  ======================= */
+  const validateTask = (data) => {
+    if (!data.title || data.title.trim().length < 3) {
+      showError("Title must be at least 3 characters");
+      return false;
+    }
+
+    if (!data.status) {
+      showError("Please select a status");
+      return false;
+    }
+
+    if (!data.dueDate) {
+      showError("Due Date is required");
+      return false;
+    }
+
+    const dueDateObj = new Date(data.dueDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // ignore time
+
+    if (dueDateObj < today) {
+      showError("Due Date cannot be in the past");
+      return false;
+    }
+
+    return true;
+  };
+
   // Save changes
   const handleSave = () => {
+    if (!validateTask(editedData)) return; // ✅ validation
+
     setUpdating(true);
     dispatch(updateExistingTask({ id, payload: editedData }))
       .then((res) => {
         if (res.meta.requestStatus === "fulfilled") {
+          showSuccess("Task updated successfully"); // ✅ success toast
           navigate(`/${rolePath}/task`);
+        } else {
+          showError("Failed to update task"); // ✅ error toast
         }
       })
       .finally(() => setUpdating(false));
@@ -62,7 +99,6 @@ export default function TaskDetails() {
           name: "status",
           label: "Status",
           type: "select",
-          // fixed to match backend ENUM exactly
           options: ["TODO", "IN_PROGRESS", "DONE", "BLOCKED"],
         },
 

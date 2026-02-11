@@ -15,6 +15,7 @@ import TaskFilter from "./TaskFilter";
 import {
   fetchAllTasks,
   deleteTask as deleteTaskThunk,
+  changeTaskStatus, // ✅ ADDED
 } from "../../../slices/tasks/tasksSlice";
 
 export default function Task() {
@@ -25,7 +26,8 @@ export default function Task() {
   const { role } = useSelector((state) => state.auth.user);
   const rolePath = role?.toLowerCase() || "admin";
 
-  const [activeTab, setActiveTab] = useState("table");
+  const [activeTab, setActiveTab] = useState("kanban");
+
   const [searchQuery, setSearchQuery] = useState("");
   const [showFilter, setShowFilter] = useState(false);
   const [filter, setFilter] = useState("All");
@@ -105,15 +107,19 @@ export default function Task() {
   };
 
   const handleView = (task) => {
-  const id = task?.id || task;
-  if (!id) return;
-  navigate(`/${rolePath}/task/${id}/view`);
-};
-
+    const id = task?.id || task;
+    if (!id) return;
+    navigate(`/${rolePath}/task/${id}/view`);
+  };
 
   const handleEdit = (task) => {
     const id = task?.id ?? task;
     navigate(`/${rolePath}/task/${id}`);
+  };
+
+  // ✅ STATUS CHANGE HANDLER (ONLY ADDITION)
+  const handleStatusChange = (task, newStatus) => {
+    dispatch(changeTaskStatus({ id: task.id, status: newStatus }));
   };
 
   return (
@@ -187,7 +193,6 @@ export default function Task() {
           </button>
         ))}
       </div>
-
       <div className="flex justify-between items-center mb-4">
         <p className="text-gray-600">
           Showing {filteredTasks.length} of {tasks.length} tasks
@@ -196,10 +201,10 @@ export default function Task() {
         <div className="flex gap-2">
           <button
             onClick={() => setActiveTab("kanban")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg border ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${
               activeTab === "kanban"
                 ? "bg-white border-cyan text-cyan shadow"
-                : "border-gray-300"
+                : "bg-transparent hover:bg-gray-100 border-gray-300 text-gray-700"
             }`}
           >
             <RxDashboard /> Kanban View
@@ -207,10 +212,10 @@ export default function Task() {
 
           <button
             onClick={() => setActiveTab("table")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg border ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${
               activeTab === "table"
                 ? "bg-white border-cyan text-cyan shadow"
-                : "border-gray-300"
+                : "bg-transparent hover:bg-gray-100 border-gray-300 text-gray-700"
             }`}
           >
             <RxTable /> Table View
@@ -235,6 +240,7 @@ export default function Task() {
                 onDelete={handleDelete}
                 onView={handleView}
                 onEdit={handleEdit}
+                onStatusChange={handleStatusChange} // ✅ ADDED
                 showActions
               />
             )}

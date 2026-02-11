@@ -4,7 +4,8 @@ import {
   getInvoiceById, 
   createInvoice, 
   updateInvoice, 
-  deleteInvoice 
+  deleteInvoice,
+  updateInvoiceStatus  
 } from "../../services/invoices/invoiceApi";
 
 const initialState = {
@@ -99,7 +100,25 @@ const invoiceSlice = createSlice({
       .addCase(deleteInvoice.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
-      });
+      })
+
+      // update status
+
+      .addCase(updateInvoiceStatus.pending, (state) => {
+  state.loading = true;
+  state.error = null;
+})
+.addCase(updateInvoiceStatus.fulfilled, (state, action) => {
+  state.loading = false;
+  state.invoices = state.invoices.map(inv =>
+    inv.id === action.payload.id ? action.payload : inv
+  );
+})
+.addCase(updateInvoiceStatus.rejected, (state, action) => {
+  state.loading = false;
+  state.error = action.payload;
+});
+
   },
 });
 

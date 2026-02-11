@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 
 import CommonDetails from "../../../components/common/CommonDetails";
+import { showError, showSuccess } from "../../../utils/toast";
 
 import { adminGetUserById } from "../../../services/user/adminGetUserByIdApi";
 import { resetAdminGetUserById } from "../../../slices/user/adminGetUserByIdSlice";
@@ -14,15 +15,12 @@ export default function UserDetails() {
   const dispatch = useDispatch();
 
   const { user, loading } = useSelector((state) => state.adminGetUserById);
-  const { loading: updateLoading } = useSelector(
-    (state) => state.adminUpdateUser,
+  const { loading: updateLoading, error, success } = useSelector(
+    (state) => state.adminUpdateUser
   );
 
-  // 👉 get logged in role from auth slice
   const role = useSelector((state) => state.auth.role);
-
-  // 👉 convert role to url part: ADMIN -> admin, SUB_ADMIN -> sub-admin
-  const rolePath = role ? role.toLowerCase().replace("_", "-") : "admin"; // fallback
+  const rolePath = role ? role.toLowerCase().replace("_", "-") : "admin";
 
   const [editedData, setEditedData] = useState({});
 
@@ -36,23 +34,56 @@ export default function UserDetails() {
 
   // 🔹 Sync API data into form
   useEffect(() => {
-    if (user) {
-      setEditedData(user);
-    }
+    if (user) setEditedData(user);
   }, [user]);
+
+  // 🔹 Show toast on update success/error
+  useEffect(() => {
+    if (success) {
+      showSuccess("User updated successfully");
+      navigate(`/${rolePath}/users`);
+    }
+    if (error) {
+      showError(typeof error === "string" ? error : error.message || "Update failed");
+    }
+  }, [success, error, navigate, rolePath]);
+
+  // 🔹 Validation before save
+  const validateForm = (data) => {
+    if (!data.name || data.name.trim().length < 3) {
+      showError("Name must be at least 3 characters");
+      return false;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!data.email || !emailRegex.test(data.email)) {
+      showError("Please enter a valid email address");
+      return false;
+    }
+
+    if (!data.jobTitle || data.jobTitle.trim() === "") {
+      showError("Job Title is required");
+      return false;
+    }
+
+    if (!data.roleName) {
+      showError("Please select a role");
+      return false;
+    }
+
+    return true;
+  };
 
   // 🔹 Save
   const handleSave = () => {
+    if (!validateForm(editedData)) return;
+
     dispatch(
       adminUpdateUser({
         id,
         payload: editedData,
-      }),
-    ).then((res) => {
-      if (res.meta.requestStatus === "fulfilled") {
-        navigate(`/${rolePath}/users`);
-      }
-    });
+      })
+    );
   };
 
   if (loading) return <div className="p-4">Loading user details...</div>;

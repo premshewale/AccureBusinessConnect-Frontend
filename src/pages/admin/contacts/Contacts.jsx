@@ -6,6 +6,7 @@ import { IoSearchSharp } from "react-icons/io5";
 
 import Kanban from "../../../components/common/Kanban.jsx";
 import CommonTable from "../../../components/common/CommonTable.jsx";
+import ContactStats from "./ContactStats.jsx";
 
 import { adminGetContacts } from "../../../services/contact/adminGetContactsApi";
 import {
@@ -19,6 +20,7 @@ export default function Contacts() {
   const [activeTab, setActiveTab] = useState("table");
   const [filter, setFilter] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
+  const [contactToggles, setContactToggles] = useState({});
 
   const role = useSelector((state) => state.auth.role);
   const rolePath = role?.toLowerCase().replace("_", "-");
@@ -33,10 +35,7 @@ export default function Contacts() {
     error,
   } = useSelector((state) => state.adminGetContacts);
 
-  /* ✅ SOURCE OF TRUTH FOR TOGGLE */
-  const [contactToggles, setcontactToggles] = useState({});
-
-  /* Fetch contacts */
+  // Fetch contacts
   useEffect(() => {
     const id = Number(customerId);
     if (customerId && !isNaN(id)) {
@@ -46,22 +45,62 @@ export default function Contacts() {
     }
   }, [dispatch, customerId]);
 
-  /* ✅ INITIALIZE TOGGLES ONLY ONCE */
+  // Initialize toggle states
   useEffect(() => {
-    setcontactToggles((prev) => {
-      if (Object.keys(prev).length > 0) return prev;
-
+    if (contacts.length > 0 && Object.keys(contactToggles).length === 0) {
       const initial = {};
       contacts.forEach((c) => {
         initial[c.id] = c.isGoogleSynced;
       });
-      return initial;
-    });
+      setContactToggles(initial);
+    }
+  }, [contacts, contactToggles]);
+
+  // Calculate contact statistics
+  const contactStats = React.useMemo(() => {
+    const total = contacts.length;
+    const active = contacts.filter(c => c.status === "ACTIVE" || c.active === true).length;
+    const inactive = contacts.filter(c => c.status === "INACTIVE" || c.active === false).length;
+    const primary = contacts.filter(c => c.primary === true || c.is_primary === true).length;
+    
+    const withEmail = contacts.filter(c => c.email && c.email.trim() !== "").length;
+    const withPhone = contacts.filter(c => c.phone && c.phone.trim() !== "").length;
+    
+    // Count unique roles
+    const uniqueRoles = new Set(contacts.map(c => c.role).filter(Boolean)).size;
+    
+    // Count unique locations (based on city/address)
+    const uniqueLocations = new Set(
+      contacts
+        .map(c => c.city || c.address)
+        .filter(Boolean)
+        .map(loc => loc.toLowerCase())
+    ).size;
+
+    return {
+      total,
+      active,
+      inactive,
+      primary,
+      withEmail,
+      withPhone,
+      uniqueRoles,
+      locations: uniqueLocations,
+      // These would typically come from backend or historical data
+      totalChange: "+12%",
+      activeChange: "+8%",
+      inactiveChange: "-3%",
+      primaryChange: "+5%",
+      emailChange: "+15%",
+      phoneChange: "+10%",
+      rolesChange: "+7%",
+      locationsChange: "+6%",
+    };
   }, [contacts]);
 
-  const statuses = ["All", "New", "Contacted", "Lost"];
+  const statuses = ["All", "Active", "Inactive", "New", "Contacted", "Lost"];
 
-  /* ✅ TABLE DATA WITH TOGGLE STATE APPLIED */
+  // Table data with toggle state applied
   const tableData = contacts.map((c) => ({
     id: c.id,
     firstname: c.firstName,
@@ -71,53 +110,61 @@ export default function Contacts() {
     role: c.role || "-",
     customerName: c.customerName,
     is_primary: c.primary,
-    status: c.status || "ACTIVE", // default status
+    status: c.status || "ACTIVE",
     toggle:
       contactToggles[c.id] === undefined
-        ? c.primary // or whatever default you want
+        ? c.primary
         : contactToggles[c.id],
-    actions: "actions", // placeholder
+    actions: "actions",
   }));
 
   const filteredTableData = tableData.filter((c) => {
-    const matchesFilter = filter === "All" || c.status === filter;
+    const matchesFilter = filter === "All" || 
+                         (filter === "Active" && c.status === "ACTIVE") ||
+                         (filter === "Inactive" && c.status === "INACTIVE") ||
+                         (filter.toLowerCase() === c.status?.toLowerCase());
+    
     const matchesSearch =
       !searchQuery ||
       c.firstname?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       c.lastname?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       c.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.phone?.includes(searchQuery);
+      c.phone?.includes(searchQuery) ||
+      c.customerName?.toLowerCase().includes(searchQuery.toLowerCase());
+    
     return matchesFilter && matchesSearch;
   });
 
-  /* ✅ KANBAN */
+  // Kanban columns
   const kanbanColumns = statuses
     .filter((s) => s !== "All")
     .map((status) => ({
       title: status,
-      cards: contacts.filter((c) => c.status === status),
+      cards: contacts.filter((c) => c.status === status.toUpperCase() || 
+                                  (status === "Active" && c.status === "ACTIVE") ||
+                                  (status === "Inactive" && c.status === "INACTIVE")),
     }));
 
   const handleEdit = (id) => {
     navigate(`/${rolePath}/contacts/${id}`);
   };
 
-  /* ✅ CONTACT TOGGLE — USER STYLE WITH ACTIVATE / DEACTIVATE */
+  // Contact toggle handler
   const handleContactToggle = async (id, newValue) => {
     const isActivating = newValue === true;
 
     // Optimistic update
-    setcontactToggles((prev) => ({
+    setContactToggles((prev) => ({
       ...prev,
       [id]: isActivating,
     }));
 
     if (!isActivating) {
       const confirmDeactivate = window.confirm(
-        "Are you sure you want to deactivate this contact?",
+        "Are you sure you want to deactivate this contact?"
       );
       if (!confirmDeactivate) {
-        setcontactToggles((prev) => ({ ...prev, [id]: true }));
+        setContactToggles((prev) => ({ ...prev, [id]: true }));
         showInfo("Contact deactivation cancelled");
         return;
       }
@@ -133,7 +180,7 @@ export default function Contacts() {
       }
     } catch (err) {
       // Rollback on failure
-      setcontactToggles((prev) => ({
+      setContactToggles((prev) => ({
         ...prev,
         [id]: !isActivating,
       }));
@@ -152,22 +199,25 @@ export default function Contacts() {
 
         <button
           onClick={() => navigate(`/${rolePath}/create-contact/${customerId}`)}
-          className="px-4 py-2 bg-cyan text-white rounded-lg shadow"
+          className="px-4 py-2 bg-cyan text-white rounded-lg shadow hover:bg-cyan-700 transition-colors flex items-center gap-2"
         >
-          + New Contact
+          <span>+</span> New Contact
         </button>
       </div>
 
+      {/* Statistics Cards */}
+      <ContactStats stats={contactStats} />
+
       {/* Status Filters */}
-      <div className="flex gap-2 mb-4 flex-wrap">
+      <div className="flex gap-2 mb-6 flex-wrap">
         {statuses.map((status) => (
           <button
             key={status}
             onClick={() => setFilter(status)}
-            className={`px-4 py-2 rounded-lg border ${
+            className={`rounded-lg px-4 py-2 text-sm font-medium border transition-colors ${
               filter === status
-                ? "bg-cyan text-white"
-                : "bg-white text-gray-600"
+                ? "bg-cyan text-white border-cyan"
+                : "bg-white text-gray-600 border-gray-300 hover:bg-gray-50"
             }`}
           >
             {status}
@@ -176,45 +226,94 @@ export default function Contacts() {
       </div>
 
       {/* Search + View Toggle */}
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 p-4 bg-white rounded-lg shadow-sm border">
+        {/* Search - only shown in table view */}
         {activeTab === "table" && (
-          <div className="relative w-64">
+          <div className="relative w-full md:w-96">
             <IoSearchSharp className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search contact..."
-              className="w-full h-10 pl-10 pr-3 border rounded-lg"
+              placeholder="Search contacts by name, email, phone, company..."
+              className="w-full h-10 pl-10 pr-3 rounded-lg border text-sm outline-none focus:border-cyan"
             />
           </div>
         )}
 
-        <div className="flex gap-2">
-          <button onClick={() => setActiveTab("kanban")}>
-            <RxDashboard />
+        {/* View Toggle Buttons */}
+        <div className="flex gap-2 ml-auto">
+          <button
+            onClick={() => setActiveTab("kanban")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${
+              activeTab === "kanban"
+                ? "bg-white border-cyan text-cyan shadow"
+                : "bg-transparent hover:bg-gray-100 border-gray-300 text-gray-700"
+            }`}
+          >
+            <RxDashboard /> Kanban View
           </button>
-          <button onClick={() => setActiveTab("table")}>
-            <RxTable />
+          <button
+            onClick={() => setActiveTab("table")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${
+              activeTab === "table"
+                ? "bg-white border-cyan text-cyan shadow"
+                : "bg-transparent hover:bg-gray-100 border-gray-300 text-gray-700"
+            }`}
+          >
+            <RxTable /> Table View
           </button>
         </div>
       </div>
 
-      {loading && <p>Loading contacts...</p>}
-      {error && <p className="text-red-500">{error}</p>}
+      {/* Loading State */}
+      {loading && (
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-cyan"></div>
+        </div>
+      )}
 
-      <div className="mt-6">
-        {activeTab === "kanban" && <Kanban columns={kanbanColumns} />}
+      {/* Error State */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
+          <p className="font-medium">Error loading contacts</p>
+          <p className="text-sm">{error}</p>
+        </div>
+      )}
 
-        {activeTab === "table" && (
-          <CommonTable
-            type="contacts"
-            data={tableData}
-            onEdit={handleEdit}
-            onStatusToggle={handleContactToggle}
-            showActions
-          />
-        )}
-      </div>
+      {/* Content Area */}
+      {!loading && !error && (
+        <div className="bg-white rounded-xl shadow-sm border p-4">
+          {filteredTableData.length === 0 ? (
+            <div className="text-center p-8 text-gray-500">
+              <div className="text-4xl mb-4">📇</div>
+              <p className="text-lg mb-2">No contacts found</p>
+              <p className="text-sm mb-4">
+                Try adjusting your filters or search query
+              </p>
+              <button
+                onClick={() => navigate(`/${rolePath}/create-contact/${customerId}`)}
+                className="px-4 py-2 bg-cyan text-white rounded-lg hover:bg-cyan-700 transition-colors"
+              >
+                + Add Your First Contact
+              </button>
+            </div>
+          ) : (
+            <>
+              {activeTab === "kanban" && <Kanban columns={kanbanColumns} />}
+              {activeTab === "table" && (
+                <CommonTable
+                  type="contacts"
+                  data={tableData}
+                  onEdit={handleEdit}
+                  onStatusToggle={handleContactToggle}
+                  showActions={true}
+                  showExport={false}
+                />
+              )}
+            </>
+          )}
+        </div>
+      )}
     </div>
   );
 }

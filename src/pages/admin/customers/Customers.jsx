@@ -3,22 +3,19 @@ import { useNavigate } from "react-router-dom";
 import { RxDashboard, RxTable } from "react-icons/rx";
 import { IoSearchSharp, IoFilterSharp } from "react-icons/io5";
 import { MdOutlineRefresh } from "react-icons/md";
-import { FiDownload } from "react-icons/fi";
 
 import Kanban from "../../../components/common/Kanban.jsx";
 import CommonTable from "../../../components/common/CommonTable.jsx";
 import CommonExportButton from "../../../components/common/CommonExportButton.jsx";
 import CustomerFilter from "./CustomerFilter.jsx";
+import CustomerStats from "./CustomerStats.jsx";
 import { useDispatch, useSelector } from "react-redux";
 import { adminGetAllCustomers } from "../../../services/customers/adminGetAllCustomersApi";
 import {
   adminActivateCustomer,
   adminDeactivateCustomer,
 } from "../../../services/customers/adminToggleCustomerStatusApi";
-
 import { showSuccess, showError, showInfo } from "../../../utils/toast";
-
-// ✅ Import delete customer thunk and reset state
 import {
   deleteCustomer,
   resetDeleteCustomerState,
@@ -44,6 +41,7 @@ export default function Customers() {
     (state) => state.adminGetAllCustomers,
   );
 
+  // Fetch customers on component mount and when search query changes
   useEffect(() => {
     dispatch(
       adminGetAllCustomers({
@@ -53,20 +51,49 @@ export default function Customers() {
       }),
     );
   }, [dispatch, searchQuery]);
-  useEffect(() => {
-    setCustomerToggles((prev) => {
-      if (Object.keys(prev).length > 0) return prev;
 
+  // Initialize toggle states from customer data
+  useEffect(() => {
+    if (customers.length > 0 && Object.keys(customerToggles).length === 0) {
       const initial = {};
       customers.forEach((c) => {
         initial[c.id] = c.status === "ACTIVE";
       });
-      return initial;
-    });
+      setCustomerToggles(initial);
+    }
+  }, [customers, customerToggles]);
+
+  // Calculate customer stats
+  const customerStats = React.useMemo(() => {
+    const total = customers.length;
+    const active = customers.filter((c) => c.status === "ACTIVE").length;
+    const newCustomers = customers.filter((c) => {
+      const createdDate = new Date(c.createdAt);
+      const now = new Date();
+      const oneMonthAgo = new Date(now.setMonth(now.getMonth() - 1));
+      return createdDate > oneMonthAgo;
+    }).length;
+    const prospect = customers.filter((c) => c.status === "PROSPECT").length;
+
+    // Calculate total value (assuming each customer has a 'totalValue' property)
+    const totalValue = customers.reduce(
+      (sum, customer) => sum + (customer.totalValue || 0),
+      0,
+    );
+
+    const avgValue = total > 0 ? totalValue / total : 0;
+
+    return {
+      total,
+      active,
+      new: newCustomers,
+      prospect,
+      totalValue,
+      avgValue,
+    };
   }, [customers]);
-  /* ===========================
-   MAP CUSTOMERS (TOGGLE STATE)
-=========================== */
+
+  // Map customers with toggle state for optimistic UI
   const mappedCustomers = customers.map((customer) => ({
     ...customer,
     status:
@@ -77,9 +104,35 @@ export default function Customers() {
           : "INACTIVE",
   }));
 
+  const handleRefresh = () => {
+    dispatch(
+      adminGetAllCustomers({
+        page: 0,
+        size: 10,
+        search: searchQuery,
+      }),
+    );
+    setCustomerToggles({}); // Reset toggles on refresh
+  };
+
+  // Export data function
+  const exportData = customers.map((customer) => ({
+    ID: customer.id,
+    Name: customer.name,
+    Email: customer.email,
+    Phone: customer.phone,
+    Company: customer.company,
+    Industry: customer.industry,
+    Status: customer.status,
+    Source: customer.source,
+    "Total Value": customer.totalValue || 0,
+    "Last Contact": customer.lastContact,
+    Created: customer.createdAt,
+  }));
+
   /* ===========================
-   FILTER LOGIC (FIXED)
-=========================== */
+     FILTER LOGIC
+  ============================ */
   const filteredCustomers = mappedCustomers.filter((customer) => {
     if (
       searchQuery &&
@@ -118,21 +171,26 @@ export default function Customers() {
     return true;
   });
 
+  /* ===========================
+     STATUS TOGGLE HANDLER
+  ============================ */
   const handleStatusToggle = async (id, newStatus) => {
     const isActivating = newStatus === "ACTIVE";
 
-    // Optimistic UI
+    // Optimistic UI update
     setCustomerToggles((prev) => ({
       ...prev,
       [id]: isActivating,
     }));
 
     if (!isActivating) {
+      // Deactivation requires confirmation
       const confirm = window.confirm(
         "Are you sure you want to deactivate this customer?",
       );
 
       if (!confirm) {
+        // Revert optimistic update if cancelled
         setCustomerToggles((prev) => ({ ...prev, [id]: true }));
         showInfo("Customer deactivation cancelled");
         return;
@@ -143,6 +201,7 @@ export default function Customers() {
         showSuccess("Customer deactivated successfully");
       } catch (err) {
         showError(err || "Failed to deactivate customer");
+        // Revert optimistic update on error
         setCustomerToggles((prev) => ({ ...prev, [id]: true }));
       }
     } else {
@@ -151,31 +210,14 @@ export default function Customers() {
         showSuccess("Customer activated successfully");
       } catch (err) {
         showError(err || "Failed to activate customer");
+        // Revert optimistic update on error
         setCustomerToggles((prev) => ({ ...prev, [id]: false }));
       }
     }
   };
 
-  const handleRefresh = () => {
-    window.location.reload();
-  };
-
-  const exportData = customers.map((customer) => ({
-    ID: customer.id,
-    Name: customer.name,
-    Email: customer.email,
-    Phone: customer.phone,
-    Company: customer.company,
-    Industry: customer.industry,
-    Status: customer.status,
-    Source: customer.source,
-    "Total Value": customer.totalValue,
-    "Last Contact": customer.lastContact,
-    Created: customer.createdAt,
-  }));
-
   /* ===========================
-     KANBAN (FIXED)
+     KANBAN COLUMNS
   ============================ */
   const kanbanColumns = [
     {
@@ -257,7 +299,8 @@ export default function Customers() {
   const role = useSelector((state) => state.auth.role);
   const rolePath = role?.toLowerCase().replace("_", "-");
 
-  const handleEdit = (id) => {
+  const handleEdit = (customer) => {
+    const id = customer.id ?? customer;
     navigate(`/${rolePath}/customers/${id}`);
   };
 
@@ -281,7 +324,8 @@ export default function Customers() {
     navigate(`/${rolePath}/customers/${id}/contacts`);
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (customer) => {
+    const id = customer.id ?? customer;
     if (!window.confirm("Are you sure you want to delete this customer?"))
       return;
 
@@ -289,6 +333,7 @@ export default function Customers() {
       await dispatch(deleteCustomer(id)).unwrap();
       showSuccess("Customer deleted successfully");
 
+      // Refresh the customer list
       dispatch(
         adminGetAllCustomers({ page: 0, size: 10, search: searchQuery }),
       );
@@ -316,6 +361,9 @@ export default function Customers() {
           <span>+</span> Add Customer
         </button>
       </div>
+
+      {/* Statistics Cards */}
+      <CustomerStats stats={customerStats} />
 
       {/* Actions Bar */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 p-4 bg-white rounded-lg shadow-sm border">
@@ -432,8 +480,8 @@ export default function Customers() {
                 data={filteredCustomers}
                 onEdit={handleEdit}
                 // onDelete={handleDelete}
-                onView={handleView} // 👁 icon → ShowCustomer
-                onRowClick={handleRowClick} // row click → Contacts
+                onView={handleView}
+                onRowClick={handleRowClick}
                 onStatusToggle={handleStatusToggle}
                 showExport={false}
                 showActions={true}
