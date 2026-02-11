@@ -16,6 +16,7 @@ export default function CommonTable({
   onDelete,
   onView,
   onConvertToCustomer,
+  onEscalate,
   onStatusToggle,
   onStatusChange,
   showExport = true,
@@ -27,10 +28,20 @@ export default function CommonTable({
   searchable = true,
 }) {
   const [searchTerm, setSearchTerm] = useState("");
+  const [openStatusRowId, setOpenStatusRowId] = useState(null);
+  const STATUS_EDITABLE_TYPES = ["leads", "tasks", "invoices", "proposals"];
+
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [sortColumn, setSortColumn] = useState("");
   const [sortDirection, setSortDirection] = useState("asc");
+  const STATUS_MAP = {
+    leads: ["NEW", "CONTACTED", "QUALIFIED", "LOST"],
+    tasks: ["TODO", "IN_PROGRESS", "DONE", "BLOCKED"],
+    invoices: ["DRAFT", "SENT", "PAID", "UNPAID", "OVERDUE", "CANCELLED"],
+    proposals: ["PENDING", "SENT", "ACCEPTED", "REJECTED"],
+  };
+
   const LEAD_STATUSES = ["NEW", "CONTACTED", "QUALIFIED", "LOST", "WON"];
 
   // Define headers based on types
@@ -296,6 +307,10 @@ export default function CommonTable({
 
       paid: { color: "bg-green-100 text-green-800", label: "Paid" },
       pending: { color: "bg-yellow-100 text-yellow-800", label: "Pending" },
+      sent: { color: "bg-blue-100 text-blue-800", label: "Sent" },
+      accepted: { color: "bg-green-100 text-green-800", label: "Accepted" },
+      rejected: { color: "bg-red-100 text-red-800", label: "Rejected" },
+
       partial: { color: "bg-blue-100 text-blue-800", label: "Partial" },
       overdue: { color: "bg-red-100 text-red-800", label: "Overdue" },
     };
@@ -545,6 +560,18 @@ export default function CommonTable({
                             </button>
                           )}
 
+                          {onEscalate && type === "tickets" && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onEscalate(row); // pass full row
+                              }}
+                              className="p-1 text-orange-600 hover:bg-orange-50 rounded"
+                              title="Escalate Ticket"
+                            >
+                              🚀
+                            </button>
+                          )}
                           {onDelete && (
                             <button
                               onClick={(e) => {
@@ -564,16 +591,18 @@ export default function CommonTable({
                             <FiMoreVertical />
                           </button>
                         </div>
-                      ) : col.accessor === "status" && type === "leads" ? (
+                      ) : col.accessor === "status" &&
+                        STATUS_EDITABLE_TYPES.includes(type) &&
+                        onStatusChange ? (
                         <select
                           value={row.status}
                           onChange={(e) => {
                             e.stopPropagation();
-                            onStatusChange?.(row, e.target.value);
+                            onStatusChange(row, e.target.value);
                           }}
                           className="border rounded-md px-2 py-1 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-cyan"
                         >
-                          {LEAD_STATUSES.map((status) => (
+                          {STATUS_MAP[type]?.map((status) => (
                             <option key={status} value={status}>
                               {status}
                             </option>

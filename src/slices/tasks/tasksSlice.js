@@ -175,16 +175,20 @@ const tasksSlice = createSlice({
       })
 
       // UPDATE STATUS
-      .addCase(changeTaskStatus.fulfilled, (state, action) => {
-        state.tasks = state.tasks.map(t =>
-          t.id === action.payload.id ? action.payload : t
-        );
-      })
+.addCase(changeTaskStatus.pending, (state) => {
+  state.loading = true;
+})
+.addCase(changeTaskStatus.fulfilled, (state, action) => {
+  state.loading = false;
+  state.tasks = state.tasks.map(t =>
+    t.id === action.payload.id ? action.payload : t
+  );
+})
+.addCase(changeTaskStatus.rejected, (state, action) => {
+  state.loading = false;
+  state.error = action.payload;
+});
 
-      // FETCH BY ASSIGNEE
-      .addCase(fetchTasksByAssignee.fulfilled, (state, action) => {
-        state.tasks = action.payload;
-      });
   },
 });
 

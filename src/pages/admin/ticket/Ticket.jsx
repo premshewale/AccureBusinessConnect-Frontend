@@ -12,6 +12,7 @@ import CommonExportButton from "../../../components/common/CommonExportButton.js
 import TicketStats from "./TicketStats.jsx";
 import TicketFilter from "./TicketFilter.jsx";
 import { getAllTickets } from "../../../services/ticket/ticketAPI";
+import {escalateTicketApi } from "../../../services/ticket/escalateTicketApi.js";
 
 export default function Tickets() {
   const [activeTab, setActiveTab] = useState("kanban");
@@ -136,6 +137,17 @@ const handleView = (ticket) => {
   navigate(`/${rolePath}/ticket/${id}/view`);
 };
 
+const handleEscalate = (ticket) => {
+  dispatch(
+    escalateTicketApi({
+      id: ticket.id,
+      escalatedTo: "L2_SUPPORT", // or open modal
+      departmentId: ticket.departmentId,
+    })
+  );
+};
+
+
   const handleDelete = (ticket) => alert("Delete API not connected yet");
 
   const ticketStats = {
@@ -145,6 +157,8 @@ const handleView = (ticket) => {
     resolved: tickets.filter((t) => t.status?.toUpperCase() === "RESOLVED").length,
     closed: tickets.filter((t) => t.status?.toUpperCase() === "CLOSED").length,
   };
+
+  
 
   return (
     <div className="p-4">
@@ -288,6 +302,7 @@ const handleView = (ticket) => {
             onEdit={handleEdit}
             onDelete={handleDelete}
             onView={handleView}
+            onEscalate={handleEscalate} 
             showExport={false}
             showActions={true}
           />

@@ -38,7 +38,7 @@ export default function Customers() {
   const dispatch = useDispatch();
 
   const { customers = [], loading } = useSelector(
-    (state) => state.adminGetAllCustomers
+    (state) => state.adminGetAllCustomers,
   );
 
   // Fetch customers on component mount and when search query changes
@@ -48,7 +48,7 @@ export default function Customers() {
         page: 0,
         size: 10,
         search: searchQuery,
-      })
+      }),
     );
   }, [dispatch, searchQuery]);
 
@@ -66,20 +66,21 @@ export default function Customers() {
   // Calculate customer stats
   const customerStats = React.useMemo(() => {
     const total = customers.length;
-    const active = customers.filter(c => c.status === "ACTIVE").length;
-    const newCustomers = customers.filter(c => {
+    const active = customers.filter((c) => c.status === "ACTIVE").length;
+    const newCustomers = customers.filter((c) => {
       const createdDate = new Date(c.createdAt);
       const now = new Date();
       const oneMonthAgo = new Date(now.setMonth(now.getMonth() - 1));
       return createdDate > oneMonthAgo;
     }).length;
-    const prospect = customers.filter(c => c.status === "PROSPECT").length;
-    
+    const prospect = customers.filter((c) => c.status === "PROSPECT").length;
+
     // Calculate total value (assuming each customer has a 'totalValue' property)
-    const totalValue = customers.reduce((sum, customer) => 
-      sum + (customer.totalValue || 0), 0
+    const totalValue = customers.reduce(
+      (sum, customer) => sum + (customer.totalValue || 0),
+      0,
     );
-    
+
     const avgValue = total > 0 ? totalValue / total : 0;
 
     return {
@@ -88,7 +89,7 @@ export default function Customers() {
       new: newCustomers,
       prospect,
       totalValue,
-      avgValue
+      avgValue,
     };
   }, [customers]);
 
@@ -99,8 +100,8 @@ export default function Customers() {
       customerToggles[customer.id] === undefined
         ? customer.status
         : customerToggles[customer.id]
-        ? "ACTIVE"
-        : "INACTIVE",
+          ? "ACTIVE"
+          : "INACTIVE",
   }));
 
   const handleRefresh = () => {
@@ -109,7 +110,7 @@ export default function Customers() {
         page: 0,
         size: 10,
         search: searchQuery,
-      })
+      }),
     );
     setCustomerToggles({}); // Reset toggles on refresh
   };
@@ -185,7 +186,7 @@ export default function Customers() {
     if (!isActivating) {
       // Deactivation requires confirmation
       const confirm = window.confirm(
-        "Are you sure you want to deactivate this customer?"
+        "Are you sure you want to deactivate this customer?",
       );
 
       if (!confirm) {
@@ -334,7 +335,7 @@ export default function Customers() {
 
       // Refresh the customer list
       dispatch(
-        adminGetAllCustomers({ page: 0, size: 10, search: searchQuery })
+        adminGetAllCustomers({ page: 0, size: 10, search: searchQuery }),
       );
     } catch (err) {
       showError(err || "Failed to delete customer");
@@ -478,9 +479,9 @@ export default function Customers() {
                 type="customers"
                 data={filteredCustomers}
                 onEdit={handleEdit}
-                onDelete={handleDelete}
+                // onDelete={handleDelete}
                 onView={handleView}
-                onRowClick={handleView}
+                onRowClick={handleRowClick}
                 onStatusToggle={handleStatusToggle}
                 showExport={false}
                 showActions={true}

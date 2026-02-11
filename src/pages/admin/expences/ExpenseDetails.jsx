@@ -16,15 +16,9 @@ export default function ExpenseDetails() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const { expense, loading } = useSelector(
-    (state) => state.adminGetExpenseById
-  );
+  const { expense, loading } = useSelector((state) => state.adminGetExpenseById);
+  const { loading: updateLoading } = useSelector((state) => state.adminUpdateExpense);
 
-  const { loading: updateLoading } = useSelector(
-    (state) => state.adminUpdateExpense
-  );
-
-  // role path for navigation
   const role = useSelector((state) => state.auth.role);
   const rolePath = role?.toLowerCase().replace("_", "-") || "admin";
 
@@ -33,23 +27,21 @@ export default function ExpenseDetails() {
   // Fetch expense by ID
   useEffect(() => {
     dispatch(adminGetExpenseById(id));
-    return () => {
-      dispatch(resetAdminGetExpenseById());
-    };
+    return () => dispatch(resetAdminGetExpenseById());
   }, [id, dispatch]);
 
   // Sync API data to local state
   useEffect(() => {
-    if (expense) {
-      setEditedData(expense);
-    }
+    if (expense) setEditedData(expense);
   }, [expense]);
 
   // Save with validation + toast
   const handleSave = () => {
-    // ===== VALIDATION =====
-    if (!editedData.category || editedData.category.trim() === "") {
-      showWarning("Please enter a category");
+    // ===== VALIDATIONS =====
+    const validCategories = ["TRAVEL","MARKETING","SOFTWARE","SALARY","OTHER"];
+
+    if (!editedData.category || !validCategories.includes(editedData.category.toUpperCase())) {
+      showWarning(`Please select a valid category: ${validCategories.join(", ")}`);
       return;
     }
 
@@ -78,7 +70,6 @@ export default function ExpenseDetails() {
       adminUpdateExpense({
         id,
         payload: {
-          // convert to uppercase to match backend enum
           category: editedData.category.trim().toUpperCase(),
           amount: Number(editedData.amount),
           date: editedData.date,
@@ -101,8 +92,7 @@ export default function ExpenseDetails() {
   };
 
   if (loading) return <div className="p-4">Loading expense details...</div>;
-  if (!expense)
-    return <div className="p-4 text-red-500">Expense not found</div>;
+  if (!expense) return <div className="p-4 text-red-500">Expense not found</div>;
 
   return (
     <CommonDetails
@@ -111,12 +101,7 @@ export default function ExpenseDetails() {
       fields={[
         { name: "id", label: "Expense ID", readOnly: true },
 
-        // free text category (editable)
-        {
-          name: "category",
-          label: "Category",
-          type: "text",
-        },
+        { name: "category", label: "Category", type: "text" },
 
         { name: "amount", label: "Amount (₹)", type: "number" },
         { name: "date", label: "Date", type: "date" },
@@ -132,11 +117,7 @@ export default function ExpenseDetails() {
         { name: "departmentName", label: "Department", readOnly: true },
         { name: "ownerName", label: "Owner", readOnly: true },
 
-        {
-          name: "description",
-          label: "Description",
-          type: "textarea",
-        },
+        { name: "description", label: "Description", type: "textarea" },
 
         { name: "createdAt", label: "Created At", readOnly: true },
         { name: "updatedAt", label: "Updated At", readOnly: true },
