@@ -63,6 +63,8 @@ import adminGetAllProposalsReducer from "../slices/proposal/adminGetAllProposals
 import adminCreateProposalReducer from "../slices/proposal/adminCreateProposalSlice";
 import adminGetProposalByIdReducer from "../slices/proposal/adminGetProposalByIdSlice";
 import adminUpdateProposalReducer from "../slices/proposal/adminUpdateProposalSlice";
+import adminUpdateProposalStatusReducer from "../slices/proposal/adminUpdateProposalStatusSlice";
+
 
 
 import adminGetAllExpensesReducer from "../slices/expenses/adminGetAllExpensesSlice";
@@ -146,6 +148,7 @@ export default configureStore({
    adminCreateProposal: adminCreateProposalReducer,
    adminGetProposalById: adminGetProposalByIdReducer,
    adminUpdateProposal: adminUpdateProposalReducer,
+   adminUpdateProposalStatus: adminUpdateProposalStatusReducer,
 
 
 

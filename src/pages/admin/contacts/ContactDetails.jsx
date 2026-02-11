@@ -7,6 +7,7 @@ import CommonDetails from "../../../components/common/CommonDetails.jsx";
 import { adminGetContactById } from "../../../services/contact/adminGetContactByIdApi";
 import { resetContactDetails } from "../../../slices/contact/adminGetContactByIdSlice";
 import { adminUpdateContact } from "../../../services/contact/adminUpdateContactApi";
+import { showError, showSuccess } from "../../../utils/toast"; // ✅ added toast
 
 export default function ContactDetails() {
   const { id } = useParams();
@@ -86,12 +87,42 @@ export default function ContactDetails() {
   ];
 
   /* =======================
+     VALIDATION
+  ======================= */
+  const validateContact = (data) => {
+    if (!data.firstName || data.firstName.trim().length < 2) {
+      showError("First name must be at least 2 characters");
+      return false;
+    }
+
+    if (!data.lastName || data.lastName.trim().length < 2) {
+      showError("Last name must be at least 2 characters");
+      return false;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!data.email || !emailRegex.test(data.email)) {
+      showError("Please enter a valid email address");
+      return false;
+    }
+
+    if (!data.phone || data.phone.trim().length < 10) {
+      showError("Phone number must be at least 10 digits");
+      return false;
+    }
+
+    return true;
+  };
+
+  /* =======================
      HANDLERS
   ======================= */
   const handleEdit = () => setIsEditMode(true);
   const handleCancelEdit = () => setIsEditMode(false);
 
   const handleSave = async () => {
+    if (!validateContact(editedData)) return; // ✅ validation
+
     try {
       await dispatch(
         adminUpdateContact({
@@ -100,12 +131,13 @@ export default function ContactDetails() {
         }),
       ).unwrap();
 
+      showSuccess("Contact updated successfully"); // ✅ success toast
       dispatch(adminGetContactById(id));
 
       const customerId = contact.customerId;
       navigate(`/${rolePath}/customers/${customerId}/contacts`);
     } catch (err) {
-      alert(err?.message || "Failed to update contact");
+      showError(err?.message || "Failed to update contact"); // ✅ error toast
     }
   };
 

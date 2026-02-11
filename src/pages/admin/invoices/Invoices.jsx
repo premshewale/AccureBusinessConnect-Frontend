@@ -12,6 +12,7 @@ import InvoicesFilter from "./InvoicesFilter.jsx";
 
 import { useDispatch, useSelector } from "react-redux";
 import { getAllInvoices } from "../../../services/invoices/invoiceApi";
+import { updateInvoiceStatus } from "../../../services/invoices/invoiceApi";
 
 export default function Invoices() {
   const navigate = useNavigate();
@@ -82,12 +83,8 @@ export default function Invoices() {
       invoice.invoiceNumber
         ?.toLowerCase()
         .includes(searchQuery.toLowerCase()) ||
-      invoice.customerName
-        ?.toLowerCase()
-        .includes(searchQuery.toLowerCase()) ||
-      invoice.customerEmail
-        ?.toLowerCase()
-        .includes(searchQuery.toLowerCase());
+      invoice.customerName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      invoice.customerEmail?.toLowerCase().includes(searchQuery.toLowerCase());
 
     const matchesStatus =
       statusFilter === "ALL" || invoice.status === statusFilter;
@@ -97,7 +94,7 @@ export default function Invoices() {
 
   // latest first
   const sortedInvoices = [...filteredInvoices].sort(
-    (a, b) => new Date(b.issueDate) - new Date(a.issueDate)
+    (a, b) => new Date(b.issueDate) - new Date(a.issueDate),
   );
 
   // Kanban columns from ENUM dynamically
@@ -132,14 +129,24 @@ export default function Invoices() {
     goToInvoice(invoice);
   };
 
-const handleView = (invoice) => {
-  const id = invoice?.id || invoice;
-  if (!id) return;
-  navigate(`/${rolePath}/invoices/${id}/view`);
-};
+  const handleView = (invoice) => {
+    const id = invoice?.id || invoice;
+    if (!id) return;
+    navigate(`/${rolePath}/invoices/${id}/view`);
+  };
 
   const handleCreateInvoice = () => {
     navigate(`/${rolePath}/create-invoice`);
+  };
+  const handleStatusChange = (invoice, newStatus) => {
+    if (!invoice?.id || invoice.status === newStatus) return;
+
+    dispatch(
+      updateInvoiceStatus({
+        id: invoice.id,
+        status: newStatus,
+      }),
+    );
   };
 
   return (
@@ -257,9 +264,7 @@ const handleView = (invoice) => {
             <div className="animate-spin h-10 w-10 border-t-2 border-b-2 border-cyan rounded-full"></div>
           </div>
         ) : sortedInvoices.length === 0 ? (
-          <div className="text-center text-gray-500 p-8">
-            No invoices found
-          </div>
+          <div className="text-center text-gray-500 p-8">No invoices found</div>
         ) : activeTab === "kanban" ? (
           <Kanban
             columns={kanbanColumns.map((col) => ({
@@ -278,6 +283,7 @@ const handleView = (invoice) => {
             onView={handleView}
             showActions={true}
             showExport={false}
+            onStatusChange={handleStatusChange}
           />
         )}
       </div>

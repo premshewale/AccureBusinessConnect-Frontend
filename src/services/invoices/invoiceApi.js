@@ -85,3 +85,21 @@ export const deleteInvoice = createAsyncThunk(
     }
   }
 );
+
+// ===============================
+// UPDATE STATUS INVOICE
+// ===============================
+
+export const updateInvoiceStatus = createAsyncThunk(
+  "invoice/updateStatus",
+  async ({ id, status }, { rejectWithValue }) => {
+    try {
+      const res = await adminApi.put(`/invoices/${id}/status`, { status });
+      return res.data; // MUST return updated invoice
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to update invoice status"
+      );
+    }
+  }
+);

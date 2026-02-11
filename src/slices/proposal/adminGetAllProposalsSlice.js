@@ -1,6 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { adminGetAllProposals } from "../../services/proposal/adminGetAllProposalsApi";
 import { adminDeleteProposalApi } from "../../services/proposal/adminDeleteProposalApi";
+import { adminUpdateProposalStatusApi } from "../../services/proposal/adminUpdateProposalStatusApi";
 
 const initialState = {
   loading: false,
@@ -28,10 +29,17 @@ const adminGetAllProposalsSlice = createSlice({
         state.error = action.payload;
       })
 
-      // DELETE (same fix pattern as leads 🔥)
+      // DELETE
       .addCase(adminDeleteProposalApi.fulfilled, (state, action) => {
         state.proposals = state.proposals.filter(
           (proposal) => proposal.id !== action.payload
+        );
+      })
+
+      // ✅ STATUS UPDATE (missing link)
+      .addCase(adminUpdateProposalStatusApi.fulfilled, (state, action) => {
+        state.proposals = state.proposals.map((proposal) =>
+          proposal.id === action.payload.id ? action.payload : proposal
         );
       });
   },

@@ -3,12 +3,12 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
 import CommonDetails from "../../../components/common/CommonDetails.jsx";
-
 import { CUSTOMER_STATUS_OPTIONS } from "../../../constants/customerEnums.js";
 
 import { adminGetCustomerById } from "../../../services/customers/adminGetCustomerByIdApi";
 import { resetCustomerDetails } from "../../../slices/customers/adminGetCustomerByIdSlice";
 import { adminUpdateCustomer } from "../../../services/customers/adminUpdateCustomerApi";
+import { showError, showSuccess } from "../../../utils/toast"; // ✅ toast utils
 
 export default function CustomerDetails() {
   const { id } = useParams();
@@ -35,7 +35,6 @@ export default function CustomerDetails() {
     };
   }, [dispatch, id]);
 
-  // Populate local editedData whenever customer loads or updates
   useEffect(() => {
     if (customer) {
       setEditedData({
@@ -134,12 +133,42 @@ export default function CustomerDetails() {
   });
 
   /* =======================
+     VALIDATION
+  ======================= */
+  const validateCustomer = (data) => {
+    if (!data.name || data.name.trim().length < 3) {
+      showError("Name must be at least 3 characters");
+      return false;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!data.email || !emailRegex.test(data.email)) {
+      showError("Please enter a valid email address");
+      return false;
+    }
+
+    if (!data.phone || data.phone.trim().length < 10) {
+      showError("Phone number must be at least 10 digits");
+      return false;
+    }
+
+    if (!data.status) {
+      showError("Please select a customer status");
+      return false;
+    }
+
+    return true;
+  };
+
+  /* =======================
      HANDLERS
   ======================= */
   const handleEdit = () => setIsEditMode(true);
   const handleCancelEdit = () => setIsEditMode(false);
 
   const handleSave = async () => {
+    if (!validateCustomer(editedData)) return; // ✅ validation
+
     try {
       await dispatch(
         adminUpdateCustomer({
@@ -148,11 +177,10 @@ export default function CustomerDetails() {
         }),
       ).unwrap();
 
-      alert("Customer updated successfully");
-
+      showSuccess("Customer updated successfully"); // ✅ success toast
       navigate(`/${rolePath}/customers`);
     } catch (err) {
-      alert(err?.message || "Failed to update customer");
+      showError(err?.message || "Failed to update customer"); // ✅ error toast
     }
   };
 
